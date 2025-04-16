@@ -1,0 +1,526 @@
+
+body {
+  background-color: #f4f7f6;
+  margin: 0;
+  * {
+    font-size: 16px !important;
+  }
+}
+
+.main-content {
+  padding: 20px; /* More padding for better spacing */
+}
+
+.dt-search label
+{
+display:none;
+}
+.sidebar-item {
+  i {
+    font-size: 16px !important;
+  }
+  height: 40px;
+
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 5px;
+  background-color: #8b0002;
+  padding: 0px 0px 0px 10px;
+  color: white !important;
+  transition: background-color 0.4s ease, transform 0.4s ease;
+  overflow: hidden;
+  width: fit-content;
+  text-decoration: none !important;
+  cursor: pointer !important;
+}
+
+.sidebar-item:hover {
+  background: linear-gradient(to bottom, #585858 0%, #111 100%);
+  transform: translateX(0px);
+}
+
+.sidebar-text {
+  display: inline-block;
+  padding: 0px 5px;
+  white-space: nowrap;
+  max-width: 0;
+  transition: max-width 0.5s ease-out, opacity 0.5s ease-out;
+  opacity: 0;
+  overflow: hidden;
+  transition-delay: 0.1s;
+  color: white;
+}
+
+.sidebar-item:hover .sidebar-text {
+  max-width: 200px;
+  opacity: 1;
+}
+.sidebar-item.right {
+  float: right;
+}
+
+.export-right {
+  float: right;
+  margin-left: 10px;
+  height: 30px;
+}
+
+.sidebar-item i {
+  line-height: 40px;
+  color: white;
+}
+
+th,
+td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+th {
+  background: #8b0002; /* Use Bootstrap primary color */
+  color: white;
+}
+
+.btn-secondary,
+.btn-primary {
+  background-color: #8b0002; /* Use Bootstrap primary color */
+  border-color: #8b0002; /* Use Bootstrap primary color */
+}
+
+.btn-secondary:hover,
+.btn-primary:hover {
+  background: linear-gradient(to bottom, #585858 0%, #111 100%);
+}
+
+/* Top Menu adjusted for clarity and positioning */
+#topMenu {
+  display: flow-root;
+  top: 0; /* Align to top */
+  right: 0; /* Align to right */
+  z-index: 10; /* Ensure it's above other content */
+  background-color: #ffffff; /* Background color */
+  border-bottom: 2px solid #eee; /* Bottom border for definition */
+  width: 100%; /* Full width */
+  padding: 10px; /* Padding for aesthetics */
+  box-shadow: 0px 4px 2px -2px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+.dt-layout-start
+{
+width:100%; !important;
+}
+.custom-card {
+  margin-top: 10px;
+  display: none;
+}
+
+.show {
+  display: block !important;
+}
+
+.overlay {
+  position: fixed; /* Cover the whole screen */
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 500; /* Below modal but above content */
+  display: none; /* Initially hidden */
+}
+
+table.dataTable thead .sorting {
+  background-image: url(../resources/fontawesome-free-6.5.2-web/svgs/solid/sort.svg) !important;
+  background-repeat: no-repeat;
+  background-position: right;
+  background-size: 25px 15px;
+  padding-right:25px;
+}
+
+table.dataTable thead .sorting_asc {
+  background-image: url(../resources/fontawesome-free-6.5.2-web/svgs/solid/sort-up.svg) !important;
+  background-repeat: no-repeat;
+  background-position: right;
+  background-size: 25px 15px;
+}
+
+table.dataTable thead .sorting_desc {
+  background-image: url(../resources/fontawesome-free-6.5.2-web/svgs/solid/sort-down.svg) !important;
+  background-repeat: no-repeat;
+  background-position: right;
+  background-size: 25px 15px;
+}
+
+.btn-primary.disabled,
+.btn-primary:disabled {
+  background-color: lightgray;
+  border-color: #d3d3d3;
+}
+
+.display-sidebar-text {
+  max-width: fit-content;
+  opacity: 1;
+
+  .header-dropdown {
+    margin: 0px;
+    padding: 0px;
+    margin-right: 3px;
+    .form-control {
+      height: auto !important;
+      padding: 1px;
+      width: 100%;
+      padding-right: 3px;
+      cursor: pointer;
+    }
+  }
+}
+
+.dropdown-toggle {
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  color: #495057;
+  background-color: #fff;
+}
+
+#c-new-form {
+  legend {
+    font-size: 15px !important;
+    font-weight: bold;
+    width: fit-content;
+  }
+  .form-label {
+    margin-bottom: 0px;
+  }
+  fieldset {
+    border: solid black !important;
+    height: 100%;
+  }
+}
+
+.buttons-excel
+{
+  display: none !important;
+}
+.heading {
+  font-size: 20px !important;
+  text-align: center;
+  padding-top: 15px;
+  padding-bottom: 10px;
+  border-bottom: solid 1px black;
+}
+
+#pdfPreviewModal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+
+  /* Modal Content */
+  .modal-content {
+    position: relative;
+    background-color: #fefefe;
+    margin: 0;
+    padding-top: 10px; /* Space for close button */
+    border: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* The Close Button */
+  .close {
+    font-size: 25px !important;
+    padding: 0px;
+    width: 40px;
+    font-weight: bold;
+    position: absolute;
+    right: 10px;
+    top: 20px;
+    height: 40px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #8b0002;
+    color: white !important;
+    overflow: hidden;
+    cursor: pointer !important;
+    opacity: 1 !important;
+    padding-bottom: 2px;
+  }
+}
+@keyframes blinkEffect {
+  0% {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #8b0002;
+  }
+  100% {
+    border-color: transparent;
+  }
+}
+
+.invalid {
+  border: 2px solid #8b0002;
+  animation: blinkEffect 1s linear infinite;
+}
+
+
+/* Mobile-specific styles */
+@media only screen and (max-width: 600px) {
+  .dataTables_filter {
+    display: inline-block;
+      float: right !important;
+      margin: 0px !important;
+      padding: 0px;
+  }
+  input.dt-input[type='search']{
+    width:100%;
+  }
+  .dataTables_length
+  {display: inline-block;
+         float: left;
+         margin: 0px;
+         padding: 0px;
+  }
+}
+
+
+#h-dataTable_filter{
+width:100%;
+label{
+    width: 100%;
+    text-align: left;
+}
+input{
+    width: 100%;
+}
+
+}
+
+
+/* Center the loader in the middle of the page */
+#loadingIndicator {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 9999; /* Ensure it is on top of all other elements */
+  }
+
+  .spinner {
+	border: 8px solid #f3f3f3; /* Light grey */
+	border-top: 8px solid #8b0002; /* Blue */
+	border-radius: 50%;
+	width: 60px;
+	height: 60px;
+	animation: spin 1s linear infinite; /* Spin animation */
+  }
+
+  /* Animation to spin the loader */
+  @keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+  }
+
+  .footer-input
+  {
+    width:100%;
+  }
+
+
+.dt-layout-cell.dt-layout-end {
+    width: 100%;
+}
+
+.dt-search {
+    width: 100%;
+    text-align:right;
+    font-weight:bold;
+}
+
+input#dt-search-0 {
+    width: 100%;
+}
+
+#dt-length-0
+{
+float:right;
+margin-bottom:3px;
+}
+.dt-length label{display none !important;display: none !important;}
+div.dt-container select.dt-input {
+  padding: 8px;
+}
+/* Match DataTables buttons with top menu icons */
+.dt-button,.btn-danger {
+  background-color: #8b0002 !important; /* Same as top menu background */
+  color: white !important; /* White text */
+  border: none; /* Remove border */
+  padding: 8px 12px !important; /* Add padding for better spacing */
+  font-size: 14px !important; /* Adjust font size */
+  border-radius: 4px !important; /* Rounded corners */
+  display: inline-flex !important; /* Align icon and text */
+  align-items: center !important; /* Center icon and text vertically */
+  justify-content: center !important; /* Center content */
+  text-decoration: none !important; /* Remove underline */
+  cursor: pointer !important; /* Pointer cursor */
+  transition: background-color 0.3s ease, transform 0.3s ease !important; /* Smooth hover effect */
+}
+
+.dt-button:hover, .btn-danger:hover {
+  background: linear-gradient(to bottom, #585858 0%, #111 100%) !important; /* Same hover effect as top menu */
+  transform: translateY(-2px) !important; /* Slight lift on hover */
+}
+
+.left {
+  float: left;
+}
+.nodata
+{
+text-align:center;
+padding-top:20%;
+height:75vh;
+font-size:25px !important;
+}
+
+/* Apply blur effect to the background */
+#loader {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(255, 255, 255, 0.3); /* Semi-transparent background */
+	backdrop-filter: blur(5px); /* Blur effect */
+	z-index: 9998; /* Below the loader */
+}
+
+.instruction-box {
+     border: 1px solid #ddd;
+     border-radius: 8px;
+     background: white;
+     margin: 0 auto;
+     width: 95vw; /* Full viewport width */
+     height: 80vh; /* 75% of the viewport height */
+     padding: 5%;
+     display: flex; /* Flexbox for centering */
+     align-items: center; /* Center vertically */
+     justify-content: center; /* Center horizontally */
+     text-align: center;
+     margin-bottom: 10px;
+     box-sizing: border-box; /* Ensures padding doesn't overflow */
+     flex-direction:column;
+ }
+
+        .icon {
+            color: #8b0002;
+            margin-right: 10px;
+        }
+
+/* Center the loader in the middle of the page */
+#loadingIndicator {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 9999; /* Ensure it is on top of all other elements */
+}
+
+/* Spinner styling */
+.spinner {
+	border: 8px solid #f3f3f3; /* Light grey */
+	border-top: 8px solid #8b0002; /* Blue */
+	border-radius: 50%;
+	width: 60px;
+	height: 60px;
+	animation: spin 1s linear infinite; /* Spin animation */
+}
+
+/* Animation to spin the loader */
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0.2;
+    }
+}
+
+.blink {
+    animation: blink 1s steps(2, start) infinite;
+}
+
+.filter-container {
+    display: flex;
+    align-items: center; /* Ensures vertical alignment */
+    gap: 10px; /* Adds space between label and dropdown */
+}
+
+.filter-container label {
+    flex: 0 0 150px; /* Adjust width of label as needed */
+    text-align: right; /* Align label text to right */
+}
+
+.filter-container select {
+    flex: 1; /* Allows dropdown to take remaining space */
+}
+
+.custom-link
+{
+    color: #8b0002;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.footer-dropdown
+{
+    width: 100%;
+    height: 30px;
+}
+.copy-btn {
+  padding: 0px;
+  margin-top: -5px;
+  color: grey;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.copy-btn:active {
+  color: #8b0002; /* Change color on click */
+}
+
+.copy-btn.copied::after {
+  content: "Copied!";
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #8b0002;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  opacity: 0;
+  animation: copyEffect 2s ease-out forwards;
+}
+
+@keyframes copyEffect {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -30px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50px);
+  }
+}
