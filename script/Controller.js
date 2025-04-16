@@ -38,6 +38,12 @@ class Controller {
       $("#downloadModalYes").click(this.download);
       $("#submitApiKey").click(this.submitApiKey);
       $("#refreshTrigger").click(this.refreshTrigger);
+      $('#apiKeyForm').on('keydown', function (e) {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+          e.preventDefault();
+          $('#submitApiKey').click();
+        }
+      });
     });
     this.excelService.reloadFiles();
     this.init(event);
