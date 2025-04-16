@@ -11,7 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
     apiKeyModal.modal("show");
     errorAPIKey.hide();
   }
-
+  $('#apiKeyForm').on('keydown', function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+      e.preventDefault();
+      $('#submitApiKey').click();
+    }
+  });
   submitApiKeyButton.click(() => {
     const apiKeyValue = apiKeyInput.val().trim();
     if (apiKeyValue) {
