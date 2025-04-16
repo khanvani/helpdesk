@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fill PDF Form Example</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/pdf-lib"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  </head>
+  <body>
+    <div class="container mt-4">
+      <h1 class="mb-4">Fill PDF Form Example</h1>
+      <div class="card">
+        <div class="card-header">PDF Form Uploader</div>
+        <div class="card-body">
+          <!-- The file input for selecting PDF -->
+          <div class="form-group">
+            <label for="pdfFile">Select PDF File</label>
+            <input type="file" class="form-control-file" id="pdfFile" accept=".pdf" required />
+          </div>
+          <div id="formWrapper" style="display: none">
+            <form id="pdfForm" class="form-horizontal">
+              <!-- Dynamically generated form fields will appear here -->
+            </form>
+            <button id="fillPdf" class="btn btn-primary mt-2">Fill PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById("pdfFile").addEventListener("change", async (event) => {
+        // Reset the formWrapper and pdfForm on new file upload
+        const formWrapper = document.getElementById("formWrapper");
+        formWrapper.style.display = "none";
+        const formElement = document.getElementById("pdfForm");
+        formElement.innerHTML = "";
+
+        const file = event.target.files[0];
+
+        if (file) {
+          // Read the file as an ArrayBuffer
+          const arrayBuffer = await file.arrayBuffer();
+          // Load a PDFDocument from the existing PDF bytes
+          const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+          // Get the form containing all the fields
+          const pdfForm = pdfDoc.getForm();
+          const fields = pdfForm.getFields();
+
+          // Iterate over each field and create HTML input elements
+          fields.forEach((field) => {
+            const formGroup = document.createElement("div");
+            formGroup.className = "form-group";
+
+            const label = document.createElement("label");
+            label.htmlFor = field.getName();
+            label.textContent = field.getName();
+            formGroup.appendChild(label);
+
+            // Handle different types of fields
+            // For simplicity, all fields are text inputs;
+            // You should adjust for other types as necessary
+            const input = document.createElement("input");
+            input.type = "text";
+            input.className = "form-control";
+            input.id = field.getName();
+            input.name = field.getName();
+            input.required = true; // Basic HTML5 validation
+
+            formGroup.appendChild(input);
+            formElement.appendChild(formGroup);
+          });
+
+          formWrapper.style.display = "block"; // Show the form once it's ready
+        }
+      });
+
+      document.getElementById("fillPdf").addEventListener("click", async () => {
+        const fileInput = document.getElementById("pdfFile");
+        const file = fileInput.files[0];
+
+        if (!file) {
+          alert("Please upload a PDF file.");
+          return;
+        }
+
+        // Basic validation check
+        const form = document.getElementById("pdfForm");
+        if (!form.checkValidity()) {
+          alert("Please fill in all the required fields.");
+          return;
+        }
+
+        const existingPdfBytes = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+        const formPdf = pdfDoc.getForm();
+
+        // Iterate over the form data and fill the PDF
+        new FormData(form).forEach((value, key) => {
+          const field = formPdf.getField(key);
+          if (field instanceof PDFLib.PDFTextField) {
+            field.setText(value);
+          }
+          // Other field types (checkbox, radio, etc.) need different handling
+        });
+
+        // Serialize PDF and allow user to download filled-out form
+        const pdfBytes = await pdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: "application/pdf" });
+        saveAs(blob, "filled_form.pdf");
+      });
+    </script>
+  </body>
+</html>

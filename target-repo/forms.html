@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title></title>
+    <link rel="stylesheet" href="style/lib/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="style/lib/bootstrap.min.css" />
+    <link rel="stylesheet" href="resources/fontawesome-free-6.5.2-web/css/all.min.css" />
+    <link rel="stylesheet" href="style/lib/jquery-ui.css" />
+    <link rel="stylesheet" href="style/lib/searchPanes.dataTables.css" />
+    <link rel="stylesheet" href="style/style.css" />
+    <link href="style/lib/bootstrap-select.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  </head>
+
+  <body>
+    <div id="header">
+      <div id="topMenu">
+        <a href="./index.html" id="c-back" class="sidebar-item">
+          <i class="fa fa-arrow-left" aria-hidden="true"></i>
+          <span class="sidebar-text">Back</span>
+        </a>
+        <a href="#" id="m-new-form" class="sidebar-item">
+          <i class="fa-brands fa-wpforms"></i>
+          <span class="sidebar-text">New Enrollment</span>
+        </a>
+        <a href="#" id="m-refresh" class="sidebar-item right" style="display: none;">
+          <i class="fa-solid fa-arrows-rotate"></i>
+          <span class="sidebar-text">Refresh</span>
+        </a>
+        <a href="#" id="m-upload" class="sidebar-item right">
+          <i class="fa-solid fa-upload"></i>
+          <span class="sidebar-text">Upload</span>
+        </a>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <div id="c-new-form" class="custom-card show">
+        <h4 class="heading">Registration Form</h4>
+        <form id="newForm">
+          <!-- Personal Information -->
+          <div class="row col-md-12">
+            <div class="col-md-10">
+              <fieldset class="col-md-12">
+                <legend>Personal Information</legend>
+                <div class="col-md-12 row">
+                  <div class="col-md-2">
+                    <label for="prefix" class="form-label">Prefix :</label>
+                    <select id="prefix" name="prefix" required class="selectpicker form-control">
+                      <option selected value="">Choose...</option>
+                      <option>Mr.</option>
+                      <option>Ms.</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="firstName" class="form-label">First Name :</label>
+                    <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" required />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="middleName" class="form-label">Middle Name :</label>
+                    <input type="text" class="form-control" id="middleName" name="middleName" placeholder="Middle Name" />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="lastName" class="form-label">Last Name :</label>
+                    <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" required />
+                  </div>
+                </div>
+                <div class="row col-md-12 mt-3">
+                  <div class="col-md-2">
+                    <label for="gender" class="form-label">Gender :</label>
+                    <select id="gender" name="gender" class="selectpicker form-control" required>
+                      <option selected value="">Choose...</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="married" class="form-label">Married :</label>
+                    <select id="married" name="married" class="selectpicker form-control" required>
+                      <option selected value="">Choose...</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label for="bDate" class="form-label">Birth Date :</label>
+                    <input type="date" class="form-control" id="bDate" name="bDate" placeholder="YYYY-MM-DD" required />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="spouseName" class="form-label">Spouse Name :</label>
+                    <input type="text" class="form-control" id="spouseName" name="spouseName" placeholder="Spouse Name" disabled />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="fathersName" class="form-label">Father's Name :</label>
+                    <input type="text" class="form-control" id="fathersName" name="fathersName" placeholder="Father's Name" required />
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div class="col-md-2">
+              <fieldset class="col-md-12">
+                <legend>Health Information</legend>
+                <div class="form-check col-md-12">
+                  <input class="form-check-input" type="checkbox" value="" id="hype" name="hype" />
+                  <label class="form-check-label" for="hype"> Hypertension </label>
+                </div>
+                <div class="form-check col-md-12">
+                  <input class="form-check-input" type="checkbox" value="" id="dia" name="dia" />
+                  <label class="form-check-label" for="dia"> Diabetic </label>
+                </div>
+                <div class="form-check col-md-12">
+                  <input class="form-check-input" type="checkbox" value="" id="skin" name="skin" />
+                  <label class="form-check-label" for="skin"> Skin Problem </label>
+                </div>
+                <div class="form-check col-md-12">
+                  <input class="form-check-input" type="checkbox" value="" id="epile" name="epile" />
+                  <label class="form-check-label" for="epile"> Epilepsy </label>
+                </div>
+                <div class="form-check col-md-12 pl-0 mt-2 mb-2">
+                  <label for="disability" class="form-label">Any disability :</label>
+                  <input type="text" class="form-control" id="disability" name="disability" placeholder="Any disability" />
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          <div class="row col-md-12 mt-4">
+            <div class="col-md-3">
+              <fieldset class="col-md-12">
+                <legend>Contact</legend>
+                <div class="row">
+                  <div class="col-md-12">
+                    <label for="email" class="form-label">Email ID :</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="example@domain.com" required />
+                  </div>
+                  <div class="col-md-12 pt-1">
+                    <label for="mo1" class="form-label">Mobile :</label>
+                    <input type="tel" class="form-control" id="mo1" name="mo1" pattern="[0-9]{10}" placeholder="98765 43210" required />
+                  </div>
+                  <div class="col-md-12 pt-1">
+                    <label for="mo2" class="form-label">Mobile :</label>
+                    <input type="tel" class="form-control" id="mo2" name="mo2" pattern="[0-9]{10}" placeholder="98765 04321" />
+                  </div>
+                  <div class="col-md-12 pt-1">
+                    <label for="oth1" class="form-label">Other :</label>
+                    <input type="tel" class="form-control" id="oth1" name="oth1" pattern="[0-9]{10}" placeholder="98765 43210" required />
+                  </div>
+                  <div class="col-md-12 pt-1">
+                    <label for="oth2" class="form-label">Other :</label>
+                    <input type="tel" class="form-control" id="oth2" name="oth2" pattern="[0-9]{10}" placeholder="98765 04321" />
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div class="col-md-3">
+              <fieldset class="col-md-12 pb-2">
+                <legend>Address</legend>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="col-md-12">
+                      <label for="al1" class="form-label">Street Address :</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="al1"
+                        name="al1"
+                        placeholder="Street Address"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-12 pt-1">
+                      <label for="al2" class="form-label">Apartment, suite, unit :</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="al2"
+                        name="al2"
+                        placeholder="Apartment, suite, unit etc."
+                        required
+                      />
+                    </div>
+                    <div class="col-md-12 pt-1">
+                      <label for="al3" class="form-label">Landmark or locality :</label>
+                      <input type="text" class="form-control" id="al3" name="al3" placeholder="Landmark or locality" />
+                    </div>
+                    <div class="col-md-12 pt-1">
+                      <label for="al4" class="form-label">Village / City :</label>
+                      <input type="text" class="form-control" id="al4" name="al4" placeholder="Village / City" />
+                    </div>
+                    <div class="col-md-12 pt-1">
+                      <label for="pin" class="form-label">PIN Code :</label>
+                      <input type="text" class="form-control" id="pin" pattern="[0-9]{6}" name="pin" placeholder="Postal Code" required />
+                    </div>
+                    <div class="col-md-12">
+                      <label for="po" class="form-label">Post Office:</label>
+                      <select class="form-control" id="po" name="po" required>
+                        <option value="">None</option> 
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div class="col-md-3">
+              <fieldset class="col-md-12 pb-2">
+                <legend>Qualifications</legend>
+                <div class="row">
+                  <div class="col-md-12">
+                    <label for="proof" class="form-label">Address Proof :</label>
+                    <select id="proof" name="proof" class="form-control selectpicker" required>
+                      <option selected value="">Choose...</option>
+                      <option>Aadhar Card</option>
+                      <option>Passport</option>
+                      <option>Voter ID</option>
+                    </select>
+                  </div>
+                  <div class="col-md-12 pt-1">
+                    <label for="proofNo" class="form-label">Address Proof No :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="proofNo"
+                      name="proofNo"
+                      required
+                      placeholder="Document number of your address proof"
+                    />
+                  </div>
+                  <div class="col-md-12 pt-1">
+                    <label for="qualification" class="form-label">Qualifications :</label>
+                    <select class="form-control selectpicker"
+                    id="qualification"
+                    name="qualification" required >
+                    <option selected value="">Choose...</option>
+                    <option value="SSC">SSC - Secondary School Certificate</option>
+                      <option value="HSC">HSC - Higher Secondary Certificate</option>
+                      <option value="Diploma">Diploma</option>
+                      <option value="ITI">ITI - Industrial Training Institute</option>
+                      <option value="BA">BA - Bachelor of Arts</option>
+                      <option value="BSc">BSc - Bachelor of Science</option>
+                      <option value="BCom">BCom - Bachelor of Commerce</option>
+                      <option value="BE">BE/BTech - Bachelor of Engineering/Technology</option>
+                      <option value="BBA">BBA - Bachelor of Business Administration</option>
+                      <option value="BCA">BCA - Bachelor of Computer Applications</option>
+                      <option value="BArch">BArch - Bachelor of Architecture</option>
+                      <option value="MBBS">MBBS - Bachelor of Medicine and Bachelor of Surgery</option>
+                      <option value="BDS">BDS - Bachelor of Dental Surgery</option>
+                      <option value="LLB">LLB - Bachelor of Laws</option>
+                      <option value="BEd">BEd - Bachelor of Education</option>
+                      <option value="BPharm">BPharm - Bachelor of Pharmacy</option>
+                      <option value="MA">MA - Master of Arts</option>
+                      <option value="MSc">MSc - Master of Science</option>
+                      <option value="MCom">MCom - Master of Commerce</option>
+                      <option value="ME">ME/MTech - Master of Engineering/Technology</option>
+                      <option value="MBA">MBA - Master of Business Administration</option>
+                      <option value="MCA">MCA - Master of Computer Applications</option>
+                      <option value="MArch">MArch - Master of Architecture</option>
+                      <option value="MD">MD - Doctor of Medicine</option>
+                      <option value="MS">MS - Master of Surgery</option>
+                      <option value="LLM">LLM - Master of Laws</option>
+                      <option value="MEd">MEd - Master of Education</option>
+                      <option value="MPharm">MPharm - Master of Pharmacy</option>
+                      <option value="PhD">PhD - Doctor of Philosophy</option>
+                      <option value="MPhil">MPhil - Master of Philosophy</option>
+                      <option value="CA">CA - Chartered Accountant</option>
+                      <option value="CS">CS - Company Secretary</option>
+                      <option value="ICWA">CMA (Previously ICWA) - Certified Management Accountant</option>
+                      <option value="IIT">IIT JEE qualified (for engineering aspirants)</option>
+                      <option value="NEET">NEET qualified (for medical aspirants)</option>
+                      <option value="Others">Others</option>
+                  </select>
+                  </div>
+                  <div class="col-md-12 pt-1">
+                    <label for="occ" class="form-label">Occupation :</label>
+                    <select class="form-control selectpicker" id="occ" name="occ" required>
+                      <option selected value="">Choose...</option>
+                      <option value="Student">Student</option>
+                      <option value="Self-Employed">Self-Employed</option>
+                      <option value="Government Service">Government Service</option>
+                      <option value="Private Sector">Private Sector</option>
+                      <option value="Business Owner">Business Owner</option>
+                      <option value="Homemaker">Homemaker</option>
+                      <option value="Retired">Retired</option>
+                      <option value="Healthcare Professional">Healthcare Professional</option>
+                      <option value="Education & Training">Education & Training</option>
+                      <option value="IT Professional">IT Professional</option>
+                      <option value="Manufacturing & Engineering">Manufacturing & Engineering</option>
+                      <option value="Legal Profession">Legal Profession</option>
+                      <option value="Agriculture & Forestry">Agriculture & Forestry</option>
+                      <option value="Art & Design">Art & Design</option>
+                      <option value="Real Estate">Real Estate</option>
+                      <option value="Finance & Banking">Finance & Banking</option>
+                      <option value="Transport & Logistics">Transport & Logistics</option>
+                      <option value="Hospitality & Tourism">Hospitality & Tourism</option>
+                      <option value="Sales & Marketing">Sales & Marketing</option>
+                      <option value="Science & Technology">Science & Technology</option>
+                      <option value="Construction">Construction</option>
+                      <option value="Media & Communication">Media & Communication</option>
+                      <option value="NGO/Non-Profit">NGO/Non-Profit</option>
+                      <option value="Freelancer">Freelancer</option>
+                      <option value="Unemployed">Unemployed</option>
+                      <option value="Others">Others</option>
+                  </select>
+                  </div>
+                  <div class="col-md-12 pt-1">
+                    <label for="work" class="form-label">Nature of Work :</label>
+                    <input type="text" class="form-control" id="work" name="work" placeholder="Describe your work" required/>
+                  </div>
+                  
+                </div>
+              </fieldset>
+            </div>
+            <div class="col-md-3">
+              <fieldset class="col-md-12">
+                <legend>Initiation Details</legend>
+                <div class="row">
+                  <div class="col-md-12">
+                    <label for="satsang" class="form-label">Do You Attend Statsang ? </label>
+                    <select id="satsang" name="satsang" class="selectpicker form-control" required>
+                      <option selected value="">Choose...</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                  <div class="col-md-12 mt-2">
+                    <label for="centre" class="form-label">Satsang Centre :</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="centre"
+                      name="centre"
+                      placeholder="Name or location of Satsang Centre" disabled
+                    />
+                  </div>
+                  <div class="col-md-12 mt-2">
+                    <label for="initiated" class="form-label">Initiated :</label>
+                    <select id="initiated" name="initiated" class="form-control selectpicker">
+                      <option selected value="">Choose...</option>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                    </select>
+                  </div>
+                  <div class="col-md-12 mt-2">
+                    <label for="iDate" class="form-label">Initiation Date :</label>
+                    <input type="date" class="form-control" id="iDate" name="iDate" placeholder="YYYY-MM-DD" disabled />
+                  </div>
+                  <div class="col-md-12 mt-2">
+                    <label for="iBy" class="form-label">Initiated By :</label>
+                    <input type="text" class="form-control" id="iBy" name="iBy" placeholder="Name" disabled />
+                  </div>
+                  <div class="col-md-12 mt-2 mb-2">
+                    <label for="iPlace" class="form-label">Place of Initiation :</label>
+                    <input type="text" class="form-control" id="iPlace" name="iPlace" placeholder="Location" disabled />
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          <div class="row col-md-12">
+            <div class="col-md-12">
+              <fieldset class="col-md-12">
+                <legend>Related Sewadars (with at least 5 years in Sewa) :</legend>
+                <div class="row">
+                  <div class="row col-md-12">
+                    <div class="col-md-2">
+                      <label for="rGrno1" class="form-label">Reference GR Number :</label>
+                      <input type="text" class="form-control" id="rGrno1" name="rGrno1" placeholder="Reference GR Number" required />
+                    </div>
+                    <div class="col-md-2">
+                      <label for="rRel1" class="form-label">Reference Relation:</label>
+                      <select class="form-control selectpicker" id="rRel1" name="rRel1" required>
+                        <option selected value="">Choose...</option>
+                        <option value="Aunty">Aunty</option>
+                        <option value="Cousin">Cousin</option>
+                        <option value="Cousin Brother">Cousin Brother</option>
+                        <option value="Grand Father">Grand Father</option>
+                        <option value="Uncle">Uncle</option>
+                        <option value="Spouse">Spouse</option>
+                        <option value="Father">Father</option>
+                        <option value="Mother">Mother</option>
+                        <option value="Brother">Brother</option>
+                        <option value="Sister">Sister</option>
+                        <option value="Son">Son</option>
+                        <option value="Daughter">Daughter</option>
+                        <option value="Daughter-in-law">Daughter-in-law</option>
+                        <option value="Sister-in-law">Sister-in-law</option>
+                        <option value="Mother-in-law">Mother-in-law</option>
+                        <option value="Grand Son">Grand Son</option>
+                        <option value="Grand Daughter">Grand Daughter</option>
+                        <option value="Niece">Niece</option>
+                        <option value="Grand Mother">Grand Mother</option>
+                        <option value="Brother-in-law">Brother-in-law</option>
+                        <option value="Nephew">Nephew</option>
+                        <option value="Father-in-law">Father-in-law</option>
+                        <option value="Son-in-law">Son-in-law</option>
+                        <option value="Adopted Son">Adopted Son</option>
+                        <option value="Adopted Daughter">Adopted Daughter</option>
+                        <option value="Cousin Sister">Cousin Sister</option>
+                        <option value="Domestic helper">Domestic helper</option>
+                        <option value="Driver">Driver</option>
+                        <option value="Colleague">Colleague</option>
+                        <option value="Employee">Employee</option>
+                        <option value="Employer">Employer</option>
+                        <option value="Friend">Friend</option>
+                        <option value="Neighbour">Neighbour</option>
+                        <option value="In Laws">In Laws</option>
+                        <option value="Co Brother">Co Brother</option>
+                      </select>
+                    </div>
+                    <div class="col-md-2">
+                      <label for="rName1" class="form-label">Reference Name :</label>
+                      <input type="text" class="form-control" id="rName1" name="rName1" placeholder="Reference Name" required readonly/>
+                    </div>
+                    <div class="col-md-2">
+                      <label for="rDept1" class="form-label">Reference Department :</label>
+                      <input type="text" class="form-control" id="rDept1" name="rDept1" placeholder="Reference Department" required readonly/>
+                    </div>
+                    
+                    <div class="col-md-2">
+                      <label for="rCentre1" class="form-label">Centre:</label>
+                      <input type="text" class="form-control" id="rCentre1" name="rCentre1" placeholder="Centre"  required readonly/>
+                    </div>
+                  </div>
+                  <div class="row col-md-12 mb-2">
+                    <div class="col-md-2">
+                      <label for="rGrno2" class="form-label">Reference GR Number:</label>
+                      <input type="text" class="form-control" id="rGrno2" name="rGrno2" placeholder="Reference GR Number" required />
+                    </div>
+                    <div class="col-md-2">
+                      <label for="rRel2" class="form-label">Reference Relation :</label>
+                      <select class="form-control selectpicker" id="rRel2" name="rRel2" required >
+                        <option selected value="">Choose...</option>
+
+                      <option value="Aunty">Aunty</option>
+                      <option value="Cousin">Cousin</option>
+                      <option value="Cousin Brother">Cousin Brother</option>
+                      <option value="Grand Father">Grand Father</option>
+                      <option value="Uncle">Uncle</option>
+                      <option value="Spouse">Spouse</option>
+                      <option value="Father">Father</option>
+                      <option value="Mother">Mother</option>
+                      <option value="Brother">Brother</option>
+                      <option value="Sister">Sister</option>
+                      <option value="Son">Son</option>
+                      <option value="Daughter">Daughter</option>
+                      <option value="Daughter-in-law">Daughter-in-law</option>
+                      <option value="Sister-in-law">Sister-in-law</option>
+                      <option value="Mother-in-law">Mother-in-law</option>
+                      <option value="Grand Son">Grand Son</option>
+                      <option value="Grand Daughter">Grand Daughter</option>
+                      <option value="Niece">Niece</option>
+                      <option value="Grand Mother">Grand Mother</option>
+                      <option value="Brother-in-law">Brother-in-law</option>
+                      <option value="Nephew">Nephew</option>
+                      <option value="Father-in-law">Father-in-law</option>
+                      <option value="Son-in-law">Son-in-law</option>
+                      <option value="Adopted Son">Adopted Son</option>
+                      <option value="Adopted Daughter">Adopted Daughter</option>
+                      <option value="Cousin Sister">Cousin Sister</option>
+                      <option value="Domestic helper">Domestic helper</option>
+                      <option value="Driver">Driver</option>
+                      <option value="Colleague">Colleague</option>
+                      <option value="Employee">Employee</option>
+                      <option value="Employer">Employer</option>
+                      <option value="Friend">Friend</option>
+                      <option value="Neighbour">Neighbour</option>
+                      <option value="In Laws">In Laws</option>
+                      <option value="Co Brother">Co Brother</option>
+                    </select>
+                    </div>
+                    <div class="col-md-2">
+                      <label for="rName2" class="form-label">Reference Name:</label>
+                      <input type="text" class="form-control" id="rName2" name="rName2" placeholder="Reference Name" required readonly/>
+                    </div>
+                    <div class="col-md-2">
+                      <label for="rDept2" class="form-label">Reference Department:</label>
+                      <input type="text" class="form-control" id="rDept2" name="rDept2" placeholder="Reference Department" required readonly/>
+                    </div>
+                    
+                    <div class="col-md-2">
+                      <label for="rCentre2" class="form-label">Centre :</label>
+                      <input type="text" class="form-control" id="rCentre2" name="rCentre2" placeholder="Centre" required readonly />
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          <div class="row col-md-12">
+            <div class="col-md-12">
+              <fieldset class="col-md-12">
+                <legend>Sponsor (H.O.D. / Functionary / Sewadar) :</legend>
+                <div class="row">
+                  <div class="row col-md-12 mb-2">
+                    <div class="col-md-2">
+                      <label for="sDept" class="form-label">Department:</label>
+                      <input type="text" class="form-control" id="sDept" name="sDept" placeholder="Department" required/>
+                    </div>
+                    <div class="col-md-2">
+                      <label for="sGrno" class="form-label">HOD GR Number</label>
+                      <input type="text" class="form-control" id="sGrno" name="sGrno" placeholder="HOD GR Number" required/>
+                    </div>
+                    <div class="col-md-2">
+                      <label for="sName" class="form-label">HOD Name:</label>
+                      <input type="text" class="form-control" id="sName" name="sName" placeholder="HOD Name" required/>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+          <div class="row mt-3 mb-5">
+            <div class="col-md-12 d-flex justify-content-end">
+              <button type="reset" class="btn btn-secondary mr-2">Reset</button>
+              <button type="button" id="print"class="btn btn-primary mr-5">Print</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <input type="file" style="display: none" id="inputExcel" accept=".xlsx, .xls" multiple />
+    <input type="file" style="display: none" id="inputPDF" accept=".pdf" required />
+
+    <div id="pdfPreviewModal" class="modal">
+      <div class="modal-content">
+        <span id="closeModal" class="close">&times;</span>
+        <iframe id="pdfPreview" style="width:100%; height: 100%;"></iframe> 
+      </div>
+    </div>
+    <script src="script/lib/jquery-3.5.1.js"></script>
+    <script src="script/lib/popper.min.js"></script>
+    <script src="script/lib/exceljs.min.js"></script>
+    <script src="script/lib/bootstrap.min.js"></script>
+    <script src="script/lib/jquery.dataTables.min.js"></script>
+    <script src="script/lib/jquery-ui.js"></script>
+    <script src="script/lib/searchPanes.dataTables.js"></script>
+    <script src="script/lib/FileSaver.min.js"></script>
+    <script src="script/lib/bootstrap-select.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib"></script>
+    <script src="script/data/formMetadata.js"></script>
+    <script src="script/service/StorageService.js"></script>
+    <script src="script/service/ExcelService.js"></script>
+    <script src="script/service/Constant.js"></script>
+    <script src="script/FormController.js"></script>
+  </body>
+</html>
