@@ -61,8 +61,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initializeDataTable() {
+    const preloadedData = StorageService.currentRecord?.data || []; // Use preloaded data from helpdesk
+
     dataTable = new DataTable("#dataTable", {
-      data: [],
+      data: preloadedData,
       columns: [
         { title: "Gr No", data: "gr_no" },
         { title: "Name", data: "name" },
@@ -88,27 +90,9 @@ document.addEventListener("DOMContentLoaded", () => {
           extend: "csvHtml5",
           text: "Export",
           className: "btn btn-primary",
-          title: null,
-          filename: function () {
-            const serialPrefix = $("#serialPrefix").val().trim();
-            return serialPrefix || "export";
-          },
+          filename: () => $("#serialPrefix").val().trim() || "export",
           exportOptions: {
             columns: [0, 6, 7, 8],
-            format: {
-              header: function (data, columnIdx) {
-                const headers = {
-                  0: "gr_no",
-                  6: "date",
-                  7: "time",
-                  8: "type",
-                };
-                return headers[columnIdx];
-              },
-            },
-            rows: function (idx, data, node) {
-              return data.gr_no !== "No Badge";
-            },
           },
         },
       ],
@@ -149,8 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
         logError("S-Sewadars sheet not found.");
         return;
       }
-
-      console.log("Fetched Sewadars Data:", sewadarsSheet); // Debugging
       StorageService.currentRecord = sewadarsSheet;
       populateSelectPicker(elements.grNoDropdown, "Search Sewadar", "Gr_No", "Full_Name");
     } catch (error) {
@@ -161,12 +143,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function populateSelectPicker(dropdown, placeholder, grKey, nameKey) {
-    dropdown.empty(); // Clear existing options
-    const data = StorageService.currentRecord?.data || [];
+    const cachedDataKey = "sewadarsDataCache"; // Key for local storage
+    let data = JSON.parse(localStorage.getItem(cachedDataKey)) || StorageService.currentRecord?.data || [];
+
+    if (!localStorage.getItem(cachedDataKey)) {
+      localStorage.setItem(cachedDataKey, JSON.stringify(data));
+    }
+
     const uniqueSet = new Set();
 
-    console.log("Populating Dropdown with Data:", data); // Debugging
-
+    dropdown.empty(); // Clear existing options
     data.forEach((row) => {
       const grNo = row[grKey];
       const name = row[nameKey];
@@ -178,32 +164,36 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Initialize Select2 with wildcard search
+    // Initialize Select2 with lazy loading
     dropdown.select2({
       placeholder: placeholder,
       allowClear: true,
       width: "100%",
-      matcher: function (params, data) {
-        // If there are no search terms, return all options
-        if ($.trim(params.term) === "") {
-          return data;
-        }
+      ajax: {
+        transport: function (params, success, failure) {
+          const searchTerm = params.data.term || "";
+          const regex = new RegExp(searchTerm.replace(/\s/g, ".*"), "i");
 
-        // Convert wildcard search term to regex
-        const searchTerm = params.term.replace(/\*/g, ".*"); // Replace '*' with '.*' for regex
-        const regex = new RegExp(searchTerm, "i"); // Case-insensitive regex
+          // Filter data based on the search term
+          const filteredData = data.filter((row) => regex.test(`${row[grKey]} - ${row[nameKey]} - ${row.Satsang_Center}`));
 
-        // Check if the option matches the regex
-        if (regex.test(data.text)) {
-          return data;
-        }
+          // Limit the results to the first 15 records
+          const limitedData = filteredData.slice(0, 15);
 
-        // If it doesn't match, return null
-        return null;
+          // Map the filtered data to the format required by Select2
+          const results = limitedData.map((row) => ({
+            id: `${row[grKey]} - ${row[nameKey]} - ${row.Satsang_Center}`,
+            text: `${row[grKey]} - ${row[nameKey]} - ${row.Satsang_Center}`,
+          }));
+
+          success({ results });
+        },
+        processResults: function (data) {
+          return { results: data.results };
+        },
+        delay: 200, // Add a delay for better performance
       },
     });
-
-    console.log("Dropdown Options Added:", dropdown.html()); // Debugging
   }
 
   function attachEventListeners() {
@@ -255,6 +245,11 @@ document.addEventListener("DOMContentLoaded", () => {
       $("#satsangCenterInput").val(selectedCenter);
 
       addGrNoModal.modal("show");
+
+      // Focus on the "Name" input field when the modal is shown
+      addGrNoModal.on("shown.bs.modal", () => {
+        $("#nameInput").focus();
+      });
     });
 
     submitGrNoButton.click(async () => {
@@ -266,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const satsangCenter = $("#satsangCenterInput").val().trim();
 
       if (!grNo || !name || !gender || !status || !satsangArea || !satsangCenter) {
-        modalErrorMessage.text("All fields are required.");
+        modalErrorMessage.text("All fields are required, Please fill the Satsang Area and Center as well.");
         return;
       }
 
@@ -609,4 +604,9 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("An error occurred. Please try again.");
     }
   });
+});
+
+window.addEventListener("beforeunload", (event) => {
+  event.preventDefault();
+  event.returnValue = "Are you sure you want to leave this page? Unsaved changes may be lost.";
 });

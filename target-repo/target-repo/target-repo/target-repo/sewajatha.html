@@ -18,6 +18,9 @@
         padding: 0;
         font-family: Arial, sans-serif;
       }
+      .display-none {
+        display: none;
+      }
       .bg-primary {
         background-color: #8b0002 !important;
       }
@@ -172,7 +175,7 @@
             </div>
             <div class="modal-body">
               <form id="addGrNoForm">
-                <div class="form-group">
+                <div class="form-group display-none">
                   <label for="grNoInput">Gr No</label>
                   <input type="text" readonly id="grNoInput" value="No Badge" class="form-control" required />
                 </div>
@@ -188,17 +191,17 @@
                     <option value="Female">Female</option>
                   </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group display-none">
                   <label for="statusInput">Status</label>
                   <input type="text" id="statusInput" value="Open" readonly class="form-control" required />
                 </div>
-                <div class="form-group">
+                <div class="form-group display-none">
                   <label for="satsangAreaInput">Area</label>
                   <select id="satsangAreaInput" class="form-control" required>
                     <option value="">Select Area</option>
                   </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group display-none">
                   <label for="satsangCenterInput">Satsang Center</label>
                   <select id="satsangCenterInput" class="form-control" required>
                     <option value="">Select Satsang Center</option>
@@ -208,7 +211,6 @@
               </form>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               <button type="button" id="submitGrNoButton" class="btn btn-primary">Submit</button>
             </div>
           </div>
