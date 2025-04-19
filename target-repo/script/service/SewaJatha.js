@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
     data.forEach((row) => {
       const grNo = row[grKey];
       const name = row[nameKey];
-      const combinedValue = `${grNo} - ${name}`;
+      const combinedValue = `${grNo} - ${name} - ${row.Satsang_Center}`;
       if (grNo && !uniqueSet.has(combinedValue)) {
         uniqueSet.add(combinedValue);
         const option = `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${row.Gender}" data-status="${row.Status}" data-satsang-center="${row.Satsang_Center}" data-satsang-area="${row.Satsang_Area}">${combinedValue}</option>`;
@@ -297,8 +297,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (response.success) {
           // Add the new entry to the dropdown
-          const combinedValue = `${grNo} - ${name}`;
-          const newOption = `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${gender}" data-status="${status}" data-satsang-center="${satsangCenter}" data-satsang-area="${satsangArea}">${grNo} - ${name}</option>`;
+          const combinedValue = `${grNo} - ${name} - ${satsangCenter}`;
+          const newOption = `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${gender}" data-status="${status}" data-satsang-center="${satsangCenter}" data-satsang-area="${satsangArea}">${combinedValue}</option>`;
           elements.grNoDropdown.append(newOption);
 
           // Retain previously selected entries and merge with the new entry
