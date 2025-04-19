@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   submitApiKeyButton.click(() => {
     const apiKeyValue = apiKeyInput.val().trim();
     if (apiKeyValue) {
-      localStorage.setItem("apiKey", apiKeyValue);
+      localStorage.setItem("apiKey", btoa(apiKeyValue)); // Store encoded API key
       apiKeyModal.modal("hide");
       window.location.reload();
     } else {
