@@ -10,11 +10,16 @@
     <link rel="stylesheet" href="style/style.css?v=1.0" />
     <link rel="stylesheet" href="resources/fontawesome-free-6.5.2-web/css/all.min.css?v=1.0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta3/css/bootstrap-select.min.css?v=1.0" />
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
       body {
         margin: 0;
         padding: 0;
         font-family: Arial, sans-serif;
+      }
+      .bg-primary {
+        background-color: #8b0002 !important;
       }
       .w-100 {
         width: 90% !important;
@@ -59,6 +64,12 @@
       h1 {
         font-weight: bold;
       }
+      .select2-container .select2-selection--multiple {
+        height: auto !important;
+        min-height: 38px;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+      }
     </style>
   </head>
   <body>
@@ -73,57 +84,77 @@
 
     <div id="mainContainer">
       <!-- Form Container -->
-      <div id="formContainer">
-        <form id="entryForm">
-          <div class="form-row">
-            <div class="form-group col-md-3 d-flex align-items-end">
-              <div class="w-100">
-                <label for="grNo" class="form-label">Add Sewadar:</label>
-                <select id="grNo" class="selectpicker form-control" data-live-search="true" multiple required></select>
+      <div id="formContainer" class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="fa fa-calendar-alt"></i> Add Sewadar Details</h5>
+        </div>
+        <div class="card-body">
+          <form id="entryForm">
+            <div class="form-row">
+              <!-- Add Sewadar Dropdown -->
+              <div class="form-group col-md-4">
+                <label for="grNo" class="form-label"> <i class="fa fa-user"></i> Add Sewadar: </label>
+                <select id="grNo" class="form-control select2" multiple="multiple" required></select>
+                <small class="form-text text-muted">Select one or more Sewadars.</small>
               </div>
-              <button id="addGrNoButton" class="btn btn-success ml-2" data-toggle="modal" data-target="#addGrNoModal">
-                <i class="fa fa-plus"></i>
-              </button>
-            </div>
-            <div class="form-group col-md-2">
-              <label for="serialPrefix" class="form-label">Serial Prefix:</label>
-              <input type="text" id="serialPrefix" class="form-control" placeholder="Enter Serial Prefix" required />
-            </div>
-            <div class="form-group col-md-1">
-              <label for="startDate" class="form-label">Start Date:</label>
-              <input type="date" id="startDate" class="form-control" required />
-            </div>
-            <div class="form-group col-md-1">
-              <label for="endDate" class="form-label">End Date:</label>
-              <input type="date" id="endDate" class="form-control" required />
-            </div>
-            <div class="form-group col-md-1">
-              <label for="inTime" class="form-label">In Time:</label>
-              <input type="time" id="inTime" class="form-control" required />
-            </div>
-            <div class="form-group col-md-1">
-              <label for="outTime" class="form-label">Out Time:</label>
-              <input type="time" id="outTime" class="form-control" required />
-            </div>
-            <div class="form-group col-md-1">
-              <label for="satsangArea" class="form-label">Satsang Area:</label>
-              <select id="satsangArea" class="form-control" required>
-                <option value="">Select Area</option>
-              </select>
-            </div>
-            <div class="form-group col-md-1">
-              <label for="satsangCenter" class="form-label">Satsang Center:</label>
-              <select id="satsangCenter" class="form-control" required>
-                <option value="">Select Center</option>
-              </select>
+
+              <!-- Serial Prefix -->
+              <div class="form-group col-md-3">
+                <label for="serialPrefix" class="form-label"> <i class="fa fa-hashtag"></i> Serial Prefix: </label>
+                <input type="text" id="serialPrefix" class="form-control" placeholder="Enter Serial Prefix" required />
+                <small class="form-text text-muted">Enter a unique serial prefix.</small>
+              </div>
+
+              <!-- Start Date -->
+              <div class="form-group col-md-2">
+                <label for="startDate" class="form-label"> <i class="fa fa-calendar"></i> Start Date: </label>
+                <input type="date" id="startDate" class="form-control" required />
+              </div>
+
+              <!-- End Date -->
+              <div class="form-group col-md-2">
+                <label for="endDate" class="form-label"> <i class="fa fa-calendar"></i> End Date: </label>
+                <input type="date" id="endDate" class="form-control" required />
+              </div>
             </div>
 
-            <div class="form-group col-md-1 d-flex align-items-end">
-              <button type="button" id="submitEntryButton" class="btn btn-primary w-100">Add</button>
+            <div class="form-row">
+              <!-- In Time -->
+              <div class="form-group col-md-2">
+                <label for="inTime" class="form-label"> <i class="fa fa-clock"></i> In Time: </label>
+                <input type="time" id="inTime" class="form-control" required />
+              </div>
+
+              <!-- Out Time -->
+              <div class="form-group col-md-2">
+                <label for="outTime" class="form-label"> <i class="fa fa-clock"></i> Out Time: </label>
+                <input type="time" id="outTime" class="form-control" required />
+              </div>
+
+              <!-- Satsang Area -->
+              <div class="form-group col-md-3">
+                <label for="satsangArea" class="form-label"> <i class="fa fa-map-marker-alt"></i> Satsang Area: </label>
+                <select id="satsangArea" class="form-control select2" required>
+                  <option value="">Select Area</option>
+                </select>
+              </div>
+
+              <!-- Satsang Center -->
+              <div class="form-group col-md-3">
+                <label for="satsangCenter" class="form-label"> <i class="fa fa-building"></i> Satsang Center: </label>
+                <select id="satsangCenter" class="form-control select2" required>
+                  <option value="">Select Center</option>
+                </select>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="form-group col-md-2 d-flex align-items-end">
+                <button type="button" id="submitEntryButton" class="btn btn-primary w-100"><i class="fa fa-save"></i> Add</button>
+              </div>
             </div>
-          </div>
-          <div id="errorMessage" class="text-danger"></div>
-        </form>
+            <div id="errorMessage" class="text-danger"></div>
+          </form>
+        </div>
       </div>
 
       <!-- Add Gr No Modal -->
@@ -131,7 +162,7 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="addGrNoModalLabel">Add Gr No</h5>
+              <h5 class="modal-title" id="addGrNoModalLabel">Add Sewadar</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -246,7 +277,10 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js?v=1.0"></script>
     <script src="script/service/StorageService.js?v=1.0"></script>
     <script src="script/service/ExcelService.js?v=1.0"></script>
+    <script src="script/service/Constant.js?v=1.0"></script>
     <script src="script/service/SewaJatha.js?v=1.0"></script>
     <script src="script/lib/bootstrap-select.min.js?v=1.0"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   </body>
 </html>

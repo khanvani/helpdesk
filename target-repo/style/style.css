@@ -524,3 +524,8 @@ font-size:25px !important;
     transform: translate(-50%, -50px);
   }
 }
+
+table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after, table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:after
+{
+  opacity: 1 !important;
+}

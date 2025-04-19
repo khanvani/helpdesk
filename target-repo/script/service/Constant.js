@@ -1,3 +1,9 @@
+const API_URLS = {
+  QUERY_DESK: "https://sewasamiti.ahujaenterprise.com/php/query-desk.php",
+  SEWA_JATHA_FETCH: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha.php",
+  SEWA_JATHA_STORE: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-store.php",
+  SEWA_JATHA_UPDATE: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-update.php",
+};
 const pinCode = [
   {
     Pincode: 383002,

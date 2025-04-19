@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     submitButton: $("#submitEntryButton"),
     entryForm: $("#entryForm"),
     errorMessage: $("#errorMessage"),
-    grNoDropdown: $("#grNo.selectpicker"),
+    grNoDropdown: $("#grNo"), // Corrected selector
   };
 
   let dataTable;
@@ -52,6 +52,12 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeDataTable();
     fetchData();
     attachEventListeners();
+
+    // Retrieve serialPrefix from localStorage and set it in the input field
+    const storedSerialPrefix = localStorage.getItem("serialPrefix");
+    if (storedSerialPrefix) {
+      $("#serialPrefix").val(storedSerialPrefix);
+    }
   }
 
   function initializeDataTable() {
@@ -84,15 +90,13 @@ document.addEventListener("DOMContentLoaded", () => {
           className: "btn btn-primary",
           title: null,
           filename: function () {
-            // Get the value of the serialPrefix input field
             const serialPrefix = $("#serialPrefix").val().trim();
-            return serialPrefix || "export"; // Default to "export" if serialPrefix is empty
+            return serialPrefix || "export";
           },
           exportOptions: {
-            columns: [0, 6, 7, 8], // Export only gr_no, date, time, and type
+            columns: [0, 6, 7, 8],
             format: {
               header: function (data, columnIdx) {
-                // Map column indices to desired headers
                 const headers = {
                   0: "gr_no",
                   6: "date",
@@ -103,7 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
               },
             },
             rows: function (idx, data, node) {
-              // Exclude rows where Gr No is "No Badge"
               return data.gr_no !== "No Badge";
             },
           },
@@ -114,6 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
       responsive: true,
       autoWidth: false,
       scrollX: true,
+      order: [], // Disable default sorting
     });
 
     $("#dataTable").on("click", ".delete-row", function () {
@@ -126,14 +130,15 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       $("#loader").show();
       const response = await $.ajax({
-        url: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha.php",
+        url: API_URLS.SEWA_JATHA_FETCH,
         type: "POST",
         dataType: "json",
         data: { api_key: apiKey },
       });
+
       if (response?.status === 401) {
-        localStorage.removeItem("apiKey"); // Clear the invalid API key
-        $("#apiKeyModal").modal("show"); // Show the API key modal
+        localStorage.removeItem("apiKey");
+        $("#apiKeyModal").modal("show");
         return;
       }
 
@@ -145,8 +150,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      console.log("Fetched Sewadars Data:", sewadarsSheet); // Debugging
       StorageService.currentRecord = sewadarsSheet;
-      console.log("S-Sewadars data loaded successfully.");
       populateSelectPicker(elements.grNoDropdown, "Search Sewadar", "Gr_No", "Full_Name");
     } catch (error) {
       logError("Error fetching data:", error);
@@ -156,9 +161,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function populateSelectPicker(dropdown, placeholder, grKey, nameKey) {
-    dropdown.empty();
+    dropdown.empty(); // Clear existing options
     const data = StorageService.currentRecord?.data || [];
     const uniqueSet = new Set();
+
+    console.log("Populating Dropdown with Data:", data); // Debugging
 
     data.forEach((row) => {
       const grNo = row[grKey];
@@ -166,14 +173,37 @@ document.addEventListener("DOMContentLoaded", () => {
       const combinedValue = `${grNo} - ${name}`;
       if (grNo && !uniqueSet.has(combinedValue)) {
         uniqueSet.add(combinedValue);
-        dropdown.append(
-          `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${row.Gender}" data-status="${row.Status}" data-satsang-center="${row.Satsang_Center}" data-satsang-area="${row.Satsang_Area}">${combinedValue}</option>`
-        );
+        const option = `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${row.Gender}" data-status="${row.Status}" data-satsang-center="${row.Satsang_Center}" data-satsang-area="${row.Satsang_Area}">${combinedValue}</option>`;
+        dropdown.append(option);
       }
     });
 
-    dropdown.selectpicker({ liveSearch: true, noneSelectedText: placeholder });
-    dropdown.selectpicker("refresh");
+    // Initialize Select2 with wildcard search
+    dropdown.select2({
+      placeholder: placeholder,
+      allowClear: true,
+      width: "100%",
+      matcher: function (params, data) {
+        // If there are no search terms, return all options
+        if ($.trim(params.term) === "") {
+          return data;
+        }
+
+        // Convert wildcard search term to regex
+        const searchTerm = params.term.replace(/\*/g, ".*"); // Replace '*' with '.*' for regex
+        const regex = new RegExp(searchTerm, "i"); // Case-insensitive regex
+
+        // Check if the option matches the regex
+        if (regex.test(data.text)) {
+          return data;
+        }
+
+        // If it doesn't match, return null
+        return null;
+      },
+    });
+
+    console.log("Dropdown Options Added:", dropdown.html()); // Debugging
   }
 
   function attachEventListeners() {
@@ -197,8 +227,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const entries = generateEntries(formData, elements.grNoDropdown.find("option"));
       dataTable.rows.add(entries).draw();
-      //elements.entryForm.trigger("reset");
-      elements.grNoDropdown.selectpicker("refresh");
+
+      // Clear the Add Sewadar dropdown
+      elements.grNoDropdown.val(null).trigger("change"); // Reset the dropdown value
       elements.errorMessage.text("");
     });
 
@@ -214,19 +245,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalErrorMessage = $("#modalErrorMessage");
 
     addGrNoButton.click(() => {
-      // Reset the modal form
       addGrNoForm.trigger("reset");
       modalErrorMessage.text("");
 
-      // Get the selected values from the outer dropdowns
       const selectedArea = $("#satsangArea").val();
       const selectedCenter = $("#satsangCenter").val();
 
-      // Set the modal dropdowns to match the outer dropdowns
       $("#satsangAreaInput").val(selectedArea).trigger("change");
       $("#satsangCenterInput").val(selectedCenter);
 
-      // Show the modal
       addGrNoModal.modal("show");
     });
 
@@ -235,8 +262,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const name = $("#nameInput").val().trim();
       const gender = $("#genderInput").val();
       const status = $("#statusInput").val().trim();
-      const satsangArea = $("#satsangArea").val().trim();
-      const satsangCenter = $("#satsangCenter").val().trim();
+      const satsangArea = $("#satsangAreaInput").val().trim();
+      const satsangCenter = $("#satsangCenterInput").val().trim();
 
       if (!grNo || !name || !gender || !status || !satsangArea || !satsangCenter) {
         modalErrorMessage.text("All fields are required.");
@@ -244,47 +271,56 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        $("#loader").show();
+        const grNoData = {
+          api_key: localStorage.getItem("apiKey"),
+          action: "addGrNo",
+          gr_no: grNo,
+          name: name,
+          gender: gender,
+          status: status,
+          satsang_center: satsangCenter,
+          satsang_area: satsangArea,
+        };
+
         const response = await $.ajax({
-          url: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-update.php",
+          url: API_URLS.SEWA_JATHA_UPDATE,
           type: "POST",
           dataType: "json",
-          data: {
-            api_key: localStorage.getItem("apiKey"),
-            action: "addGrNo",
-            gr_no: grNo,
-            name: name,
-            gender: gender,
-            status: status,
-            satsang_center: satsangCenter,
-            satsang_area: satsangArea,
-          },
+          data: grNoData,
         });
 
         if (response?.status === 401) {
-          localStorage.removeItem("apiKey"); // Clear the invalid API key
-          $("#apiKeyModal").modal("show"); // Show the API key modal
+          localStorage.removeItem("apiKey");
+          $("#apiKeyModal").modal("show");
           return;
         }
 
         if (response.success) {
+          // Add the new entry to the dropdown
+          const combinedValue = `${grNo} - ${name}`;
+          const newOption = `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${gender}" data-status="${status}" data-satsang-center="${satsangCenter}" data-satsang-area="${satsangArea}">${grNo} - ${name}</option>`;
+          elements.grNoDropdown.append(newOption);
+
+          // Retain previously selected entries and merge with the new entry
+          const selectedValues = elements.grNoDropdown.val() || [];
+          selectedValues.push(combinedValue);
+          elements.grNoDropdown.val([...new Set(selectedValues)]); // Ensure no duplicates
+          elements.grNoDropdown.selectpicker("refresh");
+
           addGrNoModal.modal("hide");
-          fetchData(); // Refresh the dropdown data
         } else {
-          modalErrorMessage.text(response.error || "Failed to add Gr No.");
+          modalErrorMessage.text(response.error || "Failed to Add Sewadar.");
         }
       } catch (error) {
         console.error("Error adding Gr No:", error);
         modalErrorMessage.text("An error occurred. Please try again.");
-      } finally {
-        $("#loader").hide();
       }
     });
   }
 
   function setupSatsangAreaDropdown() {
-    const satsangAreaInputs = $("#satsangArea, #satsangAreaInput"); // Both form and modal dropdowns
-    const satsangCenterInputs = $("#satsangCenter, #satsangCenterInput"); // Both form and modal dropdowns
+    const satsangAreaInputs = $("#satsangArea, #satsangAreaInput");
+    const satsangCenterInputs = $("#satsangCenter, #satsangCenterInput");
     const areaData = {
       AHEMDABAD: [
         "AHEMDABAD-I",
@@ -427,8 +463,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function validateForm({ grNo, startDate, endDate, inTime, outTime }) {
+    const serialPrefix = $("#serialPrefix").val().trim(); // Get the Serial Prefix value
+
+    if (!serialPrefix) {
+      elements.errorMessage.text("Please enter a valid Serial Prefix.");
+      return false;
+    }
+
     if (!grNo || !startDate || !endDate || !inTime || !outTime) {
-      elements.errorMessage.text("All fields are required.");
+      elements.errorMessage.text("Please fill all the fields such as Gr No, Start Date, End Date, In Time, and Out Time.");
       return false;
     }
 
@@ -442,7 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return false;
     }
 
-    elements.errorMessage.text("");
+    elements.errorMessage.text(""); // Clear any previous error messages
     return true;
   }
 
@@ -452,7 +495,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const end = new Date(endDate);
 
     while (start <= end) {
-      const formattedDate = start.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+      const formattedDate = start.toISOString().split("T")[0];
       grNo.forEach((gr) => {
         const option = grNoOptions.filter(`[value="${gr}"]`);
         const gr_no = option.attr("data-gr-no");
@@ -484,14 +527,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Get the serialPrefix value from the textbox
     const serialPrefix = $("#serialPrefix").val().trim();
     if (!serialPrefix) {
       alert("Please enter a valid Serial Prefix.");
       return;
     }
 
-    // Group data by gr_no, name, and date
+    // Store serialPrefix in localStorage
+    localStorage.setItem("serialPrefix", serialPrefix);
+
     const groupedData = {};
     const now = new Date();
     tableData.forEach((row) => {
@@ -516,41 +560,39 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Format the current date and time
     const formatDateTime = (date) => {
       const options = { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "numeric", hour12: true };
       return new Intl.DateTimeFormat("en-US", options).format(date);
     };
-    const formattedDateTime = formatDateTime(now); // e.g., "1-Apr-2025 10:00 AM"
+    const formattedDateTime = formatDateTime(now);
 
-    // Convert grouped data into an array for submission
     const formattedData = Object.values(groupedData).map((row, index) => [
-      serialPrefix, // Use the serialPrefix from the textbox
-      row.date, // Date
-      row.gr_no, // Gr No
-      row.name, // Name
-      row.gender, // Gender
-      row.status, // Status
-      row.satsang_center, // Satsang Center
-      row.satsang_area, // Satsang Area
+      serialPrefix,
+      row.date,
+      row.gr_no,
+      row.name,
+      row.gender,
+      row.status,
+      row.satsang_center,
+      row.satsang_area,
       1,
-      row.in_time, // IN Time
-      row.out_time, // OUT Time
-      formattedDateTime, // Formatted date and time
+      row.in_time,
+      row.out_time,
+      formattedDateTime,
     ]);
 
     try {
       $("#loader").show();
       const response = await $.ajax({
-        url: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-store.php",
+        url: API_URLS.SEWA_JATHA_STORE,
         type: "POST",
         dataType: "json",
         data: { api_key: localStorage.getItem("apiKey"), action: "appendToGoogleSheet", data: formattedData },
       });
 
       if (response?.status === 401) {
-        localStorage.removeItem("apiKey"); // Clear the invalid API key
-        $("#apiKeyModal").modal("show"); // Show the API key modal
+        localStorage.removeItem("apiKey");
+        $("#apiKeyModal").modal("show");
         return;
       }
 

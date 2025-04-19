@@ -9,7 +9,6 @@ class ExcelService {
     this.call = this.call.bind(this);
     this.storeResponse = this.storeResponse.bind(this);
     this.processSheets = this.processSheets.bind(this);
-
   }
 
   async call() {
@@ -18,7 +17,7 @@ class ExcelService {
       $("#loader").show();
 
       const response = await $.ajax({
-        url: "https://sewasamiti.ahujaenterprise.com/php/query-desk.php",
+        url: API_URLS.QUERY_DESK,
         type: "POST",
         dataType: "json",
         data: { api_key: apiKey },
@@ -34,22 +33,17 @@ class ExcelService {
       if (error.status === 401) {
         $("#errorAPIKey").show();
 
-        let errorMessage = [error.responseJSON?.error,error.responseJSON?.message]
-                    .filter(Boolean)
-                    .join("<br>");
-        $("#errorModalLabel").html()
+        let errorMessage = [error.responseJSON?.error, error.responseJSON?.message].filter(Boolean).join("<br>");
+        $("#errorModalLabel").html();
         $("#errorAPIKey").html(errorMessage);
-        $("#apiKeyModal").removeAttr('aria-hidden');
+        $("#apiKeyModal").removeAttr("aria-hidden");
         $("#apiKeyModal").modal("show");
-      }else if(error.status !=200)
-      {
+      } else if (error.status != 200) {
         $("#apiKeyModal").modal("hide");
-        $("#apiKeyModal").attr('aria-hidden', 'true');
+        $("#apiKeyModal").attr("aria-hidden", "true");
         $("#errorAPIKey").hide();
         $("#errorModal").modal("show");
-        let errorMessage = [error.responseJSON?.error,error.responseJSON?.message]
-                            .filter(Boolean)
-                            .join("<br>");
+        let errorMessage = [error.responseJSON?.error, error.responseJSON?.message].filter(Boolean).join("<br>");
 
         $("#errorModalBody").html(errorMessage);
       }
@@ -122,47 +116,53 @@ class ExcelService {
 
   normalizeSheet(sheet) {
     return {
-      data: sheet.data.map(row => Object.fromEntries(
-        Object.entries(row).map(([key, value]) => [key.trim().replace(/[^a-zA-Z0-9]+/g, "_"), value])
-      )),
-      headers: sheet.headers.map(value => ({
+      data: sheet.data.map((row) => Object.fromEntries(Object.entries(row).map(([key, value]) => [key.trim().replace(/[^a-zA-Z0-9]+/g, "_"), value]))),
+      headers: sheet.headers.map((value) => ({
         data: typeof value === "string" ? value.trim().replace(/[^a-zA-Z0-9]+/g, "_") : value,
-        title: value
+        title: value,
       })),
-      format: []
+      format: [],
     };
   }
 
   getSheetData(sheet, startingRow) {
     const jsonData = sheet.getSheetValues().slice(startingRow - 1);
-    const headers = sheet.getRow(startingRow).values.map(header => (typeof header === "string" ? header.trim() : header));
-    return jsonData.slice(2).map(row => headers.reduce((obj, header, index) => {
-      obj[header.replace(/\s+/g, "_")] = row[index] || "";
-      return obj;
-    }, {}));
+    const headers = sheet.getRow(startingRow).values.map((header) => (typeof header === "string" ? header.trim() : header));
+    return jsonData.slice(2).map((row) =>
+      headers.reduce((obj, header, index) => {
+        obj[header.replace(/\s+/g, "_")] = row[index] || "";
+        return obj;
+      }, {})
+    );
   }
 
   getHeaders(sheet, startingRow) {
-    return sheet.getRow(startingRow).values.map((value, colIndex) => ({
-      data: typeof value === "string" ? value.trim().replace(/\s+/g, "_") : value,
-      title: value,
-      width: sheet.getColumn(colIndex).width
-    })).filter(header => header.title);
+    return sheet
+      .getRow(startingRow)
+      .values.map((value, colIndex) => ({
+        data: typeof value === "string" ? value.trim().replace(/\s+/g, "_") : value,
+        title: value,
+        width: sheet.getColumn(colIndex).width,
+      }))
+      .filter((header) => header.title);
   }
 
   getFormat(sheet, startingRow) {
-    return sheet.getRow(startingRow).values.map((value, colIndex) => ({
-      data: typeof value === "string" ? value.trim().replace(/\s+/g, "_") : value,
-      title: value,
-      width: sheet.getColumn(colIndex).width
-    })).filter(column => column.title);
+    return sheet
+      .getRow(startingRow)
+      .values.map((value, colIndex) => ({
+        data: typeof value === "string" ? value.trim().replace(/\s+/g, "_") : value,
+        title: value,
+        width: sheet.getColumn(colIndex).width,
+      }))
+      .filter((column) => column.title);
   }
 
   reloadFiles() {
     if (Object.keys(StorageService.currentRecord).length > 0) {
       $("#fileNamesCombo, #sheetNamesCombo").empty();
-      Object.keys(StorageService.currentData).forEach(key => $("#fileNamesCombo").append(new Option(key, key)));
-      Object.keys(StorageService.currentData[StorageService.currentFile]).forEach(key => $("#sheetNamesCombo").append(new Option(key, key)));
+      Object.keys(StorageService.currentData).forEach((key) => $("#fileNamesCombo").append(new Option(key, key)));
+      Object.keys(StorageService.currentData[StorageService.currentFile]).forEach((key) => $("#sheetNamesCombo").append(new Option(key, key)));
     }
   }
 }
