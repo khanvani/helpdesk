@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function initialize() {
     initializeDataTable();
-    fetchData();
+    fetchData(false);
     attachEventListeners();
 
     // Retrieve serialPrefix from localStorage and set it in the input field
@@ -155,10 +155,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  async function fetchData() {
+  async function fetchData(forceRefresh) {
     try {
       const sewadarsDataCache = JSON.parse(localStorage.getItem("sewadarsDataCache")) || [];
-      if (sewadarsDataCache.length <= 0) {
+      if (forceRefresh || sewadarsDataCache.length <= 0) {
         $("#loader").show();
         const response = await $.ajax({
           url: API_URLS.SEWA_JATHA_FETCH,
@@ -203,6 +203,10 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("dataTableData");
     localStorage.removeItem("lastAddedData");
     window.location.reload();
+  });
+
+  document.getElementById("refreshStorageTrigger").addEventListener("click", () => {
+    fetchData(true);
   });
 
   function populateSelectPicker(dropdown, placeholder, grKey, nameKey) {
@@ -352,7 +356,8 @@ document.addEventListener("DOMContentLoaded", () => {
           };
           sewadarsDataCache.push(newRecord);
           localStorage.setItem("sewadarsDataCache", JSON.stringify(sewadarsDataCache));
-
+          const option = `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${gender}" data-status="${status}" data-satsang-center="${satsangCenter}" data-satsang-area="${satsangArea}">${combinedValue}</option>`;
+          dropdown.append(option);
           // Retain previously selected entries and merge with the new entry
           const selectedValues = elements.grNoDropdown.val() || [];
           selectedValues.push(combinedValue);
@@ -604,6 +609,40 @@ document.addEventListener("DOMContentLoaded", () => {
     // Proceed with your existing save logic
     try {
       $("#loader").show();
+
+      // Store serialPrefix in localStorage
+      localStorage.setItem("serialPrefix", serialPrefix);
+
+      const formatDateTime = (date) => {
+        const options = { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "numeric", hour12: true };
+        return new Intl.DateTimeFormat("en-US", options).format(date);
+      };
+      const formattedData = [];
+      const now = new Date();
+
+      // Iterate through each row in the table data
+      tableData.forEach((row) => {
+        let currentDate = new Date(startDate); // Reset the start date for each row
+        while (currentDate <= new Date(endDate)) {
+          const formattedDate = currentDate.toISOString().split("T")[0]; // Format the date as YYYY-MM-DD
+          formattedData.push([
+            serialPrefix,
+            formattedDate,
+            row.gr_no,
+            row.name,
+            row.gender,
+            row.status,
+            satsangCenter,
+            satsangArea,
+            1,
+            inTime,
+            outTime,
+            formatDateTime,
+          ]);
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+      });
+      console.log("Formatted Data:", formattedData);
       const response = await $.ajax({
         url: API_URLS.SEWA_JATHA_STORE,
         type: "POST",
@@ -611,7 +650,7 @@ document.addEventListener("DOMContentLoaded", () => {
         data: {
           api_key: localStorage.getItem("apiKey"),
           action: "appendToGoogleSheet",
-          data: tableData,
+          data: formattedData,
         },
       });
 
@@ -622,8 +661,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (response.success) {
-        $(".buttons-html5").click();
-        window.location.reload();
+        $("#exportCustomCSVButton").click();
+        $("#newStorageTrigger").click();
       } else {
         alert(response.error || "Failed to append data to Google Sheet.");
       }
