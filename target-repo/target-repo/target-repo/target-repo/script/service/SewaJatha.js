@@ -219,10 +219,40 @@ document.addEventListener("DOMContentLoaded", () => {
         endDate: $("#endDate").val(),
         inTime: $("#inTime").val(),
         outTime: $("#outTime").val(),
+        satsangArea: $("#satsangArea").val(),
+        satsangCenter: $("#satsangCenter").val(),
       };
 
-      if (!validateForm(formData)) return;
+      let missingFields = [];
 
+      // Check for missing fields
+      if (!formData.grNo) missingFields.push("Gr No");
+      if (!formData.startDate) missingFields.push("Start Date");
+      if (!formData.endDate) missingFields.push("End Date");
+      if (!formData.inTime) missingFields.push("In Time");
+      if (!formData.outTime) missingFields.push("Out Time");
+      if (!formData.satsangArea) missingFields.push("Satsang Area");
+      if (!formData.satsangCenter) missingFields.push("Satsang Center");
+
+      // Check for invalid date range
+      if (formData.startDate && formData.endDate && new Date(formData.endDate) < new Date(formData.startDate)) {
+        missingFields.push("End Date must be greater than or equal to Start Date");
+      }
+
+      // Check for invalid time range
+      if (formData.inTime && formData.outTime && formData.inTime >= formData.outTime) {
+        missingFields.push("Out Time must be greater than In Time");
+      }
+
+      // If there are missing or invalid fields, show the error modal
+      if (missingFields.length > 0) {
+        const errorMessage = `Please address the following issues before submitting:<ul>${missingFields.map((field) => `<li>${field}</li>`).join("")}</ul>`;
+        $("#errorModal .modal-body").html(errorMessage); // Use .html() to render the list
+        $("#errorModal").modal("show");
+        return;
+      }
+
+      // If validation passes, proceed with adding entries
       const entries = generateEntries(formData, elements.grNoDropdown.find("option"));
       dataTable.rows.add(entries).draw();
 
