@@ -6,6 +6,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorAPIKey = $("#errorAPIKey");
   const submitApiKeyButton = $("#submitApiKey");
   const apiKey = localStorage.getItem("apiKey");
+  const currentDate = new Date().toISOString().split("T")[0]; // Get the current date in YYYY-MM-DD format
+  $("#startDate").val(currentDate); // Set the default Start Date
+  $("#endDate").val(currentDate); // Set the default End Date
+  $("#inTime").val("07:00"); // Set the default In Time
+  $("#outTime").val("17:00"); // Set the default Out Time
 
   if (!apiKey) {
     apiKeyModal.modal("show");
@@ -107,6 +112,9 @@ document.addEventListener("DOMContentLoaded", () => {
     $("#dataTable").on("click", ".delete-row", function () {
       const row = $(this).closest("tr");
       dataTable.row(row).remove().draw();
+
+      // Update the record count
+      updateRecordCount();
     });
   }
 
@@ -134,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       StorageService.currentRecord = sewadarsSheet;
-      populateSelectPicker(elements.grNoDropdown, "Search Sewadar", "Gr_No", "Full_Name");
+      populateSelectPicker(elements.grNoDropdown, "Add Sewadar", "Gr_No", "Full_Name");
     } catch (error) {
       logError("Error fetching data:", error);
     } finally {
@@ -218,11 +226,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const entries = generateEntries(formData, elements.grNoDropdown.find("option"));
       dataTable.rows.add(entries).draw();
 
+      // Update the record count
+      updateRecordCount();
+
       // Clear the Add Sewadar dropdown
       elements.grNoDropdown.val(null).trigger("change"); // Reset the dropdown value
       elements.errorMessage.text("");
     });
-
     setupAddGrNoModal();
     setupSatsangAreaDropdown();
   }
@@ -253,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     submitGrNoButton.click(async () => {
+      $("#loader").show();
       const grNo = $("#grNoInput").val().trim();
       const name = $("#nameInput").val().trim();
       const gender = $("#genderInput").val();
@@ -262,6 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!grNo || !name || !gender || !status || !satsangArea || !satsangCenter) {
         modalErrorMessage.text("All fields are required, Please fill the Satsang Area and Center as well.");
+        $("#loader").hide();
         return;
       }
 
@@ -287,6 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (response?.status === 401) {
           localStorage.removeItem("apiKey");
           $("#apiKeyModal").modal("show");
+          $("#loader").hide();
           return;
         }
 
@@ -299,17 +312,20 @@ document.addEventListener("DOMContentLoaded", () => {
           // Retain previously selected entries and merge with the new entry
           const selectedValues = elements.grNoDropdown.val() || [];
           selectedValues.push(combinedValue);
-          elements.grNoDropdown.val([...new Set(selectedValues)]); // Ensure no duplicates
+          //elements.grNoDropdown.val([...new Set(selectedValues)]); // Ensure no duplicates
           elements.grNoDropdown.selectpicker("refresh");
-
+          $("#submitEntryButton").click();
+          $("#loader").hide();
           addGrNoModal.modal("hide");
         } else {
           modalErrorMessage.text(response.error || "Failed to Add Sewadar.");
         }
       } catch (error) {
+        $("#loader").hide();
         console.error("Error adding Gr No:", error);
         modalErrorMessage.text("An error occurred. Please try again.");
       }
+      $("#loader").hide();
     });
   }
 
@@ -515,6 +531,25 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error(message, error || "");
   }
 
+  // Function to update the record count
+  function updateRecordCount() {
+    const recordCount = dataTable.rows().count(); // Get the total number of rows in the table
+
+    // Get the start and end dates
+    const startDate = new Date($("#startDate").val());
+    const endDate = new Date($("#endDate").val());
+
+    // Calculate the number of days difference
+    const timeDifference = endDate - startDate;
+    const dayDifference = timeDifference > 0 ? Math.ceil(timeDifference / (1000 * 60 * 60 * 24)) + 1 : 1;
+
+    // Calculate the adjusted record count
+    const adjustedRecordCount = Math.floor(recordCount / dayDifference / 2);
+
+    // Update the count in the badge
+    $("#recordCount").text(adjustedRecordCount);
+  }
+
   $("#saveButton").click(async () => {
     const tableData = dataTable.rows().data().toArray();
     if (tableData.length === 0) {
@@ -609,4 +644,23 @@ document.addEventListener("DOMContentLoaded", () => {
 window.addEventListener("beforeunload", (event) => {
   event.preventDefault();
   event.returnValue = "Are you sure you want to leave this page? Unsaved changes may be lost.";
+});
+// Global keydown listener for Ctrl+S or Cmd+S
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === "s") {
+    event.preventDefault(); // Prevent the default browser save action
+    $("#submitEntryButton").click(); // Trigger the save button click
+  }
+});
+
+// Attach a change event listener to the Select2 dropdown
+$("#grNo").on("select2:select", function (event) {
+  const selectedValue = event.params.data.id; // Get the selected value
+  console.log("Selected value:", selectedValue);
+
+  // Perform an action when an option is selected
+  if (selectedValue) {
+    // Example: Trigger the save button click
+    $("#submitEntryButton").click();
+  }
 });

@@ -21,7 +21,9 @@
       .display-none {
         display: none;
       }
-      .bg-primary {
+      .bg-primary,
+      .badge-primary,
+      .btn-success {
         background-color: #8b0002 !important;
       }
       .w-100 {
@@ -95,50 +97,37 @@
           <form id="entryForm">
             <div class="form-row">
               <!-- Add Sewadar Dropdown -->
-              <div class="form-group col-md-4">
-                <label for="grNo" class="form-label"> <i class="fa fa-user"></i> Add Sewadar: </label>
-                <select id="grNo" class="form-control select2" multiple="multiple" required></select>
-                <small class="form-text text-muted">Select one or more Sewadars.</small>
-              </div>
-              <button id="addGrNoButton" class="btn btn-success" data-toggle="modal" data-target="#addGrNoModal" style="height: 38px; margin-top: 32px">
-                <i class="fa fa-plus"></i>
-              </button>
 
               <!-- Serial Prefix -->
-              <div class="form-group col-md-3">
+              <div class="form-group col-md-2">
                 <label for="serialPrefix" class="form-label"> <i class="fa fa-hashtag"></i> Serial Prefix: </label>
                 <input type="text" id="serialPrefix" class="form-control" placeholder="Enter Serial Prefix" required />
-                <small class="form-text text-muted">Enter a unique serial prefix.</small>
               </div>
 
               <!-- Start Date -->
-              <div class="form-group col-md-2">
+              <div class="form-group col-md-1">
                 <label for="startDate" class="form-label"> <i class="fa fa-calendar"></i> Start Date: </label>
                 <input type="date" id="startDate" class="form-control" required />
               </div>
 
               <!-- End Date -->
-              <div class="form-group col-md-2">
+              <div class="form-group col-md-1">
                 <label for="endDate" class="form-label"> <i class="fa fa-calendar"></i> End Date: </label>
                 <input type="date" id="endDate" class="form-control" required />
               </div>
-            </div>
-
-            <div class="form-row">
-              <!-- In Time -->
-              <div class="form-group col-md-2">
+              <div class="form-group col-md-1">
                 <label for="inTime" class="form-label"> <i class="fa fa-clock"></i> In Time: </label>
                 <input type="time" id="inTime" class="form-control" required />
               </div>
 
               <!-- Out Time -->
-              <div class="form-group col-md-2">
+              <div class="form-group col-md-1">
                 <label for="outTime" class="form-label"> <i class="fa fa-clock"></i> Out Time: </label>
                 <input type="time" id="outTime" class="form-control" required />
               </div>
 
               <!-- Satsang Area -->
-              <div class="form-group col-md-3">
+              <div class="form-group col-md-2">
                 <label for="satsangArea" class="form-label"> <i class="fa fa-map-marker-alt"></i> Satsang Area: </label>
                 <select id="satsangArea" class="form-control select2" required>
                   <option value="">Select Area</option>
@@ -146,7 +135,7 @@
               </div>
 
               <!-- Satsang Center -->
-              <div class="form-group col-md-3">
+              <div class="form-group col-md-2">
                 <label for="satsangCenter" class="form-label"> <i class="fa fa-building"></i> Satsang Center: </label>
                 <select id="satsangCenter" class="form-control select2" required>
                   <option value="">Select Center</option>
@@ -154,8 +143,8 @@
               </div>
 
               <!-- Submit Button -->
-              <div class="form-group col-md-2 d-flex align-items-end">
-                <button type="button" id="submitEntryButton" class="btn btn-primary w-100"><i class="fa fa-save"></i> Add</button>
+              <div class="form-group col-md-1 d-flex align-items-end">
+                <button type="button" id="submitEntryButton" class="btn btn-primary w-100"><i class="fa fa-save"></i> Save</button>
               </div>
             </div>
             <div id="errorMessage" class="text-danger"></div>
@@ -219,7 +208,16 @@
 
       <!-- Table Container -->
       <div id="tableContainer">
-        <h1 class="mb-4" style="text-align: center; font-size: 25px !important">Sewajatha Records</h1>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h1 class="mb-0" style="font-size: 25px !important">SewaJatha Records <span id="recordCount" class="badge badge-primary">0</span></h1>
+          <div class="form-group col-md-4 d-flex">
+            <select id="grNo" class="form-control select2" multiple="multiple" required></select>
+            <button id="addGrNoButton" class="btn btn-success" data-toggle="modal" data-target="#addGrNoModal" style="margin-left: 10px">
+              <i class="fa fa-plus"></i>
+            </button>
+          </div>
+        </div>
+
         <table id="dataTable" class="display table table-striped table-bordered" style="width: 100%">
           <thead>
             <tr>
