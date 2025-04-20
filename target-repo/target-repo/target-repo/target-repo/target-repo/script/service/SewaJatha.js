@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
           render: () => `<button class="btn btn-danger btn-sm delete-row">Delete</button>`,
         },
       ],
-      paging: true,
+      paging: false,
       searching: true,
       responsive: true,
       autoWidth: false,
