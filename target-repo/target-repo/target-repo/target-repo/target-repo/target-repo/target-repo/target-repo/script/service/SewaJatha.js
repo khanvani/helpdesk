@@ -1,6 +1,8 @@
+// Define validateAndAddEntry in the global scope
+
 document.addEventListener("DOMContentLoaded", () => {
   const $ = window.jQuery;
-
+  const cachedDataKey = "sewadarsDataCache"; // Key for local storage
   const apiKeyModal = $("#apiKeyModal");
   const apiKeyInput = $("#apiKeyInput");
   const errorAPIKey = $("#errorAPIKey");
@@ -35,15 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  function refreshData() {
-    console.log("Refreshing data...");
-    fetchData();
-  }
-
   const elements = {
     addButton: $("#addEntryButton"),
     exportButton: $("#exportButton"),
-    submitButton: $("#submitEntryButton"),
     entryForm: $("#entryForm"),
     errorMessage: $("#errorMessage"),
     grNoDropdown: $("#grNo"), // Corrected selector
@@ -64,9 +60,69 @@ document.addEventListener("DOMContentLoaded", () => {
       $("#serialPrefix").val(storedSerialPrefix);
     }
   }
+  function validateAndAddEntry() {
+    const formData = {
+      grNo: $("#grNo").val(),
+      startDate: $("#startDate").val(),
+      endDate: $("#endDate").val(),
+      inTime: $("#inTime").val(),
+      outTime: $("#outTime").val(),
+      satsangArea: $("#satsangArea").val(),
+      satsangCenter: $("#satsangCenter").val(),
+    };
+
+    let missingFields = [];
+
+    // Check for missing fields
+    if (!formData.grNo) missingFields.push("Gr No");
+    if (!formData.startDate) missingFields.push("Start Date");
+    if (!formData.endDate) missingFields.push("End Date");
+    if (!formData.inTime) missingFields.push("In Time");
+    if (!formData.outTime) missingFields.push("Out Time");
+    if (!formData.satsangArea) missingFields.push("Satsang Area");
+    if (!formData.satsangCenter) missingFields.push("Satsang Center");
+
+    // Check for invalid date range
+    if (formData.startDate && formData.endDate && new Date(formData.endDate) < new Date(formData.startDate)) {
+      missingFields.push("End Date must be greater than or equal to Start Date");
+    }
+
+    // Check for invalid time range
+    if (formData.inTime && formData.outTime && formData.inTime >= formData.outTime) {
+      missingFields.push("Out Time must be greater than In Time");
+    }
+
+    // If there are missing or invalid fields, show the error modal
+    if (missingFields.length > 0) {
+      const errorMessage = `Please address the following issues before submitting:<ul>${missingFields.map((field) => `<li>${field}</li>`).join("")}</ul>`;
+      $("#errorModal .modal-body").html(errorMessage); // Use .html() to render the list
+      $("#errorModal").modal("show");
+      return;
+    }
+
+    // Store the last added values in localStorage
+    localStorage.setItem("lastAddedData", JSON.stringify(formData));
+
+    // If validation passes, proceed with adding entries
+    const entries = generateEntries(formData, $("#grNo").find("option"));
+    dataTable.rows.add(entries).draw();
+
+    // Update the record count
+    updateRecordCount();
+
+    // Clear the Add Sewadar dropdown
+    $("#grNo").val(null).trigger("change"); // Reset the dropdown value
+    $("#errorMessage").text("");
+
+    // Save table data to localStorage
+    const tableData = dataTable.rows().data().toArray();
+    localStorage.setItem("dataTableData", JSON.stringify(tableData));
+  }
 
   function initializeDataTable() {
-    const preloadedData = StorageService.currentRecord?.data || []; // Use preloaded data from helpdesk
+    // Load data from localStorage if available
+    const storedData = JSON.parse(localStorage.getItem("dataTableData")) || [];
+    const preloadedData = storedData.length > 0 ? storedData : [];
 
     dataTable = new DataTable("#dataTable", {
       data: preloadedData,
@@ -75,11 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
         { title: "Name", data: "name" },
         { title: "Gender", data: "gender" },
         { title: "Status", data: "status" },
-        { title: "Satsang Center", data: "satsang_center" },
-        { title: "Satsang Area", data: "satsang_area" },
-        { title: "Date", data: "date" },
-        { title: "Time", data: "time" },
-        { title: "Type", data: "type" },
         {
           title: "Action",
           orderable: false,
@@ -89,60 +140,51 @@ document.addEventListener("DOMContentLoaded", () => {
           render: () => `<button class="btn btn-danger btn-sm delete-row">Delete</button>`,
         },
       ],
-      dom: "Bfrtip",
-      buttons: [
-        {
-          extend: "csvHtml5",
-          text: "Export",
-          className: "btn btn-primary",
-          filename: () => $("#serialPrefix").val().trim() || "export",
-          exportOptions: {
-            columns: [0, 6, 7, 8],
-          },
-        },
-      ],
       paging: true,
       searching: true,
       responsive: true,
       autoWidth: false,
       scrollX: true,
-      order: [], // Disable default sorting
+      order: [],
     });
 
     $("#dataTable").on("click", ".delete-row", function () {
       const row = $(this).closest("tr");
       dataTable.row(row).remove().draw();
-
-      // Update the record count
       updateRecordCount();
     });
   }
 
   async function fetchData() {
     try {
-      $("#loader").show();
-      const response = await $.ajax({
-        url: API_URLS.SEWA_JATHA_FETCH,
-        type: "POST",
-        dataType: "json",
-        data: { api_key: apiKey },
-      });
+      const sewadarsDataCache = JSON.parse(localStorage.getItem("sewadarsDataCache")) || [];
+      if (sewadarsDataCache.length <= 0) {
+        $("#loader").show();
+        const response = await $.ajax({
+          url: API_URLS.SEWA_JATHA_FETCH,
+          type: "POST",
+          dataType: "json",
+          data: { api_key: apiKey },
+        });
 
-      if (response?.status === 401) {
-        localStorage.removeItem("apiKey");
-        $("#apiKeyModal").modal("show");
-        return;
+        if (response?.status === 401) {
+          localStorage.removeItem("apiKey");
+          $("#apiKeyModal").modal("show");
+          return;
+        }
+
+        $("#loader").hide();
+
+        const sewadarsSheet = response?.["Help Desk"]?.["SewaJatha"];
+        if (!sewadarsSheet) {
+          logError("S-Sewadars sheet not found.");
+          return;
+        }
+        localStorage.setItem(cachedDataKey, JSON.stringify(sewadarsSheet.data));
+        populateSelectPicker(elements.grNoDropdown, "Add Sewadar", "Gr_No", "Full_Name");
+      } else {
+        populateSelectPicker(elements.grNoDropdown, "Add Sewadar", "Gr_No", "Full_Name");
       }
-
-      $("#loader").hide();
-
-      const sewadarsSheet = response?.["Help Desk"]?.["SewaJatha"];
-      if (!sewadarsSheet) {
-        logError("S-Sewadars sheet not found.");
-        return;
-      }
-      StorageService.currentRecord = sewadarsSheet;
-      populateSelectPicker(elements.grNoDropdown, "Add Sewadar", "Gr_No", "Full_Name");
     } catch (error) {
       logError("Error fetching data:", error);
     } finally {
@@ -150,9 +192,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  document.getElementById("clearStorageModalYes").addEventListener("click", () => {
+    localStorage.removeItem("dataTableData");
+    localStorage.removeItem("lastAddedData");
+    localStorage.removeItem("sewadarsDataCache");
+    window.location.reload();
+  });
+
+  document.getElementById("newStorageTrigger").addEventListener("click", () => {
+    localStorage.removeItem("dataTableData");
+    localStorage.removeItem("lastAddedData");
+    window.location.reload();
+  });
+
   function populateSelectPicker(dropdown, placeholder, grKey, nameKey) {
-    const cachedDataKey = "sewadarsDataCache"; // Key for local storage
-    let data = JSON.parse(localStorage.getItem(cachedDataKey)) || StorageService.currentRecord?.data || [];
+    let data = JSON.parse(localStorage.getItem(cachedDataKey)) || [];
 
     if (!localStorage.getItem(cachedDataKey)) {
       localStorage.setItem(cachedDataKey, JSON.stringify(data));
@@ -212,57 +266,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     elements.exportButton.on("click", () => $(".buttons-excel").click());
 
-    elements.submitButton.on("click", () => {
-      const formData = {
-        grNo: elements.grNoDropdown.val(),
-        startDate: $("#startDate").val(),
-        endDate: $("#endDate").val(),
-        inTime: $("#inTime").val(),
-        outTime: $("#outTime").val(),
-        satsangArea: $("#satsangArea").val(),
-        satsangCenter: $("#satsangCenter").val(),
-      };
-
-      let missingFields = [];
-
-      // Check for missing fields
-      if (!formData.grNo) missingFields.push("Gr No");
-      if (!formData.startDate) missingFields.push("Start Date");
-      if (!formData.endDate) missingFields.push("End Date");
-      if (!formData.inTime) missingFields.push("In Time");
-      if (!formData.outTime) missingFields.push("Out Time");
-      if (!formData.satsangArea) missingFields.push("Satsang Area");
-      if (!formData.satsangCenter) missingFields.push("Satsang Center");
-
-      // Check for invalid date range
-      if (formData.startDate && formData.endDate && new Date(formData.endDate) < new Date(formData.startDate)) {
-        missingFields.push("End Date must be greater than or equal to Start Date");
-      }
-
-      // Check for invalid time range
-      if (formData.inTime && formData.outTime && formData.inTime >= formData.outTime) {
-        missingFields.push("Out Time must be greater than In Time");
-      }
-
-      // If there are missing or invalid fields, show the error modal
-      if (missingFields.length > 0) {
-        const errorMessage = `Please address the following issues before submitting:<ul>${missingFields.map((field) => `<li>${field}</li>`).join("")}</ul>`;
-        $("#errorModal .modal-body").html(errorMessage); // Use .html() to render the list
-        $("#errorModal").modal("show");
-        return;
-      }
-
-      // If validation passes, proceed with adding entries
-      const entries = generateEntries(formData, elements.grNoDropdown.find("option"));
-      dataTable.rows.add(entries).draw();
-
-      // Update the record count
-      updateRecordCount();
-
-      // Clear the Add Sewadar dropdown
-      elements.grNoDropdown.val(null).trigger("change"); // Reset the dropdown value
-      elements.errorMessage.text("");
-    });
     setupAddGrNoModal();
     setupSatsangAreaDropdown();
   }
@@ -338,13 +341,24 @@ document.addEventListener("DOMContentLoaded", () => {
           const combinedValue = `${grNo} - ${name} - ${satsangCenter}`;
           const newOption = `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${gender}" data-status="${status}" data-satsang-center="${satsangCenter}" data-satsang-area="${satsangArea}">${combinedValue}</option>`;
           elements.grNoDropdown.append(newOption);
+          const sewadarsDataCache = JSON.parse(localStorage.getItem("sewadarsDataCache")) || [];
+          const newRecord = {
+            gr_no: grNo,
+            name: name,
+            gender: gender,
+            status: status,
+            satsang_center: satsangCenter,
+            satsang_area: satsangArea,
+          };
+          sewadarsDataCache.push(newRecord);
+          localStorage.setItem("sewadarsDataCache", JSON.stringify(sewadarsDataCache));
 
           // Retain previously selected entries and merge with the new entry
           const selectedValues = elements.grNoDropdown.val() || [];
           selectedValues.push(combinedValue);
           //elements.grNoDropdown.val([...new Set(selectedValues)]); // Ensure no duplicates
           elements.grNoDropdown.selectpicker("refresh");
-          $("#submitEntryButton").click();
+          validateAndAddEntry();
           $("#loader").hide();
           addGrNoModal.modal("hide");
         } else {
@@ -501,6 +515,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     satsangCenterInputs.prop("disabled", true);
+    const lastAddedData = JSON.parse(localStorage.getItem("lastAddedData"));
+
+    if (lastAddedData) {
+      $("#serialPrefix").val(lastAddedData.serialPrefix || ""); // Set Serial Prefix
+      $("#startDate").val(lastAddedData.startDate || ""); // Set Start Date
+      $("#endDate").val(lastAddedData.endDate || ""); // Set End Date
+      $("#inTime").val(lastAddedData.inTime || ""); // Set In Time
+      $("#outTime").val(lastAddedData.outTime || ""); // Set Out Time
+      $("#satsangArea")
+        .val(lastAddedData.satsangArea || "")
+        .trigger("change"); // Set Satsang Area
+      $("#satsangCenter")
+        .val(lastAddedData.satsangCenter || "")
+        .trigger("change"); // Set Satsang Center
+    }
   }
 
   function validateForm({ grNo, startDate, endDate, inTime, outTime }) {
@@ -530,30 +559,16 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  function generateEntries({ grNo, startDate, endDate, inTime, outTime }, grNoOptions) {
+  function generateEntries({ grNo }, grNoOptions) {
     const entries = [];
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    while (start <= end) {
-      const formattedDate = start.toISOString().split("T")[0];
-      grNo.forEach((gr) => {
-        const option = grNoOptions.filter(`[value="${gr}"]`);
-        const gr_no = option.attr("data-gr-no");
-        const name = option.attr("data-name");
-        const gender = option.attr("data-gender");
-        const status = option.attr("data-status");
-        const satsangArea = $("#satsangArea").val().trim();
-        const satsangCenter = $("#satsangCenter").val().trim();
-
-        entries.push(
-          { gr_no, name, gender, status, satsang_center: satsangCenter, satsang_area: satsangArea, date: formattedDate, time: inTime, type: "IN" },
-          { gr_no, name, gender, status, satsang_center: satsangCenter, satsang_area: satsangArea, date: formattedDate, time: outTime, type: "OUT" }
-        );
-      });
-      start.setDate(start.getDate() + 1);
-    }
-
+    grNo.forEach((gr) => {
+      const option = grNoOptions.filter(`[value="${gr}"]`);
+      const gr_no = option.attr("data-gr-no");
+      const name = option.attr("data-name");
+      const gender = option.attr("data-gender");
+      const status = option.attr("data-status");
+      entries.push({ gr_no, name, gender, status });
+    });
     return entries;
   }
 
@@ -563,24 +578,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Function to update the record count
   function updateRecordCount() {
-    const recordCount = dataTable.rows().count(); // Get the total number of rows in the table
-
-    // Get the start and end dates
-    const startDate = new Date($("#startDate").val());
-    const endDate = new Date($("#endDate").val());
-
-    // Calculate the number of days difference
-    const timeDifference = endDate - startDate;
-    const dayDifference = timeDifference > 0 ? Math.ceil(timeDifference / (1000 * 60 * 60 * 24)) + 1 : 1;
-
-    // Calculate the adjusted record count
-    const adjustedRecordCount = Math.floor(recordCount / dayDifference / 2);
-
-    // Update the count in the badge
-    $("#recordCount").text(adjustedRecordCount);
+    const recordCount = dataTable.rows().count();
+    $("#recordCount").text(recordCount);
   }
 
-  $("#saveButton").click(async () => {
+  $("#saveAndExportButton").click(async () => {
     const tableData = dataTable.rows().data().toArray();
     if (tableData.length === 0) {
       alert("No data available to save.");
@@ -588,66 +590,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const serialPrefix = $("#serialPrefix").val().trim();
-    if (!serialPrefix) {
-      alert("Please enter a valid Serial Prefix.");
+    const startDate = $("#startDate").val();
+    const endDate = $("#endDate").val();
+    const inTime = $("#inTime").val();
+    const outTime = $("#outTime").val();
+    const satsangArea = $("#satsangArea").val();
+    const satsangCenter = $("#satsangCenter").val();
+
+    if (!serialPrefix || !startDate || !endDate || !inTime || !outTime || !satsangArea || !satsangCenter) {
+      alert("Please fill all the required fields in the form.");
       return;
     }
-
-    // Store serialPrefix in localStorage
-    localStorage.setItem("serialPrefix", serialPrefix);
-
-    const groupedData = {};
-    const now = new Date();
-    tableData.forEach((row) => {
-      const key = `${row.gr_no}-${row.name}-${row.date}`;
-      if (!groupedData[key]) {
-        groupedData[key] = {
-          gr_no: row.gr_no,
-          name: row.name,
-          gender: row.gender,
-          status: row.status,
-          satsang_center: row.satsang_center,
-          satsang_area: row.satsang_area,
-          date: row.date,
-          in_time: "",
-          out_time: "",
-        };
-      }
-      if (row.type === "IN") {
-        groupedData[key].in_time = row.time;
-      } else if (row.type === "OUT") {
-        groupedData[key].out_time = row.time;
-      }
-    });
-
-    const formatDateTime = (date) => {
-      const options = { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "numeric", hour12: true };
-      return new Intl.DateTimeFormat("en-US", options).format(date);
-    };
-    const formattedDateTime = formatDateTime(now);
-
-    const formattedData = Object.values(groupedData).map((row, index) => [
-      serialPrefix,
-      row.date,
-      row.gr_no,
-      row.name,
-      row.gender,
-      row.status,
-      row.satsang_center,
-      row.satsang_area,
-      1,
-      row.in_time,
-      row.out_time,
-      formattedDateTime,
-    ]);
-
+    // Proceed with your existing save logic
     try {
       $("#loader").show();
       const response = await $.ajax({
         url: API_URLS.SEWA_JATHA_STORE,
         type: "POST",
         dataType: "json",
-        data: { api_key: localStorage.getItem("apiKey"), action: "appendToGoogleSheet", data: formattedData },
+        data: {
+          api_key: localStorage.getItem("apiKey"),
+          action: "appendToGoogleSheet",
+          data: tableData,
+        },
       });
 
       if (response?.status === 401) {
@@ -664,33 +629,89 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       $("#loader").hide();
     } catch (error) {
-      $("#loader").show();
+      $("#loader").hide();
       console.error("Error appending data to Google Sheet:", error);
       alert("An error occurred. Please try again.");
     }
   });
-});
 
-window.addEventListener("beforeunload", (event) => {
-  event.preventDefault();
-  event.returnValue = "Are you sure you want to leave this page? Unsaved changes may be lost.";
-});
-// Global keydown listener for Ctrl+S or Cmd+S
-document.addEventListener("keydown", (event) => {
-  if ((event.ctrlKey || event.metaKey) && event.key === "s") {
-    event.preventDefault(); // Prevent the default browser save action
-    $("#submitEntryButton").click(); // Trigger the save button click
+  window.addEventListener("beforeunload", (event) => {
+    event.preventDefault();
+    event.returnValue = "Are you sure you want to leave this page? Unsaved changes may be lost.";
+  });
+  // Global keydown listener for Ctrl+S or Cmd+S
+  document.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "s") {
+      event.preventDefault(); // Prevent the default browser save action
+      validateAndAddEntry(); // Call the function to save the entry
+    }
+  });
+
+  // Attach a change event listener to the Select2 dropdown
+  $("#grNo").on("select2:select", function (event) {
+    const selectedValue = event.params.data.id; // Get the selected value
+    console.log("Selected value:", selectedValue);
+
+    // Perform an action when an option is selected
+    if (selectedValue) {
+      // Example: Trigger the save button click
+      validateAndAddEntry();
+    }
+  });
+
+  function exportCustomCSV() {
+    const tableData = dataTable.rows().data().toArray();
+    if (tableData.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
+
+    const startDate = $("#startDate").val();
+    const endDate = $("#endDate").val();
+    const inTime = $("#inTime").val();
+    const outTime = $("#outTime").val();
+    const serialPrefix = $("#serialPrefix").val().trim();
+
+    if (!startDate || !endDate || !inTime || !outTime || !serialPrefix) {
+      alert("Please fill all the required fields in the form, including Serial Prefix.");
+      return;
+    }
+
+    const csvRows = [];
+    csvRows.push("gr_no,date,time,type"); // Add the header row
+
+    tableData.forEach((row) => {
+      if (row.gr_no === "No Badge") return; // Skip rows with "No Badge" in gr_no
+
+      let currentDate = new Date(startDate);
+
+      while (currentDate <= new Date(endDate)) {
+        const formattedDate = currentDate.toISOString().split("T")[0]; // Format the date as YYYY-MM-DD
+
+        // Add IN and OUT entries for the current date
+        csvRows.push(`${row.gr_no},${formattedDate},${inTime},IN`);
+        csvRows.push(`${row.gr_no},${formattedDate},${outTime},OUT`);
+
+        // Move to the next date
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    });
+
+    // Convert the rows to a CSV string
+    const csvContent = csvRows.join("\n");
+
+    // Create a Blob and download the file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${serialPrefix}.csv`); // Use SerialPrefix as the filename
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
-});
 
-// Attach a change event listener to the Select2 dropdown
-$("#grNo").on("select2:select", function (event) {
-  const selectedValue = event.params.data.id; // Get the selected value
-  console.log("Selected value:", selectedValue);
-
-  // Perform an action when an option is selected
-  if (selectedValue) {
-    // Example: Trigger the save button click
-    $("#submitEntryButton").click();
-  }
+  // Add a button to trigger the export function
+  $("#exportCustomCSVButton").on("click", exportCustomCSV);
 });

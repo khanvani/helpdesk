@@ -84,6 +84,14 @@
           <i class="fa fa-arrow-left" aria-hidden="true"></i>
           <span class="sidebar-text">Back</span>
         </a>
+        <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal" class="sidebar-item right">
+          <i class="fas fa-broom"></i>
+          <span class="sidebar-text">Reset</span>
+        </a>
+        <a href="#" id="newStorageTrigger" data-toggle="modal" class="sidebar-item right">
+          <i class="fas fa-add"></i>
+          <span class="sidebar-text">Add</span>
+        </a>
       </div>
     </div>
 
@@ -91,7 +99,7 @@
       <!-- Form Container -->
       <div id="formContainer" class="card shadow-sm">
         <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="fa fa-calendar-alt"></i> Add Sewadar Details</h5>
+          <h5 class="mb-0"><i class="fa fa-calendar-alt"></i> Sewa Jatha Details</h5>
         </div>
         <div class="card-body">
           <form id="entryForm">
@@ -99,7 +107,7 @@
               <!-- Add Sewadar Dropdown -->
 
               <!-- Serial Prefix -->
-              <div class="form-group col-md-2">
+              <div class="form-group col-md-1">
                 <label for="serialPrefix" class="form-label"> <i class="fa fa-hashtag"></i> Serial Prefix: </label>
                 <input type="text" id="serialPrefix" class="form-control" placeholder="Enter Serial Prefix" required />
               </div>
@@ -141,10 +149,14 @@
                   <option value="">Select Center</option>
                 </select>
               </div>
-
-              <!-- Submit Button -->
-              <div class="form-group col-md-1 d-flex align-items-end">
-                <button type="button" id="submitEntryButton" class="btn btn-primary w-100"><i class="fa fa-save"></i> Save</button>
+              <div class="form-group col-md-3">
+                <label for="grNo" class="form-label"> <i class="fa fa-plus"></i> Select & Add Sewadar: </label>
+                <div class="d-flex">
+                  <select id="grNo" class="form-control select2" multiple="multiple" required></select>
+                  <button id="addGrNoButton" class="btn btn-success" data-toggle="modal" data-target="#addGrNoModal" style="margin-left: 10px">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
               </div>
             </div>
             <div id="errorMessage" class="text-danger"></div>
@@ -196,6 +208,7 @@
                     <option value="">Select Satsang Center</option>
                   </select>
                 </div>
+
                 <div id="modalErrorMessage" class="text-danger"></div>
               </form>
             </div>
@@ -229,13 +242,9 @@
       <!-- Table Container -->
       <div id="tableContainer">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h1 class="mb-0" style="font-size: 25px !important">SewaJatha Records <span id="recordCount" class="badge badge-primary">0</span></h1>
-          <div class="form-group col-md-4 d-flex">
-            <select id="grNo" class="form-control select2" multiple="multiple" required></select>
-            <button id="addGrNoButton" class="btn btn-success" data-toggle="modal" data-target="#addGrNoModal" style="margin-left: 10px">
-              <i class="fa fa-plus"></i>
-            </button>
-          </div>
+          <h1 class="mb-0" style="font-size: 25px !important">
+            Sewadars <span style="font-size: 25px !important" id="recordCount" class="badge badge-primary">0</span>
+          </h1>
         </div>
 
         <table id="dataTable" class="display table table-striped table-bordered" style="width: 100%">
@@ -245,17 +254,13 @@
               <th>Name</th>
               <th>Gender</th>
               <th>Status</th>
-              <th>Satsang Center</th>
-              <th>Satsang Area</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Type</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
-        <button id="saveButton" class="btn btn-primary mt-3"><i class="fa fa-save"></i> Save and Export</button>
+        <button id="exportCustomCSVButton" class="btn btn-primary mt-3"><i class="fa fa-download"></i> Export</button>
+        <button id="saveAndExportButton" class="btn btn-primary mt-3" style="float: right"><i class="fa fa-save"></i> Save and Export</button>
       </div>
       <!-- Save Button -->
       <div class="modal fade" id="apiKeyModal" tabindex="-1" aria-labelledby="apiKeyModalLabel">
@@ -287,6 +292,23 @@
     <div id="loader" style="display: none">
       <div id="loadingIndicator">
         <div class="spinner"></div>
+      </div>
+    </div>
+    <div class="modal fade" id="clearStorageModal" tabindex="-1" aria-labelledby="clearStorageModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="clearStorageModalLabel">Confirm Action</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">Are you sure you want to clear all storage data?</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <button type="button" class="btn btn-primary" id="clearStorageModalYes">Yes</button>
+          </div>
+        </div>
       </div>
     </div>
     <!-- Include Required Scripts -->
