@@ -18,6 +18,10 @@
         padding: 0;
         font-family: Arial, sans-serif;
       }
+      .card-body {
+        padding: 0px;
+        padding-top: 10px;
+      }
       .display-none {
         display: none;
       }
@@ -40,7 +44,7 @@
 
       #formContainer {
         margin-bottom: 5px;
-        padding: 10px;
+        padding: 0px 10px;
         border: 1px solid #ddd;
         border-radius: 5px;
         background-color: #f9f9f9;
@@ -51,6 +55,10 @@
         border: 1px solid #ddd;
         border-radius: 5px;
         background-color: #fff;
+      }
+      .form-row *,
+      .select2-container--default {
+        font-size: 12px !important;
       }
 
       .form-group {
@@ -70,8 +78,6 @@
         font-weight: bold;
       }
       .select2-container .select2-selection--multiple {
-        height: auto !important;
-        min-height: 38px;
         border: 1px solid #ced4da;
         border-radius: 0.25rem;
       }
@@ -101,9 +107,6 @@
     <div id="mainContainer">
       <!-- Form Container -->
       <div id="formContainer" class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="fa fa-calendar-alt"></i> Sewa Jatha Details</h5>
-        </div>
         <div class="card-body">
           <form id="entryForm">
             <div class="form-row">
@@ -111,7 +114,7 @@
 
               <!-- Serial Prefix -->
               <div class="form-group col-md-1">
-                <label for="serialPrefix" class="form-label"> <i class="fa fa-hashtag"></i> Serial Prefix: </label>
+                <label for="serialPrefix" class="form-label"> <i class="fa fa-hashtag"></i> Serial: </label>
                 <input type="text" id="serialPrefix" class="form-control" placeholder="Enter Serial Prefix" required />
               </div>
 
