@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  async function fetchData(forceRefresh) {
+  async function fetchData(forceRefresh, callback) {
     try {
       const sewadarsDataCache = JSON.parse(localStorage.getItem("sewadarsDataCache")) || [];
       if (forceRefresh || sewadarsDataCache.length <= 0) {
@@ -189,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
       logError("Error fetching data:", error);
     } finally {
       $("#loader").hide();
+      callback();
     }
   }
 
@@ -206,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("refreshStorageTrigger").addEventListener("click", () => {
-    fetchData(true);
+    fetchData(true, {});
   });
 
   function populateSelectPicker(dropdown, placeholder, grKey, nameKey) {
@@ -341,27 +342,22 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (response.success) {
-          // Add the new entry to the dropdown
-          const combinedValue = `${grNo} - ${name} - ${satsangCenter}`;
-          const newOption = `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${gender}" data-status="${status}" data-satsang-center="${satsangCenter}" data-satsang-area="${satsangArea}">${combinedValue}</option>`;
-          elements.grNoDropdown.append(newOption);
           const sewadarsDataCache = JSON.parse(localStorage.getItem("sewadarsDataCache")) || [];
           const newRecord = {
-            gr_no: grNo,
-            name: name,
-            gender: gender,
-            status: status,
-            satsang_center: satsangCenter,
-            satsang_area: satsangArea,
+            Gr_No: grNo,
+            Full_Name: name,
+            Gender: gender,
+            Status: status,
+            Satsang_Center: satsangCenter,
+            Satsang_Area: satsangArea,
           };
           sewadarsDataCache.push(newRecord);
           localStorage.setItem("sewadarsDataCache", JSON.stringify(sewadarsDataCache));
-          // Retain previously selected entries and merge with the new entry
-          const selectedValues = elements.grNoDropdown.val() || [];
-          selectedValues.push(combinedValue);
-          //elements.grNoDropdown.val([...new Set(selectedValues)]); // Ensure no duplicates
-          elements.grNoDropdown.selectpicker("refresh");
-          validateAndAddEntry();
+          const combinedValue = `${grNo} - ${name} - ${satsangCenter}`;
+          fetchData(false, function () {
+            elements.grNoDropdown.val(combinedValue).trigger("change");
+            validateAndAddEntry();
+          });
           $("#loader").hide();
           addGrNoModal.modal("hide");
         } else {
