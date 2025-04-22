@@ -218,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const uniqueSet = new Set();
 
-    dropdown.empty(); // Clear existing options
+    elements.grNoDropdown.empty(); // Clear existing options
     data.forEach((row) => {
       const grNo = row[grKey];
       const name = row[nameKey];
@@ -226,12 +226,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (grNo && !uniqueSet.has(combinedValue)) {
         uniqueSet.add(combinedValue);
         const option = `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${row.Gender}" data-status="${row.Status}" data-satsang-center="${row.Satsang_Center}" data-satsang-area="${row.Satsang_Area}">${combinedValue}</option>`;
-        dropdown.append(option);
+        elements.grNoDropdown.append(option);
       }
     });
 
     // Initialize Select2 with lazy loading
-    dropdown.select2({
+    elements.grNoDropdown.select2({
       placeholder: placeholder,
       allowClear: true,
       width: "100%",
@@ -356,8 +356,6 @@ document.addEventListener("DOMContentLoaded", () => {
           };
           sewadarsDataCache.push(newRecord);
           localStorage.setItem("sewadarsDataCache", JSON.stringify(sewadarsDataCache));
-          const option = `<option value="${combinedValue}" data-gr-no="${grNo}" data-name="${name}" data-gender="${gender}" data-status="${status}" data-satsang-center="${satsangCenter}" data-satsang-area="${satsangArea}">${combinedValue}</option>`;
-          dropdown.append(option);
           // Retain previously selected entries and merge with the new entry
           const selectedValues = elements.grNoDropdown.val() || [];
           selectedValues.push(combinedValue);
