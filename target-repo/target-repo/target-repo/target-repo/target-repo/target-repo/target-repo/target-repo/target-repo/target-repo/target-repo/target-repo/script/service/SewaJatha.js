@@ -748,7 +748,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Add IN and OUT entries for the current date with double quotes
         csvRows.push(`"${row.gr_no}","${formattedDate}","${inTime}","IN","Added Sewa Jatha Entry for ${serialPrefix}."`);
-        csvRows.push(`"${row.gr_no}","${formattedDate}","${outTime}","OUT"`);
+        csvRows.push(`"${row.gr_no}","${formattedDate}","${outTime}","OUT",""`);
 
         // Move to the next date
         currentDate.setDate(currentDate.getDate() + 1);
