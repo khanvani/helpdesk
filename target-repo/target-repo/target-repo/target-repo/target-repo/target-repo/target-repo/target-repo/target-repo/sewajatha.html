@@ -14,7 +14,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
       body * {
-        font-size: 13px !important;
+        font-size: 12px !important;
         font-family: Arial, sans-serif;
       }
       body {
@@ -87,6 +87,14 @@
       }
       #dataTable_wrapper {
         display: contents;
+      }
+      table.dataTable tbody th,
+      table.dataTable tbody td {
+        padding: 0px 8px;
+      }
+      .delete-row {
+        padding: 5px !important;
+        margin: 3px !important;
       }
     </style>
   </head>
@@ -256,8 +264,8 @@
       <!-- Table Container -->
       <div id="tableContainer">
         <div class="justify-content-between align-items-center mb-3" style="width: fit-content; display: inline !important">
-          <h1 class="mb-0" style="font-size: 25px !important; width: fit-content; display: inline">
-            Sewadars <span style="font-size: 25px !important" id="recordCount" class="badge badge-primary">0</span>
+          <h1 class="mb-0" style="font-size: 20px !important; width: fit-content; display: inline">
+            Sewadars <span style="font-size: 20px !important" id="recordCount" class="badge badge-primary">0</span>
           </h1>
         </div>
 

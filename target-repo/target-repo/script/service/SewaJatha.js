@@ -51,8 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function initialize() {
     initializeDataTable();
-    fetchData(false);
-    attachEventListeners();
+    fetchData(false, function () {
+      attachEventListeners();
+    });
 
     // Retrieve serialPrefix from localStorage and set it in the input field
     const storedSerialPrefix = localStorage.getItem("serialPrefix");
@@ -137,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
           searchable: false,
           className: "text-center",
           data: null,
-          render: () => `<button class="btn btn-danger btn-sm delete-row">Delete</button>`,
+          render: () => `<button class="btn btn-danger btn-sm delete-row fas fa-trash"></button>`,
         },
       ],
       paging: false,
@@ -147,10 +148,12 @@ document.addEventListener("DOMContentLoaded", () => {
       scrollX: true,
       order: [],
     });
-
+    updateRecordCount();
     $("#dataTable").on("click", ".delete-row", function () {
       const row = $(this).closest("tr");
       dataTable.row(row).remove().draw();
+      const tableData = dataTable.rows().data().toArray();
+      localStorage.setItem("dataTableData", JSON.stringify(tableData));
       updateRecordCount();
     });
   }
@@ -273,6 +276,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setupAddGrNoModal();
     setupSatsangAreaDropdown();
+
+    // Monitor changes in the entryForm and store them in localStorage
+    elements.entryForm.on("change input", function () {
+      const formData = {
+        grNo: $("#grNo").val(),
+        startDate: $("#startDate").val(),
+        endDate: $("#endDate").val(),
+        inTime: $("#inTime").val(),
+        outTime: $("#outTime").val(),
+        satsangArea: $("#satsangArea").val(),
+        satsangCenter: $("#satsangCenter").val(),
+      };
+
+      localStorage.setItem("lastAddedData", JSON.stringify(formData));
+    });
+    elements.entryForm.on("change select", function () {
+      const formData = {
+        grNo: $("#grNo").val(),
+        startDate: $("#startDate").val(),
+        endDate: $("#endDate").val(),
+        inTime: $("#inTime").val(),
+        outTime: $("#outTime").val(),
+        satsangArea: $("#satsangArea").val(),
+        satsangCenter: $("#satsangCenter").val(),
+      };
+
+      localStorage.setItem("lastAddedData", JSON.stringify(formData));
+    });
   }
 
   function setupAddGrNoModal() {
@@ -734,7 +765,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const csvContent = csvRows.join("\n");
 
     // Create a Blob and download the file
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const csvContentWithBOM = "\uFEFF" + csvContent;
+    const blob = new Blob([csvContentWithBOM], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
