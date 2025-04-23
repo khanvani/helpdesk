@@ -736,7 +736,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const csvRows = [];
-    csvRows.push("gr_no,date,time,type"); // Add the header row
+    csvRows.push('"gr_no","date","time","type","remarks"'); // Add the header row with double quotes
 
     tableData.forEach((row) => {
       if (row.gr_no === "No Badge") return; // Skip rows with "No Badge" in gr_no
@@ -746,9 +746,9 @@ document.addEventListener("DOMContentLoaded", () => {
       while (currentDate <= new Date(endDate)) {
         const formattedDate = currentDate.toISOString().split("T")[0]; // Format the date as YYYY-MM-DD
 
-        // Add IN and OUT entries for the current date
-        csvRows.push(`${row.gr_no},${formattedDate},${inTime},IN`);
-        csvRows.push(`${row.gr_no},${formattedDate},${outTime},OUT`);
+        // Add IN and OUT entries for the current date with double quotes
+        csvRows.push(`"${row.gr_no}","${formattedDate}","${inTime}","IN","Added Sewa Jatha Entry for ${serialPrefix}."`);
+        csvRows.push(`"${row.gr_no}","${formattedDate}","${outTime}","OUT"`);
 
         // Move to the next date
         currentDate.setDate(currentDate.getDate() + 1);
