@@ -759,8 +759,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const csvContent = csvRows.join("\n");
 
     // Create a Blob and download the file
-    const csvContentWithBOM = "\uFEFF" + csvContent;
-    const blob = new Blob([csvContentWithBOM], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
     link.setAttribute("href", url);
