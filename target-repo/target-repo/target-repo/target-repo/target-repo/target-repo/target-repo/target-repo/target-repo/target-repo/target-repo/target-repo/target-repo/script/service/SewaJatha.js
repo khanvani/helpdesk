@@ -54,12 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchData(false, function () {
       attachEventListeners();
     });
-
-    // Retrieve serialPrefix from localStorage and set it in the input field
-    const storedSerialPrefix = localStorage.getItem("serialPrefix");
-    if (storedSerialPrefix) {
-      $("#serialPrefix").val(storedSerialPrefix);
-    }
   }
   function validateAndAddEntry() {
     const formData = {
@@ -280,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Monitor changes in the entryForm and store them in localStorage
     elements.entryForm.on("change input", function () {
       const formData = {
-        grNo: $("#grNo").val(),
+        serialPrefix: $("#serialPrefix").val(),
         startDate: $("#startDate").val(),
         endDate: $("#endDate").val(),
         inTime: $("#inTime").val(),
@@ -293,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     elements.entryForm.on("change select", function () {
       const formData = {
-        grNo: $("#grNo").val(),
+        serialPrefix: $("#serialPrefix").val(),
         startDate: $("#startDate").val(),
         endDate: $("#endDate").val(),
         inTime: $("#inTime").val(),
