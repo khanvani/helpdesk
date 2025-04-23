@@ -755,8 +755,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Convert the rows to a CSV string
-    const csvContent = csvRows.join("\n");
+    // Convert the rows to a CSV string with standard line breaks (\r\n)
+    const csvContent = csvRows.join("\r\n");
 
     // Create a Blob and download the file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
