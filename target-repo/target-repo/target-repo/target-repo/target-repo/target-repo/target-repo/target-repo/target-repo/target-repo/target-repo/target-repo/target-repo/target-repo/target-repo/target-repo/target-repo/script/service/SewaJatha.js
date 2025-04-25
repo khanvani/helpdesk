@@ -633,6 +633,10 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("No data available to save.");
       return;
     }
+    const formatDateTime = (date) => {
+      const options = { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "numeric", hour12: true };
+      return new Intl.DateTimeFormat("en-US", options).format(date);
+    };
 
     const serialPrefix = $("#serialPrefix").val().trim();
     const startDate = $("#startDate").val();
@@ -683,9 +687,10 @@ document.addEventListener("DOMContentLoaded", () => {
             row.status,
             satsangCenter,
             satsangArea,
-            1, // Example fixed value for a column
+            1,
             inTime,
             outTime,
+            formatDateTime,
           ]);
 
           // Move to the next date
