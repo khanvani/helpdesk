@@ -9,10 +9,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitApiKeyButton = $("#submitApiKey");
   const apiKey = localStorage.getItem("apiKey");
   const currentDate = new Date().toISOString().split("T")[0]; // Get the current date in YYYY-MM-DD format
-  $("#startDate").val(currentDate); // Set the default Start Date
-  $("#endDate").val(currentDate); // Set the default End Date
-  $("#inTime").val("07:00"); // Set the default In Time
-  $("#outTime").val("17:00"); // Set the default Out Time
 
   if (!apiKey) {
     apiKeyModal.modal("show");
@@ -215,8 +211,16 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("newStorageTrigger").addEventListener("click", () => {
+    const lastAddedData = JSON.parse(localStorage.getItem("lastAddedData")) || {};
+    const preservedData = {
+      serialPrefix: lastAddedData.serialPrefix || "",
+      startDate: lastAddedData.startDate || "",
+      endDate: lastAddedData.endDate || "",
+    };
+
+    // Save the preserved data back to localStorage
+    localStorage.setItem("lastAddedData", JSON.stringify(preservedData));
     localStorage.removeItem("dataTableData");
-    localStorage.removeItem("lastAddedData");
     window.location.reload();
   });
 
