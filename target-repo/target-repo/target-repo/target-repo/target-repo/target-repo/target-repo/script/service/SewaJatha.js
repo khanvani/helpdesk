@@ -77,6 +77,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!formData.satsangArea) missingFields.push("Satsang Area");
     if (!formData.satsangCenter) missingFields.push("Satsang Center");
 
+    const existingData = dataTable.rows().data().toArray();
+    const isDuplicate = existingData.some((row) => {
+      if (typeof formData.grNo[0] === "string" && row.gr_no) {
+        return formData.grNo[0].startsWith(`${row.gr_no} - ${row.name}`);
+      }
+      return false; // Return false if formData.grNo or row.gr_no is invalid
+    });
+    if (isDuplicate) {
+      elements.grNoDropdown.val(null).trigger("change"); // Unselect the current value
+      const errorMessage = `The entry with Gr No <strong>${formData.grNo}</strong> already exists in the table.`;
+      $("#errorModal .modal-body").html(errorMessage); // Show duplicate error in the modal
+      $("#errorModal").modal("show");
+      return;
+    }
+
     // Check for invalid date range
     if (formData.startDate && formData.endDate && new Date(formData.endDate) < new Date(formData.startDate)) {
       missingFields.push("End Date must be greater than or equal to Start Date");
@@ -94,6 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
       $("#errorModal").modal("show");
       return;
     }
+
+    // Check for duplicates in the table
 
     // Store the last added values in localStorage
     localStorage.setItem("lastAddedData", JSON.stringify(formData));
@@ -616,34 +633,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const serialPrefix = $("#serialPrefix").val().trim();
     const startDate = $("#startDate").val();
     const endDate = $("#endDate").val();
-    const inTime = $("#inTime").val();
-    const outTime = $("#outTime").val();
+    const providedInTime = $("#inTime").val();
+    const providedOutTime = $("#outTime").val();
     const satsangArea = $("#satsangArea").val();
     const satsangCenter = $("#satsangCenter").val();
 
-    if (!serialPrefix || !startDate || !endDate || !inTime || !outTime || !satsangArea || !satsangCenter) {
+    if (!serialPrefix || !startDate || !endDate || !providedInTime || !providedOutTime || !satsangArea || !satsangCenter) {
       alert("Please fill all the required fields in the form.");
       return;
     }
-    // Proceed with your existing save logic
+
     try {
       $("#loader").show();
 
       // Store serialPrefix in localStorage
       localStorage.setItem("serialPrefix", serialPrefix);
 
-      const formatDateTime = (date) => {
-        const options = { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "numeric", hour12: true };
-        return new Intl.DateTimeFormat("en-US", options).format(date);
-      };
       const formattedData = [];
-      const now = new Date();
-
-      // Iterate through each row in the table data
       tableData.forEach((row) => {
         let currentDate = new Date(startDate); // Reset the start date for each row
+
         while (currentDate <= new Date(endDate)) {
           const formattedDate = currentDate.toISOString().split("T")[0]; // Format the date as YYYY-MM-DD
+
+          // Determine inTime and outTime based on the date
+          let inTime, outTime;
+          if (formattedDate === startDate) {
+            inTime = providedInTime; // Use provided inTime for the start date
+            outTime = "16:30"; // Fixed outTime for the start date
+          } else if (formattedDate === endDate) {
+            inTime = "06:30"; // Fixed inTime for the end date
+            outTime = providedOutTime; // Use provided outTime for the end date
+          } else {
+            inTime = "06:30"; // Fixed inTime for intermediate dates
+            outTime = "16:30"; // Fixed outTime for intermediate dates
+          }
+
+          // Add the formatted data for the current date
           formattedData.push([
             serialPrefix,
             formattedDate,
@@ -653,15 +679,19 @@ document.addEventListener("DOMContentLoaded", () => {
             row.status,
             satsangCenter,
             satsangArea,
-            1,
+            1, // Example fixed value for a column
             inTime,
             outTime,
-            formatDateTime,
           ]);
+
+          // Move to the next date
           currentDate.setDate(currentDate.getDate() + 1);
         }
       });
+
       console.log("Formatted Data:", formattedData);
+
+      // Send the formatted data to the server
       const response = await $.ajax({
         url: API_URLS.SEWA_JATHA_STORE,
         type: "POST",
@@ -726,11 +756,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const startDate = $("#startDate").val();
     const endDate = $("#endDate").val();
-    const inTime = $("#inTime").val();
-    const outTime = $("#outTime").val();
+    const providedInTime = $("#inTime").val();
+    const providedOutTime = $("#outTime").val();
     const serialPrefix = $("#serialPrefix").val().trim();
 
-    if (!startDate || !endDate || !inTime || !outTime || !serialPrefix) {
+    if (!startDate || !endDate || !providedInTime || !providedOutTime || !serialPrefix) {
       alert("Please fill all the required fields in the form, including Serial Prefix.");
       return;
     }
@@ -745,6 +775,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
       while (currentDate <= new Date(endDate)) {
         const formattedDate = currentDate.toISOString().split("T")[0]; // Format the date as YYYY-MM-DD
+
+        // Determine inTime and outTime based on the date
+        let inTime, outTime;
+        if (formattedDate === startDate) {
+          inTime = providedInTime; // Use provided inTime for the start date
+          outTime = "16:30"; // Fixed outTime for the start date
+        } else if (formattedDate === endDate) {
+          inTime = "06:30"; // Fixed inTime for the end date
+          outTime = providedOutTime; // Use provided outTime for the end date
+        } else {
+          inTime = "06:30"; // Fixed inTime for intermediate dates
+          outTime = "16:30"; // Fixed outTime for intermediate dates
+        }
 
         // Add IN and OUT entries for the current date with double quotes
         csvRows.push(`"${row.gr_no}","${formattedDate}","${inTime}","IN","Added Sewa Jatha Entry for ${serialPrefix}."`);
