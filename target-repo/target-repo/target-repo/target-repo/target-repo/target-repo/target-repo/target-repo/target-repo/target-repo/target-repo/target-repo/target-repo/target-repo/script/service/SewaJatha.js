@@ -664,20 +664,33 @@ document.addEventListener("DOMContentLoaded", () => {
         while (currentDate <= new Date(endDate)) {
           const formattedDate = currentDate.toISOString().split("T")[0]; // Format the date as YYYY-MM-DD
 
-          // Determine inTime and outTime based on the date
           let inTime, outTime;
-          if (formattedDate === startDate) {
-            inTime = providedInTime; // Use provided inTime for the start date
-            outTime = "16:30"; // Fixed outTime for the start date
+          if (formattedDate === startDate && formattedDate === endDate) {
+            inTime = providedInTime;
+            outTime = providedOutTime;
+          } else if (formattedDate === startDate) {
+            inTime = providedInTime;
+            if (parseInt(providedInTime.substring(0, 2)) > 16) {
+              if (parseInt(providedInTime.substring(0, 2)) >= 19) {
+                outTime = providedInTime.substring(0, 2) + ":" + (parseInt(providedInTime.substring(3, 5)) + 5);
+              } else {
+                outTime = "19:00";
+              }
+            } else {
+              outTime = "16:30";
+            }
           } else if (formattedDate === endDate) {
-            inTime = "06:30"; // Fixed inTime for the end date
-            outTime = providedOutTime; // Use provided outTime for the end date
+            outTime = providedOutTime;
+            if (parseInt(providedOutTime.substring(0, 2)) <= 7) {
+              inTime = providedOutTime.substring(0, 2) + ":" + (parseInt(providedOutTime.substring(3, 5)) - 5);
+            } else {
+              inTime = "06:30";
+            }
           } else {
-            inTime = "06:30"; // Fixed inTime for intermediate dates
-            outTime = "16:30"; // Fixed outTime for intermediate dates
+            inTime = "06:30";
+            outTime = "16:30";
           }
 
-          // Add the formatted data for the current date
           formattedData.push([
             serialPrefix,
             formattedDate,
@@ -787,15 +800,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Determine inTime and outTime based on the date
         let inTime, outTime;
-        if (formattedDate === startDate) {
-          inTime = providedInTime; // Use provided inTime for the start date
-          outTime = "16:30"; // Fixed outTime for the start date
+        if (formattedDate === startDate && formattedDate === endDate) {
+          inTime = providedInTime;
+          outTime = providedOutTime;
+        } else if (formattedDate === startDate) {
+          inTime = providedInTime;
+          if (parseInt(providedInTime.substring(0, 2)) > 16) {
+            if (parseInt(providedInTime.substring(0, 2)) >= 19) {
+              outTime = providedInTime.substring(0, 2) + ":" + (parseInt(providedInTime.substring(3, 5)) + 5);
+            } else {
+              outTime = "19:00";
+            }
+          } else {
+            outTime = "16:30";
+          }
         } else if (formattedDate === endDate) {
-          inTime = "06:30"; // Fixed inTime for the end date
-          outTime = providedOutTime; // Use provided outTime for the end date
+          outTime = providedOutTime;
+          if (parseInt(providedOutTime.substring(0, 2)) <= 7) {
+            inTime = providedOutTime.substring(0, 2) + ":" + (parseInt(providedOutTime.substring(3, 5)) - 5);
+          } else {
+            inTime = "06:30";
+          }
         } else {
-          inTime = "06:30"; // Fixed inTime for intermediate dates
-          outTime = "16:30"; // Fixed outTime for intermediate dates
+          inTime = "06:30";
+          outTime = "16:30";
         }
 
         // Add IN and OUT entries for the current date with double quotes
