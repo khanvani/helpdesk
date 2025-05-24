@@ -94,7 +94,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Check for invalid time range
-    if (formData.inTime && formData.outTime && formData.inTime >= formData.outTime) {
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      formData.startDate === formData.endDate && // Ensure it's a single-day case
+      formData.inTime &&
+      formData.outTime &&
+      formData.inTime >= formData.outTime
+    ) {
       missingFields.push("Out Time must be greater than In Time");
     }
 
