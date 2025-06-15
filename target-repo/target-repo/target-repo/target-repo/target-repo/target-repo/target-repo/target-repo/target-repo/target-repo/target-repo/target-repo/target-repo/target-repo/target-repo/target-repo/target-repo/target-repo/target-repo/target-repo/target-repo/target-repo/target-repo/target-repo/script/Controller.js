@@ -58,6 +58,16 @@ class Controller {
     }
     this.filterService.initFilters();
     this.downloadService.initFilters();
+    /**
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey && e.shiftKey && e.key === 'I') || (e.key === 'F12')) {
+        e.preventDefault();
+      }
+    });**/
   }
 
   uploadAndProcessFile(event) {
@@ -88,6 +98,7 @@ class Controller {
         this.tableService.generateTable(StorageService.currentRecord);
         this.filterService.initFilters();
         this.downloadService.initFilters();
+        localStorage.removeItem("zonalDataCache");
         $("#sheetNamesCombo").val($("#sheetNamesCombo option:first").val()).trigger("change");
       })
       .catch((err) => {
@@ -101,6 +112,7 @@ class Controller {
       localStorage.setItem("apiKey", btoa(apiKey)); // Store encoded API key
       $("#apiKeyModal").modal("hide");
       this.refreshTrigger();
+      window.location.reload();
     } else {
       $("#apiKeyModal").modal("show");
       console.log("Please enter a valid API key");
@@ -164,7 +176,7 @@ class Controller {
 
 const storageService = new StorageService();
 const tableService = new TableService();
-const excelService = new ExcelService(storageService);
+const excelService = new ExcelService(storageService)
 const filterService = new FilterService(storageService);
 const downloadService = new DownloadService(filterService);
 const pivotService = new PivotService();

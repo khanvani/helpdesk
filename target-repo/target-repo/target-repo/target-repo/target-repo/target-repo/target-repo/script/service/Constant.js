@@ -1,6 +1,9 @@
 const API_URLS = {
+  CURRENT_URL:  "https://sewasamiti.ahujaenterprise.com/php/query-desk.php",
   QUERY_DESK: "https://sewasamiti.ahujaenterprise.com/php/query-desk.php",
   SEWA_JATHA_FETCH: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha.php",
+  ZONAL_DATA_FETCH: "https://sewasamiti.ahujaenterprise.com/php/zonal-data.php",
+  ZONAL_DATA_UPDATE: "https://sewasamiti.ahujaenterprise.com/php/zonal-data-update.php",
   SEWA_JATHA_STORE: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-store.php",
   SEWA_JATHA_UPDATE: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-update.php",
 };

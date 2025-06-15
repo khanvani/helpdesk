@@ -17,7 +17,7 @@ class ExcelService {
       $("#loader").show();
 
       const response = await $.ajax({
-        url: API_URLS.QUERY_DESK,
+        url: API_URLS.CURRENT_URL,
         type: "POST",
         dataType: "json",
         data: { api_key: apiKey },

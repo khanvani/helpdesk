@@ -1,0 +1,297 @@
+// script/service/ZonalService.js
+
+class ZonalService {
+  static cache;
+  constructor() {
+    API_URLS.CURRENT_URL = API_URLS.ZONAL_DATA_FETCH;
+    this.init();
+
+  }
+
+  async init() {
+    await this.loadSewadarsData();
+    this.setupPersonSelect();
+    this.setupEditHandler();
+    this.setupSaveHandler();
+  }
+
+  async loadSewadarsData() {
+    this.cache = [];
+    if (!this.cache.length) {
+      try {
+        const apiKey = localStorage.getItem("apiKey");
+        const res = await $.ajax({
+          url: API_URLS.ZONAL_DATA_FETCH,
+          type: "POST",
+          dataType: "json",
+          data: { api_key: apiKey },
+        });
+        this.cache = res?.["Help Desk"]?.["Zonal Data"]?.data || [];
+      } catch (err) {
+        console.error("Failed to load sewadars data:", err);
+      }
+    }
+  }
+
+  setupPersonSelect() {
+    const $select = $(".person").empty().append('<option></option>');
+
+    this.cache.forEach(row => {
+      const label = `${row.Gr_No} - ${row.Name} - ${row.Center}`;
+      $select.append(
+          `<option value="${row.Gr_No}" 
+          data-gr-no="${row.Gr_No}" 
+          data-name="${row.Name}" 
+          data-gender="${row.Gender}" 
+          data-status="${row.Status}" 
+          data-satsang-center="${row.Center}" 
+          data-satsang-area="${row.Area}">
+          ${label}
+        </option>`
+      );
+    });
+
+    $select.select2({
+      placeholder: "Select Sewadar",
+      allowClear: true,
+      width: "100%",
+      minimumResultsForSearch: 3,
+      ajax: {
+        transport: (params, success) => {
+          const term = params.data.term || "";
+          const regex = new RegExp(term.replace(/\s/g, ".*"), "i");
+
+          const results = this.cache
+              .filter(row => regex.test(`${row.Gr_No} - ${row.Name} - ${row.Center}`))
+              .slice(0, 15)
+              .map(row => {
+                const label = `${row.Gr_No} - ${row.Name} - ${row.Center}`;
+                return { id: `${row.Gr_No}`, text: label };
+              });
+
+          success({ results });
+        },
+        processResults: (data) => ({ results: data.results }),
+        delay: 200,
+      }
+    });
+
+    $select.on('select2:open', () => {
+      $('.select2-search__field').on('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          setTimeout(() => {
+            $(this).closest('.select2-container')
+                .prev('select')
+                .closest('.form-group')
+                .nextAll('.form-group')
+                .find('input, select, textarea')
+                .first()
+                .focus();
+          }, 100);
+        }
+      });
+    });
+
+    $(".person").on("select2:select", function (e) {
+      try{
+        const selectedValue = e.params.data.id;
+        $(this).val(selectedValue).trigger("change");
+      }catch{
+        console.warn("Error selecting person:", e);
+      }
+    });
+  }
+
+  setupEditHandler() {
+    const $editRowModal = $("#editRowModal");
+    $("body").on("click", ".zonal-edit-button", function () {
+      $("#loader").show();
+      $editRowModal.find("input, select, textarea").val("").removeClass("is-invalid");
+      $(".person").val("").trigger("change");
+      const rowData = JSON.parse($(this).attr("data-row"));
+      const headers = StorageService.currentRecord.headers;
+      const formFields = [];
+      let colCount = 0;
+      const grNo = rowData["Gr_No"] || "Unknown";
+      const sewadarName = rowData["Name"] || "Unknown";
+      $editRowModal.find(".modal-title").text( `${grNo} - ${sewadarName}`);
+
+
+      headers.forEach((header) => {
+        const key = header.data || header.title;
+        const value = rowData[key] || "";
+        const isEditable = header.title.startsWith("R_")  || header.title.startsWith("E_") || header.title === "Id";
+        const isRelevant = isEditable && !header.title.trim().endsWith("Sewadar");
+        if (!isRelevant) return;
+
+        const displayTitle = header.title.replace(/^E_/, "").replace(/^R_/, "");
+        const isHidden = key === "Id" ? 'style="display: none"' : "";
+
+        if (colCount % 4 === 0) formFields.push('<div class="row">');
+
+        if(header.title.startsWith("R_"))
+        {
+          formFields.push(`
+            <div class="col-md-3 mb-3" ${isHidden}>
+              <div class="form-group">
+                <label for="${key}" class="font-weight-bold">${displayTitle}</label>
+                <input type="text" class="form-control" id="${key}" name="${key}" value="${value}" readonly/>
+              </div>
+            </div>
+          `);
+        }else {
+          formFields.push(`
+            <div class="col-md-3 mb-3" ${isHidden}>
+              <div class="form-group">
+                <label for="${key}" class="font-weight-bold">${displayTitle}</label>
+                <input type="text" class="form-control required" id="${key}" name="${key}" value="${value}" />
+              </div>
+            </div>
+          `);
+        }
+
+        if ((colCount + 1) % 4 === 0) formFields.push('</div>');
+        colCount++;
+      });
+
+      if (colCount % 4 !== 0) formFields.push('</div>');
+
+      $("#dynamicFields").html(`
+        <div class="col-md-3 mb-3" style="display: none">
+          <div class="form-group">
+            <label class="font-weight-bold">Id</label>
+            <input type="text" class="form-control required" name="Id" value="${rowData.Id}" />
+          </div>
+        </div>
+        <div class="col-md-3 mb-3" style="display: none">
+          <div class="form-group">
+            <label class="font-weight-bold">Gr No</label>
+            <input type="text" class="form-control required" name="Gr_No" value="${rowData.Gr_No}" />
+          </div>
+        </div>
+        ${formFields.join("")}
+      `);
+      $editRowModal.modal("show");
+      $("#loader").hide();
+    });
+  }
+
+  setupSaveHandler() {
+    $("body").on('click', '#zonal-save-btn', function () {
+      const data = {};
+      let allFieldsFilled = true;
+
+      $('#editRowModal')
+          .find('input.required:not([readonly]), select.required:not([readonly]), textarea.required:not([readonly])')          .each(function () {
+            if (this.name) {
+              const rawVal = $(this).val();
+              const trimmedVal = rawVal?.toString().trim();
+
+              if (trimmedVal === "") {
+                allFieldsFilled = false;
+                $(this).addClass("is-invalid");
+              } else {
+                $(this).removeClass("is-invalid");
+
+                if (this.name.endsWith("Sewadar") && Array.isArray(rawVal)) {
+                  data[this.name] = rawVal.join(", ");
+                } else {
+                  data[this.name] = rawVal;
+                }
+              }
+            }
+          });
+
+      $('#editRowModal')
+          .find('input:not([readonly]), select:not([readonly]), textarea:not([readonly])')          .each(function () {
+        if (this.name) {
+          const rawVal = $(this).val();
+          const trimmedVal = rawVal?.toString().trim();
+            if (this.name.endsWith("Sewadar") && Array.isArray(rawVal)) {
+              data[this.name] = rawVal.join(", ");
+            } else {
+              data[this.name] = rawVal;
+            }
+
+        }
+      });
+
+      const family1 = data["E_Family_1_Sewadar"];
+      const family1Relation = data["E_Family_1_RWith_Sewadar"];
+      const family2 = data["E_Family_2_Sewadar"];
+      const family2Relation = data["E_Family_2_RWith_Sewadar"];
+
+      if (family1 && (!family1Relation || family1Relation.trim() === "")) {
+        allFieldsFilled = false;
+        $('select[name="E_Family_1_ReltionWith_Sewadar"]').addClass("is-invalid");
+        alert("Please fill Family 1 relation field.");
+        return;
+      }
+
+      if (family2 && (!family2Relation || family2Relation.trim() === "")) {
+        allFieldsFilled = false;
+        $('select[name="E_Family_2_ReltionWith_Sewadar"]').addClass("is-invalid");
+        alert("Please fill Family 2 relation field.");
+        return;
+      }
+
+      if (!allFieldsFilled) {
+        console.warn("Some fields are empty, preventing save.");
+        alert("Please fill all required fields.");
+        return;
+      }
+
+
+      data.api_key = localStorage.getItem("apiKey");
+      $("#loader").show();
+
+      $.ajax({
+        url: API_URLS.ZONAL_DATA_UPDATE,
+        type: "POST",
+        dataType: "json",
+        data,
+        success: function (response) {
+          $("#loader").hide();
+
+          if (response?.status === 401) {
+            localStorage.removeItem("apiKey");
+            $("#apiKeyModal").modal("show");
+            return;
+          }
+
+          const modal = $("#errorModal");
+          const body = modal.find("#errorModalBody");
+          const label = modal.find("#errorModalLabel");
+
+          if (response.success) {
+            let msg = `<b>Update successful for: ${response.name || "Record"}</b><br>`;
+
+            if (response.updated_fields && Object.keys(response.updated_fields).length) {
+              msg += "<ul>" + Object.entries(response.updated_fields)
+                  .map(([field, change]) => `<li>${field.replace(/^E_/, "")}: <b>${change.from}</b> → <b>${change.to}</b></li>`)
+                  .join("") + "</ul>";
+            }
+
+            label.text("Success");
+            body.html(msg);
+            modal.modal("show");
+            $("#editRowModal").modal("hide");
+          } else {
+            label.text("Error");
+            body.html(response.error || "Update failed");
+            modal.modal("show");
+          }
+        },
+        error: function (xhr) {
+          $("#loader").hide();
+          const msg = xhr.responseJSON?.error || xhr.responseText || "Update failed";
+          $("#errorModalLabel").text("Error");
+          $("#errorModalBody").html(msg);
+          $("#errorModal").modal("show");
+        }
+      });
+    });
+  }
+
+}

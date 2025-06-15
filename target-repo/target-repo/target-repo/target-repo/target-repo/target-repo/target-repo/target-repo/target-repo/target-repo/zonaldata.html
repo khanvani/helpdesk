@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title></title>
+    <link rel="stylesheet" href="style/lib/bootstrap.min.css?v=2.0"/>
+    <link rel="stylesheet" href="style/lib/dataTables.dataTables.css?v=2.0">
+    <link rel="stylesheet" href="style/lib/responsive.dataTables.css?v=2.0">
+
+    <link rel="stylesheet" href="resources/fontawesome-free-6.5.2-web/css/all.min.css?v=2.0"/>
+    <link rel="stylesheet" href="style/lib/jquery-ui.css?v=2.0"/>
+    <link rel="stylesheet" href="style/lib/searchPanes.dataTables.css?v=2.0"/>
+    <link rel="stylesheet"
+          href="style/lib/bootstrap-select.min.css?v=2.0"/>
+    <link href="style/lib/select2.min.css" rel="stylesheet"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="style/style.css?v=2.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style/lib/bootstrap-select.css?v=2.0" rel="stylesheet"/>
+</head>
+<body>
+<div id="header">
+    <div id="topMenu">
+        <a href="#" id="m-home" class="sidebar-item">
+            <i class="fas fa-home"></i>
+            <span class="sidebar-text">Details</span>
+        </a>
+        <!--<a href="./forms.html" id="m-new-form" class="sidebar-item display-flag">
+          <i class="fa-brands fa-wpforms"></i>
+          <span class="sidebar-text">New Enrollment</span>
+        </a>
+
+        <a href="#" id="m-mf-pivot" class="sidebar-item display-flag">
+          <i class="fa-solid fa-restroom"></i>
+          <span class="sidebar-text">Pivot By Gender</span>
+        </a> -->
+
+        <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal"
+           class="sidebar-item right">
+            <i class="fas fa-broom"></i>
+            <span class="sidebar-text">Reset</span>
+        </a>
+        <a href="#" id="uploadTrigger" class="sidebar-item right">
+            <i class="fa-solid fa-upload"></i>
+            <span class="sidebar-text">Upload</span>
+        </a>
+        <a href="#" id="refreshTrigger" class="sidebar-item right">
+            <i class="fa-solid fa-refresh"></i>
+            <span class="sidebar-text">Refresh</span>
+        </a>
+        <a href="#" data-toggle="modal" id="filterIcon" data-target="#filterModal" class="sidebar-item right">
+            <i class="fa-solid fa-filter"></i>
+            <span class="sidebar-text">Filter</span>
+        </a>
+        <div class="sidebar-item right">
+            <i class="fa-solid fa-table"></i>
+            <span class="sidebar-text display-sidebar-text">
+            <div class="form-group header-dropdown">
+              <select id="sheetNamesCombo" class="form-control">
+                <option value="None">None</option>
+              </select>
+            </div>
+          </span>
+        </div>
+        <div class="sidebar-item right">
+            <i class="fa-solid fa-file-excel"></i>
+            <span class="sidebar-text display-sidebar-text">
+            <div class="form-group header-dropdown">
+              <select id="fileNamesCombo" class="form-control">
+                <option value="None">None</option>
+              </select>
+            </div>
+          </span>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div id="c-home" class="custom-card">
+        <div class="instruction-box">
+            <p><i class="fas fa-refresh icon"></i> Click on the <strong>refresh icon</strong> to fetch the data from
+                Cloud.</p><br>
+            <p><i class="fas fa-upload icon"></i> Click on the <strong>Upload</strong> button to upload an Excel file.
+            </p>
+        </div>
+    </div>
+
+
+    <div id="c-mf-pivot" class="custom-card"></div>
+</div>
+
+<!-- File Upload Modal -->
+<div id="fileUploadDialog" title="Upload Excel File" style="display: none">
+    <input type="file" id="inputExcel" accept=".xlsx, .xls" multiple/>
+</div>
+
+<!-- No Data Available Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="noDataModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Error Fetching Data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="errorModalBody">Please click on the upload <i class="fas fa-upload"></i> button
+                to load the data.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="clearStorageModal" tabindex="-1" aria-labelledby="clearStorageModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clearStorageModalLabel">Confirm Action</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">Are you sure you want to clear all storage data?</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" id="clearStorageModalYes">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Data Filters</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Filters dynamically injected here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="clearFilterTrigger" data-dismiss="modal">Clear
+                    Filter
+                </button>
+                <button id="filterTrigger" type="button" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Edit Row Modal -->
+<div class="modal fade" id="editRowModal" tabindex="-1" aria-labelledby="editRowModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRowModalLabel">Edit Record</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="editRowForm">
+                <div class="modal-body" id="editRowModalBody">
+                    <div id="dynamicFields" class="container-fluid">
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-6">
+                            <div class="form-group">
+                                <label for="E_Security_Verification_Sewadar" class="font-weight-bold">Security
+                                    Verification (Required)</label>
+                                <select id="E_Security_Verification_Sewadar" name="E_Security_Verification_Sewadar" multiple="multiple"
+                                        class="form-control select2 person required">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-6">
+                            <div class="form-group">
+                                <label for="E_Medical_Verification_Sewadar" class="font-weight-bold">Medical
+                                    Verification (Required)</label>
+                                <select id="E_Medical_Verification_Sewadar" name="E_Medical_Verification_Sewadar" multiple="multiple"
+                                        class="form-control select2 person required">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-6">
+                            <div class="form-group">
+                                <label for="E_Reference_1_Sewadar" class="font-weight-bold">Reference 1 (Required)</label>
+                                <select id="E_Reference_1_Sewadar" name="E_Reference_1_Sewadar" multiple="multiple"
+                                        class="form-control select2 person required">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-6">
+                            <div class="form-group">
+                                <label for="E_Reference_2_Sewadar" class="font-weight-bold">Reference 2 (Required)</label>
+                                <select id="E_Reference_2_Sewadar" name="E_Reference_2_Sewadar" multiple="multiple"
+                                        class="form-control select2 person required">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-6">
+                            <div class="form-group">
+                                <label for="E_Family_1_Sewadar" class="font-weight-bold">Family 1 (Optional)</label>
+                                <select id="E_Family_1_Sewadar" name="E_Family_1_Sewadar" multiple="multiple"
+                                        class="form-control select2 person optional">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-6">
+                            <div class="form-group">
+                                <label for="E_Family_1_RWith_Sewadar" class="font-weight-bold">Family 1 Relationship (Optional)</label>
+                                <select id="E_Family_1_RWith_Sewadar" name="E_Family_1_RWith_Sewadar"
+                                        class="form-control select2 optional">
+                                    <option value="Aunty">Aunty</option>
+                                    <option value="Cousin">Cousin</option>
+                                    <option value="Cousin Brother">Cousin Brother</option>
+                                    <option value="Grand Father">Grand Father</option>
+                                    <option value="Uncle">Uncle</option>
+                                    <option value="None">None</option>
+                                    <option value="Spouse">Spouse</option>
+                                    <option value="Father">Father</option>
+                                    <option value="Mother">Mother</option>
+                                    <option value="Brother">Brother</option>
+                                    <option value="Sister">Sister</option>
+                                    <option value="Son">Son</option>
+                                    <option value="Daughter">Daughter</option>
+                                    <option value="Daughter-in-law">Daughter-in-law</option>
+                                    <option value="Sister-in-law">Sister-in-law</option>
+                                    <option value="Mother-in-law">Mother-in-law</option>
+                                    <option value="Grand Son">Grand Son</option>
+                                    <option value="Grand Daughter">Grand Daughter</option>
+                                    <option value="Niece">Niece</option>
+                                    <option value="Grand Mother">Grand Mother</option>
+                                    <option value="Brother-in-law">Brother-in-law</option>
+                                    <option value="Nephew">Nephew</option>
+                                    <option value="Father-in-law">Father-in-law</option>
+                                    <option value="Son-in-law">Son-in-law</option>
+                                    <option value="Adopted Son">Adopted Son</option>
+                                    <option value="Adopted Daughter">Adopted Daughter</option>
+                                    <option value="Cousin Sister">Cousin Sister</option>
+                                    <option value="Domestic helper">Domestic helper</option>
+                                    <option value="Driver">Driver</option>
+                                    <option value="Colleague">Colleague</option>
+                                    <option value="Employee">Employee</option>
+                                    <option value="Employer">Employer</option>
+                                    <option value="Friend">Friend</option>
+                                    <option value="Neighbour">Neighbour</option>
+                                    <option value="In Laws">In Laws</option>
+                                    <option value="Co Brother">Co Brother</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-6">
+                            <div class="form-group">
+                                <label for="E_Family_2_Sewadar" class="font-weight-bold">Family 2 (Optional)</label>
+                                <select id="E_Family_2_Sewadar" name="E_Family_2_Sewadar" multiple="multiple"
+                                        class="form-control select2 person optional">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-6">
+                            <div class="form-group">
+                                <label for="E_Family_2_RWith_Sewadar" class="font-weight-bold">Family 2 Relation (Optional)</label>
+                                <select id="E_Family_2_RWith_Sewadar" name="E_Family_2_RWith_Sewadar"
+                                        class="form-control select2 optional">
+                                    <option value="Aunty">Aunty</option>
+                                    <option value="Cousin">Cousin</option>
+                                    <option value="Cousin Brother">Cousin Brother</option>
+                                    <option value="Grand Father">Grand Father</option>
+                                    <option value="Uncle">Uncle</option>
+                                    <option value="None">None</option>
+                                    <option value="Spouse">Spouse</option>
+                                    <option value="Father">Father</option>
+                                    <option value="Mother">Mother</option>
+                                    <option value="Brother">Brother</option>
+                                    <option value="Sister">Sister</option>
+                                    <option value="Son">Son</option>
+                                    <option value="Daughter">Daughter</option>
+                                    <option value="Daughter-in-law">Daughter-in-law</option>
+                                    <option value="Sister-in-law">Sister-in-law</option>
+                                    <option value="Mother-in-law">Mother-in-law</option>
+                                    <option value="Grand Son">Grand Son</option>
+                                    <option value="Grand Daughter">Grand Daughter</option>
+                                    <option value="Niece">Niece</option>
+                                    <option value="Grand Mother">Grand Mother</option>
+                                    <option value="Brother-in-law">Brother-in-law</option>
+                                    <option value="Nephew">Nephew</option>
+                                    <option value="Father-in-law">Father-in-law</option>
+                                    <option value="Son-in-law">Son-in-law</option>
+                                    <option value="Adopted Son">Adopted Son</option>
+                                    <option value="Adopted Daughter">Adopted Daughter</option>
+                                    <option value="Cousin Sister">Cousin Sister</option>
+                                    <option value="Domestic helper">Domestic helper</option>
+                                    <option value="Driver">Driver</option>
+                                    <option value="Colleague">Colleague</option>
+                                    <option value="Employee">Employee</option>
+                                    <option value="Employer">Employer</option>
+                                    <option value="Friend">Friend</option>
+                                    <option value="Neighbour">Neighbour</option>
+                                    <option value="In Laws">In Laws</option>
+                                    <option value="Co Brother">Co Brother</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="zonal-save-btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="downloadModalLabel">Confirm Action</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mt-3">
+                <div class="form-group header-dropdown">
+                    <label for="titleValue" class="form-label">Name of the Title :</label>
+                    <input id="titleValue" value="Attendance of Department"
+                           placeholder="Attenence of Department : {groupbyName}" class="form-control" required/><br>
+                    <label for="fileNameValue" class="form-label">Name of the File :</label>
+                    <input id="fileNameValue" value="" placeholder="FileName-{groupbyName}-{date}.xlsx"
+                           class="form-control" required/>
+                </div>
+                </p>
+                <p class="mt-3" id="downloadTypeContainer"></p>
+                <p class="mt-3" id="selectColumnContainer"></p>
+                <p class="mt-3" id="parentFolderContainer"></p>
+                <p class="mt-3">Are you sure you want to download all the files ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="downloadModalYes">Export</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="apiKeyModal" tabindex="-1" aria-labelledby="apiKeyModalLabel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="apiKeyModalLabel">Enter Password</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="errorAPIKey" class="alert alert-danger" role="alert" class="display:none"></div>
+                <form id="apiKeyForm">
+                    <div class="form-group">
+                        <label for="apiKeyInput">Password:</label>
+                        <input type="password" class="form-control" id="apiKeyInput" placeholder="Enter your passwrod"
+                               required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="submitApiKey">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="loader" style="display: none;">
+    <div id="loadingIndicator">
+        <div class="spinner"></div>
+    </div>
+</div>
+<footer>
+    <p style="text-align:center;">&copy; 2024 Copyright by khanvani.github.io, Not authorised to fork or use without
+        consent, All rights reserved.</p>
+</footer>
+<script src="script/lib/jquery-3.7.1.js?v=2.0"></script>
+<script src="script/lib/popper.min.js?v=2.0"></script>
+<script src="script/lib/exceljs.min.js?v=2.0"></script>
+<script src="script/lib/bootstrap.min.js?v=2.0"></script>
+<script src="script/lib/jquery-ui.js?v=2.0"></script>
+<script src="script/lib/searchPanes.dataTables.js?v=2.0"></script>
+
+<script src="script/lib/dataTables.js?v=2.0"></script>
+<script src="script/lib/dataTables.responsive.js?v=2.0"></script>
+<script src="script/lib/responsive.dataTables.js?v=2.0"></script>
+
+<script src="script/lib/dataTables.buttons.js?v=2.0"></script>
+<script src="script/lib/buttons.dataTables.js?v=2.0"></script>
+<script src="script/lib/jszip.min.js?v=2.0"></script>
+<script src="script/lib/pdfmake.min.js?v=2.0"></script>
+<script src="script/lib/vfs_fonts.js?v=2.0"></script>
+<script src="script/lib/buttons.html5.min.js?v=2.0"></script>
+<script src="script/lib/buttons.print.min.js?v=2.0"></script>
+<script src="script/lib/bootstrap-select.min.js?v=2.0"></script>
+<!-- Select2 JS -->
+<script src="script/lib/select2.min.js"></script>
+<script src="script/service/Constant.js"></script>
+<script src="script/lib/FileSaver.min.js?v=2.0"></script>
+<script src="script/lib/bootstrap-select.min.js?v=2.0"></script>
+<script src="script/service/ZonalService.js?v=2.0"></script>
+<script>
+    const zonalService = new ZonalService();
+    localStorage.removeItem("currentData")
+</script>
+<script src="script/service/ExcelService.js?v=2.0"></script>
+<script src="script/service/StorageService.js?v=2.0"></script>
+<script src="script/service/TableService.js?v=2.0"></script>
+<script src="script/service/FilterService.js?v=2.0"></script>
+<script src="script/service/DownloadService.js?v=2.0"></script>
+<script src="script/service/PivotService.js?v=2.0"></script>
+<script src="script/Controller.js?v=2.0"></script>
+
+</body>
+</html>

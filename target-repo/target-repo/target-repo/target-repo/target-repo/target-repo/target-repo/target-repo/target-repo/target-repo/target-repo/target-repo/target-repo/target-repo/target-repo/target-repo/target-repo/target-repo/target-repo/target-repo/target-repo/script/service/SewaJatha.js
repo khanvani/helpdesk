@@ -185,30 +185,42 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (response?.status === 401) {
+          $("#loader").hide();
           localStorage.removeItem("apiKey");
           $("#apiKeyModal").modal("show");
+          $("#errorAPIKey").show();
+          errorAPIKey.text("Unauthorized access. Please enter a valid API key.");
           return;
         }
-
-        $("#loader").hide();
 
         const sewadarsSheet = response?.["Help Desk"]?.["SewaJatha"];
         if (!sewadarsSheet) {
           logError("S-Sewadars sheet not found.");
           return;
         }
+
         localStorage.setItem(cachedDataKey, JSON.stringify(sewadarsSheet.data));
         populateSelectPicker(elements.grNoDropdown, "Add Sewadar", "Gr_No", "Full_Name");
       } else {
         populateSelectPicker(elements.grNoDropdown, "Add Sewadar", "Gr_No", "Full_Name");
       }
     } catch (error) {
+      $("#loader").hide(); // Ensure loader hides on error
+      if (error.status === 401) {
+        localStorage.removeItem("apiKey");
+        $("#apiKeyModal").modal("show");
+        $("#errorAPIKey").show();
+        errorAPIKey.text("Unauthorized access. Please enter a valid API key.");
+        return;
+      }
+
       logError("Error fetching data:", error);
     } finally {
       $("#loader").hide();
-      callback();
+      if (typeof callback === "function") callback();
     }
   }
+
 
   document.getElementById("clearStorageModalYes").addEventListener("click", () => {
     localStorage.removeItem("dataTableData");
@@ -386,10 +398,11 @@ document.addEventListener("DOMContentLoaded", () => {
           dataType: "json",
           data: grNoData,
         });
-
         if (response?.status === 401) {
           localStorage.removeItem("apiKey");
           $("#apiKeyModal").modal("show");
+          $("#errorAPIKey").show();
+          errorAPIKey.text("Unauthorized access. Please enter a valid API key.");
           $("#loader").hide();
           return;
         }
@@ -735,7 +748,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response?.status === 401) {
         localStorage.removeItem("apiKey");
         $("#apiKeyModal").modal("show");
-        return;
+        $("#errorAPIKey").show();
+        errorAPIKey.text("Unauthorized access. Please enter a valid API key.");        return;
       }
 
       if (response.success) {

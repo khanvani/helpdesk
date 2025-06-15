@@ -355,7 +355,7 @@ input#dt-search-0 {
 float:right;
 margin-bottom:3px;
 }
-.dt-length label{display none !important;display: none !important;}
+.dt-length label{display:none !important;}
 div.dt-container select.dt-input {
   padding: 8px;
 }
@@ -528,4 +528,14 @@ font-size:25px !important;
 table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after, table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:after
 {
   opacity: 1 !important;
+}
+
+.bootstrap-select.form-control button
+{
+  height: 35px;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__clear
+{
+  margin-top: 2px;
 }

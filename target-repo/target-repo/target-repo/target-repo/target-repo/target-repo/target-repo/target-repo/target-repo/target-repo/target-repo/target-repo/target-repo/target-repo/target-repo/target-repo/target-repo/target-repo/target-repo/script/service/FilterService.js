@@ -1,5 +1,5 @@
 class FilterService {
-  static filterFields = ["Type","Open/Perm","Place","Secretary_/_Care_Taker","Care_Taker","Secretary","Satsang_Place","Department", "SubDept", "Gender", "Status", "Center", "Area", "OutSide","OS", "Satsang_Center","SatsangCenter", "Sub_Dept", "Sub_Department","SubDepartment","Satsang_Area","SatsangArea","Initiated","Initiation_Place","InitiationPlace"];
+  static filterFields = ["Type","Open/Perm","Place","Secretary_/_Care_Taker","Care_Taker","Secretary","Satsang_Place","Department", "SubDept", "Gender", "Status", "Center", "Area", "OutSide","OS", "Satsang_Center","SatsangCenter", "Sub_Dept", "Sub_Department","SubDepartment","Satsang_Area","SatsangArea","Initiated","Initiation_Place","InitiationPlace","Action"];
 
   constructor(storageService) {
     this.storageService = storageService;
