@@ -13,7 +13,7 @@ class ExcelService {
 
   async call() {
     try {
-      const apiKey = localStorage.getItem("apiKey");
+      const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
       $("#loader").show();
 
       const response = await $.ajax({

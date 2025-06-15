@@ -19,7 +19,7 @@ class ZonalService {
     this.cache = [];
     if (!this.cache.length) {
       try {
-        const apiKey = localStorage.getItem("apiKey");
+        const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
         const res = await $.ajax({
           url: API_URLS.ZONAL_DATA_FETCH,
           type: "POST",
@@ -37,7 +37,7 @@ class ZonalService {
     const $select = $(".person").empty().append('<option></option>');
 
     this.cache.forEach(row => {
-      const label = `${row.Gr_No} - ${row.Name} - ${row.Center}`;
+      const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
       $select.append(
           `<option value="${row.Gr_No}" 
           data-gr-no="${row.Gr_No}" 
@@ -62,10 +62,10 @@ class ZonalService {
           const regex = new RegExp(term.replace(/\s/g, ".*"), "i");
 
           const results = this.cache
-              .filter(row => regex.test(`${row.Gr_No} - ${row.Name} - ${row.Center}`))
+              .filter(row => regex.test(`${row.Gr_No} - ${row.Name} - ${row.Mobile}`))
               .slice(0, 15)
               .map(row => {
-                const label = `${row.Gr_No} - ${row.Name} - ${row.Center}`;
+                const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
                 return { id: `${row.Gr_No}`, text: label };
               });
 
@@ -243,7 +243,7 @@ class ZonalService {
       }
 
 
-      data.api_key = localStorage.getItem("apiKey");
+      data.api_key = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
       $("#loader").show();
 
       $.ajax({
@@ -255,7 +255,7 @@ class ZonalService {
           $("#loader").hide();
 
           if (response?.status === 401) {
-            localStorage.removeItem("apiKey");
+            localStorage.removeItem(API_KEYS.CURRENT_API_KEY);
             $("#apiKeyModal").modal("show");
             return;
           }

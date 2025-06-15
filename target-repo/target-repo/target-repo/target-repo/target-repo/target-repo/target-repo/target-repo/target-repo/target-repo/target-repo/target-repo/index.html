@@ -227,6 +227,11 @@
     <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.html5.min.js?v=2.0"></script>
     <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.print.min.js?v=2.0"></script>
     <script src="script/service/Constant.js"></script>
+    <script>
+      localStorage.removeItem("currentData")
+      API_URLS.CURRENT_URL = API_URLS.QUERY_DESK;
+      API_KEYS.CURRENT_API_KEY = API_KEYS.QUERY;
+    </script>
     <script src="script/lib/FileSaver.min.js?v=2.0"></script>
     <script src="script/lib/bootstrap-select.min.js?v=2.0"></script>
     <script src="script/service/ExcelService.js?v=2.0"></script>
@@ -236,8 +241,5 @@
     <script src="script/service/DownloadService.js?v=2.0"></script>
     <script src="script/service/PivotService.js?v=2.0"></script>
     <script src="script/Controller.js?v=2.0"></script>
-    <script>
-      API_URLS.CURRENT_URL = API_URLS.QUERY_DESK;
-    </script>
   </body>
 </html>

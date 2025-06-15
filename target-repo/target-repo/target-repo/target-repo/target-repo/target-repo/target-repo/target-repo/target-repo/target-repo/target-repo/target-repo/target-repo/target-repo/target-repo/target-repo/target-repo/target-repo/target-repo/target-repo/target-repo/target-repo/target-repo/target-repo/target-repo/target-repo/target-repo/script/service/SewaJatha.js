@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const apiKeyInput = $("#apiKeyInput");
   const errorAPIKey = $("#errorAPIKey");
   const submitApiKeyButton = $("#submitApiKey");
-  const apiKey = localStorage.getItem("apiKey");
+  const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
   const currentDate = new Date().toISOString().split("T")[0]; // Get the current date in YYYY-MM-DD format
 
   if (!apiKey) {
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   submitApiKeyButton.click(() => {
     const apiKeyValue = apiKeyInput.val().trim();
     if (apiKeyValue) {
-      localStorage.setItem("apiKey", btoa(apiKeyValue)); // Store encoded API key
+      localStorage.setItem(API_KEYS.CURRENT_API_KEY, btoa(apiKeyValue)); // Store encoded API key
       apiKeyModal.modal("hide");
       window.location.reload();
     } else {
@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (response?.status === 401) {
           $("#loader").hide();
-          localStorage.removeItem("apiKey");
+          localStorage.removeItem(API_KEYS.CURRENT_API_KEY);
           $("#apiKeyModal").modal("show");
           $("#errorAPIKey").show();
           errorAPIKey.text("Unauthorized access. Please enter a valid API key.");
@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       $("#loader").hide(); // Ensure loader hides on error
       if (error.status === 401) {
-        localStorage.removeItem("apiKey");
+        localStorage.removeItem(API_KEYS.CURRENT_API_KEY);
         $("#apiKeyModal").modal("show");
         $("#errorAPIKey").show();
         errorAPIKey.text("Unauthorized access. Please enter a valid API key.");
@@ -382,7 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         const grNoData = {
-          api_key: localStorage.getItem("apiKey"),
+          api_key: localStorage.getItem(API_KEYS.CURRENT_API_KEY),
           action: "addGrNo",
           gr_no: grNo,
           name: name,
@@ -399,7 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
           data: grNoData,
         });
         if (response?.status === 401) {
-          localStorage.removeItem("apiKey");
+          localStorage.removeItem(API_KEYS.CURRENT_API_KEY);
           $("#apiKeyModal").modal("show");
           $("#errorAPIKey").show();
           errorAPIKey.text("Unauthorized access. Please enter a valid API key.");
@@ -739,14 +739,14 @@ document.addEventListener("DOMContentLoaded", () => {
         type: "POST",
         dataType: "json",
         data: {
-          api_key: localStorage.getItem("apiKey"),
+          api_key: localStorage.getItem(API_KEYS.CURRENT_API_KEY),
           action: "appendToGoogleSheet",
           data: formattedData,
         },
       });
 
       if (response?.status === 401) {
-        localStorage.removeItem("apiKey");
+        localStorage.removeItem(API_KEYS.CURRENT_API_KEY);
         $("#apiKeyModal").modal("show");
         $("#errorAPIKey").show();
         errorAPIKey.text("Unauthorized access. Please enter a valid API key.");        return;

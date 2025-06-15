@@ -49,7 +49,7 @@ class Controller {
   }
 
   init(event) {
-    const apiKey = localStorage.getItem("apiKey");
+    const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
     if (!apiKey) {
       $("#apiKeyModal").modal("show");
       $("#errorAPIKey").hide();
@@ -109,7 +109,7 @@ class Controller {
   submitApiKey() {
     const apiKey = $("#apiKeyInput").val();
     if (apiKey) {
-      localStorage.setItem("apiKey", btoa(apiKey)); // Store encoded API key
+      localStorage.setItem(API_KEYS.CURRENT_API_KEY, btoa(apiKey)); // Store encoded API key
       $("#apiKeyModal").modal("hide");
       this.refreshTrigger();
       window.location.reload();

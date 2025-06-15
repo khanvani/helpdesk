@@ -7,6 +7,12 @@ const API_URLS = {
   SEWA_JATHA_STORE: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-store.php",
   SEWA_JATHA_UPDATE: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-update.php",
 };
+const API_KEYS = {
+  CURRENT_API_KEY: "",
+  ZONAL:  "zonalApiKey",
+  SEWAJATHA: "jathaApiKey",
+  QUERY: "apiKey",
+};
 const pinCode = [
   {
     Pincode: 383002,
