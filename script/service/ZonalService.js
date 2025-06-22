@@ -206,20 +206,20 @@ class ZonalService {
         const displayTitle = header.title.replace(/^E_/, "").replace(/^R_/, "");
         const isHidden = key === "Id" ? 'style="display: none"' : "";
 
-        if (colCount % 4 === 0) formFields.push('<div class="row">');
+        if (colCount % 2 === 0) formFields.push('<div class="row">');
 
         if (header.title.startsWith("R_")) {
           formFields.push(`
-            <div class="col-md-3 mb-3" ${isHidden}>
+            <div class="col-md-6 mb-3" ${isHidden}>
               <div class="form-group">
                 <label for="${key}" class="font-weight-bold">${displayTitle}</label>
-                <input type="text" class="form-control" id="${key}" name="${key}" value="${value}" readonly/>
+                <input type="text" class="form-control blink" id="${key}" name="${key}" value="${value}" readonly/>
               </div>
             </div>
           `);
         } else {
           formFields.push(`
-            <div class="col-md-3 mb-3" ${isHidden}>
+            <div class="col-md-6 mb-3" ${isHidden}>
               <div class="form-group">
                 <label for="${key}" class="font-weight-bold">${displayTitle}</label>
                 <input type="text" class="form-control required" id="${key}" name="${key}" value="${value}" />
@@ -228,11 +228,12 @@ class ZonalService {
           `);
         }
 
-        if ((colCount + 1) % 4 === 0) formFields.push("</div>");
+        if ((colCount + 1) % 2 === 0) formFields.push("</div>");
         colCount++;
       });
 
-      if (colCount % 4 !== 0) formFields.push("</div>");
+      // Close an open row if columns remain
+      if (colCount % 2 !== 0) formFields.push("</div>");
 
       $("#dynamicFields").html(`
         <div class="col-md-3 mb-3" style="display: none">
