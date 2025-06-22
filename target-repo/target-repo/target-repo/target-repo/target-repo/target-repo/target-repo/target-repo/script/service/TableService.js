@@ -27,7 +27,7 @@ class TableService {
 
     if (!currentRecord.data || currentRecord.data.length === 0) {
       $("#c-home").html(
-          "<div class='instruction-box'>" +
+        "<div class='instruction-box'>" +
           "<p class='nodata'>No data available to display.</p>" +
           "<p><i class='fas fa-refresh icon'></i> Click on the <strong>refresh icon</strong> to fetch the data from Cloud.</p>" +
           "<br>" +
@@ -44,20 +44,17 @@ class TableService {
     $("#c-home").html("<table id='h-dataTable' class='table table-striped table-bordered'></table>");
 
     this.createFooter(
-        "#h-dataTable",
-        $.map(currentRecord.headers, function (item) {
-          return item.title;
-        })
+      "#h-dataTable",
+      $.map(currentRecord.headers, function (item) {
+        return item.title;
+      })
     );
 
     // Ensure "Gr No" column is targeted explicitly
     const grNoColumnIndex = currentRecord.headers.findIndex((header) => header.title === "Gr No");
 
     // Check if first column is "Action"
-    const isActionFirstColumn =
-        currentRecord.headers.length > 0 &&
-        currentRecord.headers[0].title &&
-        currentRecord.headers[0].title.toLowerCase() === "action";
+    const isActionFirstColumn = currentRecord.headers.length > 0 && currentRecord.headers[0].title && currentRecord.headers[0].title.toLowerCase() === "action";
 
     let columnDefs = [
       {
@@ -80,9 +77,7 @@ class TableService {
       },
     ];
 
-    const actionColumnIndex = currentRecord.headers.findIndex(
-        (header) => header.title.toLowerCase() === "action"
-    );
+    const actionColumnIndex = currentRecord.headers.findIndex((header) => header.title.toLowerCase() === "action");
 
     if (actionColumnIndex !== -1) {
       columnDefs.push({
@@ -93,7 +88,7 @@ class TableService {
           if (typeof data === "string" && data.trim().toLowerCase() === "edit") {
             const filteredRow = {};
             Object.keys(row).forEach((key) => {
-              if (key.startsWith("E_") ||  key.startsWith("R_") || key === "Id" || key === "Name" || key === "Gr_No") {
+              if (key.startsWith("E_") || key.startsWith("R_") || key === "Id" || key === "Name" || key === "Gr_No") {
                 filteredRow[key] = row[key];
               }
             });
@@ -108,53 +103,52 @@ class TableService {
     let table = new DataTable("#h-dataTable", {
       initComplete: function () {
         this.api()
-            .columns()
-            .every(function () {
-              let column = this;
-              let footer = column.footer();
-              if (!footer) return;
+          .columns()
+          .every(function () {
+            let column = this;
+            let footer = column.footer();
+            if (!footer) return;
+            let title = footer.textContent;
+            footer.textContent = "";
 
-              let title = footer.textContent;
-              footer.textContent = "";
+            if (FilterService.filterFields.includes(title.replace(/\s+/g, "_"))) {
+              let select = document.createElement("select");
+              select.innerHTML = "<option value=''>All</option><option value='(Blank)'>Blank</option>";
+              select.classList.add("footer-dropdown");
+              footer.appendChild(select);
 
-              if (FilterService.filterFields.includes(title.replace(/\s+/g, "_"))) {
-                let select = document.createElement("select");
-                select.innerHTML = "<option value=''>All</option><option value='(Blank)'>Blank</option>";
-                select.classList.add("footer-dropdown");
-                footer.appendChild(select);
+              let uniqueValues = new Set();
+              column.data().each((val) => {
+                if (val) uniqueValues.add(val);
+              });
 
-                let uniqueValues = new Set();
-                column.data().each((val) => {
-                  if (val) uniqueValues.add(val);
-                });
+              uniqueValues.forEach((val) => {
+                let option = document.createElement("option");
+                option.value = val;
+                option.textContent = val;
+                select.appendChild(option);
+              });
 
-                uniqueValues.forEach((val) => {
-                  let option = document.createElement("option");
-                  option.value = val;
-                  option.textContent = val;
-                  select.appendChild(option);
-                });
+              select.addEventListener("change", function () {
+                let selectedValue = this.value;
+                if (selectedValue === "(Blank)") {
+                  column.search("^\\s*$", true, false).draw(); // Regex for blank values
+                } else {
+                  column.search(selectedValue ? `^${selectedValue}$` : "", true, false).draw();
+                }
+              });
+            } else {
+              let input = document.createElement("input");
+              input.placeholder = title;
+              input.classList.add("footer-input");
+              footer.appendChild(input);
 
-                select.addEventListener("change", function () {
-                  let selectedValue = this.value;
-                  if (selectedValue === "(Blank)") {
-                    column.search("^\\s*$", true, false).draw(); // Regex for blank values
-                  } else {
-                    column.search(selectedValue ? `^${selectedValue}$` : "", true, false).draw();
-                  }
-                });
-              } else {
-                let input = document.createElement("input");
-                input.placeholder = title;
-                input.classList.add("footer-input");
-                footer.appendChild(input);
-
-                input.addEventListener("keyup", function () {
-                  let searchTerm = input.value;
-                  column.search(searchTerm ? searchTerm : "", true, false).draw();
-                });
-              }
-            });
+              input.addEventListener("keyup", function () {
+                let searchTerm = input.value;
+                column.search(searchTerm ? searchTerm : "", true, false).draw();
+              });
+            }
+          });
       },
       destroy: true,
       data: currentRecord.data,
@@ -163,6 +157,7 @@ class TableService {
       searching: true,
       paging: true,
       scrollX: true,
+      order: [], // Disable default sorting (initial ordering)
       search: {
         regex: true,
       },

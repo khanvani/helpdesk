@@ -2,6 +2,7 @@
 
 class ZonalService {
   static cache;
+  static securitySewadarsCache = [];
   constructor() {
     API_URLS.CURRENT_URL = API_URLS.ZONAL_DATA_FETCH;
     this.init();
@@ -16,6 +17,15 @@ class ZonalService {
 
   async loadSewadarsData() {
     this.cache = [];
+    this.securitySewadarsCache = [
+      { Gr_No: "G00651", Name: "Hansraj Vacheta", Mobile: "9825763328" },
+      { Gr_No: "G03001", Name: "Harsh Dholani", Mobile: "7575068231" },
+      { Gr_No: "G02123", Name: "Sanjay Patel", Mobile: "9824540287" },
+      { Gr_No: "L01738", Name: "Reshma bhagwani", Mobile: "9726995595" },
+      { Gr_No: "L01579", Name: "Pushpa Sharma", Mobile: "9726077130" },
+      { Gr_No: "L02043", Name: "Simran Jagnani", Mobile: "7226935055" },
+      { Gr_No: "M00946", Name: "Indra Harishbhai Mulani", Mobile: "7698141239" },
+    ];
     if (!this.cache.length) {
       try {
         const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
@@ -34,7 +44,7 @@ class ZonalService {
 
   setupPersonSelect() {
     const $select = $(".person").empty().append("<option></option>");
-
+    /*
     this.cache.forEach((row) => {
       const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
       $select.append(
@@ -49,24 +59,96 @@ class ZonalService {
         </option>`
       );
     });
+    */
 
-    $select.select2({
+    $("#editRowModal .person").select2({
       placeholder: "Select Sewadar",
       allowClear: true,
       width: "100%",
       minimumResultsForSearch: 3,
       ajax: {
         transport: (params, success) => {
-          const term = params.data.term || "";
-          const regex = new RegExp(term.replace(/\s/g, ".*"), "i");
+          const term = (params.data.term || "").toLowerCase();
+          const results =
+            term.length === 0
+              ? this.cache.slice(0, 15).map((row) => {
+                  const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
+                  return { id: `${row.Gr_No}`, text: label };
+                })
+              : this.cache
+                  .filter((row) => {
+                    const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`.toLowerCase();
+                    return label.indexOf(term) !== -1;
+                  })
+                  .slice(0, 15)
+                  .map((row) => {
+                    const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
+                    return { id: `${row.Gr_No}`, text: label };
+                  });
 
-          const results = this.cache
-            .filter((row) => regex.test(`${row.Gr_No} - ${row.Name} - ${row.Mobile}`))
-            .slice(0, 15)
-            .map((row) => {
-              const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
-              return { id: `${row.Gr_No}`, text: label };
-            });
+          success({ results });
+        },
+        processResults: (data) => ({ results: data.results }),
+        delay: 200,
+      },
+    });
+
+    $("#editRowModal .staticperson").select2({
+      placeholder: "Select Sewadar",
+      allowClear: true,
+      width: "100%",
+      minimumResultsForSearch: 3,
+      ajax: {
+        transport: (params, success) => {
+          const term = (params.data.term || "").toLowerCase();
+          const results =
+            term.length === 0
+              ? this.securitySewadarsCache.slice(0, 15).map((row) => {
+                  const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
+                  return { id: `${row.Gr_No}`, text: label };
+                })
+              : this.securitySewadarsCache
+                  .filter((row) => {
+                    const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`.toLowerCase();
+                    return label.indexOf(term) !== -1;
+                  })
+                  .slice(0, 15)
+                  .map((row) => {
+                    const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
+                    return { id: `${row.Gr_No}`, text: label };
+                  });
+
+          success({ results });
+        },
+        processResults: (data) => ({ results: data.results }),
+        delay: 200,
+      },
+    });
+
+    $("#editRowModal .person").select2({
+      placeholder: "Select Sewadar",
+      allowClear: true,
+      width: "100%",
+      minimumResultsForSearch: 3,
+      ajax: {
+        transport: (params, success) => {
+          const term = (params.data.term || "").toLowerCase();
+          const results =
+            term.length === 0
+              ? this.cache.slice(0, 15).map((row) => {
+                  const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
+                  return { id: `${row.Gr_No}`, text: label };
+                })
+              : this.cache
+                  .filter((row) => {
+                    const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`.toLowerCase();
+                    return label.indexOf(term) !== -1;
+                  })
+                  .slice(0, 15)
+                  .map((row) => {
+                    const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
+                    return { id: `${row.Gr_No}`, text: label };
+                  });
 
           success({ results });
         },
@@ -86,7 +168,7 @@ class ZonalService {
       });
     });
 
-    $(".person").on("select2:select", function (e) {
+    $("#editRowModal .select2").on("select2:select", function (e) {
       try {
         const selectedValue = e.params.data.id;
         $(this).val(selectedValue).trigger("change");
@@ -98,10 +180,14 @@ class ZonalService {
 
   setupEditHandler() {
     const $editRowModal = $("#editRowModal");
+    const self = this;
     $("body").on("click", ".zonal-edit-button", function () {
+      // Store the clicked edit button reference
+      self.currentEditButton = $(this);
+
       $("#loader").show();
       $editRowModal.find("input, select, textarea").val("").removeClass("is-invalid");
-      $(".person").val("").trigger("change");
+      $("#editRowModal .select2").val("").trigger("change");
       const rowData = JSON.parse($(this).attr("data-row"));
       const headers = StorageService.currentRecord.headers;
       const formFields = [];
@@ -169,6 +255,7 @@ class ZonalService {
   }
 
   setupSaveHandler() {
+    const self = this;
     $("body").on("click", "#zonal-save-btn", function () {
       const data = {};
       let allFieldsFilled = true;
@@ -271,6 +358,10 @@ class ZonalService {
             body.html(msg);
             modal.modal("show");
             $("#editRowModal").modal("hide");
+
+            // --- New code to update the edit button state and row data ---
+            self.currentEditButton.attr("disabled", "disabled");
+            // --- End new code ---
           } else {
             label.text("Error");
             body.html(response.error || "Update failed");
