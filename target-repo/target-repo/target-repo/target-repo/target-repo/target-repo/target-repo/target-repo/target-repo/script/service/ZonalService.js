@@ -5,7 +5,6 @@ class ZonalService {
   constructor() {
     API_URLS.CURRENT_URL = API_URLS.ZONAL_DATA_FETCH;
     this.init();
-
   }
 
   async init() {
@@ -34,12 +33,12 @@ class ZonalService {
   }
 
   setupPersonSelect() {
-    const $select = $(".person").empty().append('<option></option>');
+    const $select = $(".person").empty().append("<option></option>");
 
-    this.cache.forEach(row => {
+    this.cache.forEach((row) => {
       const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
       $select.append(
-          `<option value="${row.Gr_No}" 
+        `<option value="${row.Gr_No}" 
           data-gr-no="${row.Gr_No}" 
           data-name="${row.Name}" 
           data-gender="${row.Gender}" 
@@ -62,42 +61,36 @@ class ZonalService {
           const regex = new RegExp(term.replace(/\s/g, ".*"), "i");
 
           const results = this.cache
-              .filter(row => regex.test(`${row.Gr_No} - ${row.Name} - ${row.Mobile}`))
-              .slice(0, 15)
-              .map(row => {
-                const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
-                return { id: `${row.Gr_No}`, text: label };
-              });
+            .filter((row) => regex.test(`${row.Gr_No} - ${row.Name} - ${row.Mobile}`))
+            .slice(0, 15)
+            .map((row) => {
+              const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
+              return { id: `${row.Gr_No}`, text: label };
+            });
 
           success({ results });
         },
         processResults: (data) => ({ results: data.results }),
         delay: 200,
-      }
+      },
     });
 
-    $select.on('select2:open', () => {
-      $('.select2-search__field').on('keydown', function (e) {
-        if (e.key === 'Enter') {
+    $select.on("select2:open", () => {
+      $(".select2-search__field").on("keydown", function (e) {
+        if (e.key === "Enter") {
           e.preventDefault();
           setTimeout(() => {
-            $(this).closest('.select2-container')
-                .prev('select')
-                .closest('.form-group')
-                .nextAll('.form-group')
-                .find('input, select, textarea')
-                .first()
-                .focus();
+            $(this).closest(".select2-container").prev("select").closest(".form-group").nextAll(".form-group").find("input, select, textarea").first().focus();
           }, 100);
         }
       });
     });
 
     $(".person").on("select2:select", function (e) {
-      try{
+      try {
         const selectedValue = e.params.data.id;
         $(this).val(selectedValue).trigger("change");
-      }catch{
+      } catch {
         console.warn("Error selecting person:", e);
       }
     });
@@ -115,13 +108,12 @@ class ZonalService {
       let colCount = 0;
       const grNo = rowData["Gr_No"] || "Unknown";
       const sewadarName = rowData["Name"] || "Unknown";
-      $editRowModal.find(".modal-title").text( `${grNo} - ${sewadarName}`);
-
+      $editRowModal.find(".modal-title").text(`${grNo} - ${sewadarName}`);
 
       headers.forEach((header) => {
         const key = header.data || header.title;
         const value = rowData[key] || "";
-        const isEditable = header.title.startsWith("R_")  || header.title.startsWith("E_") || header.title === "Id";
+        const isEditable = header.title.startsWith("R_") || header.title.startsWith("E_") || header.title === "Id";
         const isRelevant = isEditable && !header.title.trim().endsWith("Sewadar");
         if (!isRelevant) return;
 
@@ -130,8 +122,7 @@ class ZonalService {
 
         if (colCount % 4 === 0) formFields.push('<div class="row">');
 
-        if(header.title.startsWith("R_"))
-        {
+        if (header.title.startsWith("R_")) {
           formFields.push(`
             <div class="col-md-3 mb-3" ${isHidden}>
               <div class="form-group">
@@ -140,7 +131,7 @@ class ZonalService {
               </div>
             </div>
           `);
-        }else {
+        } else {
           formFields.push(`
             <div class="col-md-3 mb-3" ${isHidden}>
               <div class="form-group">
@@ -151,11 +142,11 @@ class ZonalService {
           `);
         }
 
-        if ((colCount + 1) % 4 === 0) formFields.push('</div>');
+        if ((colCount + 1) % 4 === 0) formFields.push("</div>");
         colCount++;
       });
 
-      if (colCount % 4 !== 0) formFields.push('</div>');
+      if (colCount % 4 !== 0) formFields.push("</div>");
 
       $("#dynamicFields").html(`
         <div class="col-md-3 mb-3" style="display: none">
@@ -178,44 +169,45 @@ class ZonalService {
   }
 
   setupSaveHandler() {
-    $("body").on('click', '#zonal-save-btn', function () {
+    $("body").on("click", "#zonal-save-btn", function () {
       const data = {};
       let allFieldsFilled = true;
 
-      $('#editRowModal')
-          .find('input.required:not([readonly]), select.required:not([readonly]), textarea.required:not([readonly])')          .each(function () {
-            if (this.name) {
-              const rawVal = $(this).val();
-              const trimmedVal = rawVal?.toString().trim();
+      $("#editRowModal")
+        .find("input.required:not([readonly]), select.required:not([readonly]), textarea.required:not([readonly])")
+        .each(function () {
+          if (this.name) {
+            const rawVal = $(this).val();
+            const trimmedVal = rawVal?.toString().trim();
 
-              if (trimmedVal === "") {
-                allFieldsFilled = false;
-                $(this).addClass("is-invalid");
+            if (trimmedVal === "") {
+              allFieldsFilled = false;
+              $(this).addClass("is-invalid");
+            } else {
+              $(this).removeClass("is-invalid");
+
+              if (this.name.endsWith("Sewadar") && Array.isArray(rawVal)) {
+                data[this.name] = rawVal.join(", ");
               } else {
-                $(this).removeClass("is-invalid");
-
-                if (this.name.endsWith("Sewadar") && Array.isArray(rawVal)) {
-                  data[this.name] = rawVal.join(", ");
-                } else {
-                  data[this.name] = rawVal;
-                }
+                data[this.name] = rawVal;
               }
             }
-          });
+          }
+        });
 
-      $('#editRowModal')
-          .find('input:not([readonly]), select:not([readonly]), textarea:not([readonly])')          .each(function () {
-        if (this.name) {
-          const rawVal = $(this).val();
-          const trimmedVal = rawVal?.toString().trim();
+      $("#editRowModal")
+        .find("input:not([readonly]), select:not([readonly]), textarea:not([readonly])")
+        .each(function () {
+          if (this.name) {
+            const rawVal = $(this).val();
+            const trimmedVal = rawVal?.toString().trim();
             if (this.name.endsWith("Sewadar") && Array.isArray(rawVal)) {
               data[this.name] = rawVal.join(", ");
             } else {
               data[this.name] = rawVal;
             }
-
-        }
-      });
+          }
+        });
 
       const family1 = data["E_Family_1_Sewadar"];
       const family1Relation = data["E_Family_1_RWith_Sewadar"];
@@ -242,7 +234,6 @@ class ZonalService {
         return;
       }
 
-
       data.api_key = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
       $("#loader").show();
 
@@ -268,9 +259,12 @@ class ZonalService {
             let msg = `<b>Update successful for: ${response.name || "Record"}</b><br>`;
 
             if (response.updated_fields && Object.keys(response.updated_fields).length) {
-              msg += "<ul>" + Object.entries(response.updated_fields)
+              msg +=
+                "<ul>" +
+                Object.entries(response.updated_fields)
                   .map(([field, change]) => `<li>${field.replace(/^E_/, "")}: <b>${change.from}</b> → <b>${change.to}</b></li>`)
-                  .join("") + "</ul>";
+                  .join("") +
+                "</ul>";
             }
 
             label.text("Success");
@@ -289,9 +283,8 @@ class ZonalService {
           $("#errorModalLabel").text("Error");
           $("#errorModalBody").html(msg);
           $("#errorModal").modal("show");
-        }
+        },
       });
     });
   }
-
 }
