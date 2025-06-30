@@ -344,7 +344,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js?v=2.0"></script>
     <script src="script/service/Constant.js"></script>
     <script>
-      localStorage.removeItem("currentData")
+      localStorage.removeItem("currentData");
       API_URLS.CURRENT_URL = API_URLS.SEWA_JATHA_FETCH;
       API_KEYS.CURRENT_API_KEY = API_KEYS.SEWAJATHA;
     </script>
@@ -354,5 +354,12 @@
     <script src="script/lib/bootstrap-select.min.js?v=2.0"></script>
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <footer>
+      <p style="text-align: center">
+        &copy; 2024 Copyright by khanvani.github.io, Not authorised to fork or use without consent, All rights reserved. Last Updated:
+        <span id="apiLastUpdated">Loading...</span>
+      </p>
+    </footer>
   </body>
 </html>

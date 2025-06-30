@@ -50,7 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
     fetchData(false, function () {
       attachEventListeners();
     });
+    fetchApiVersion(); // Add API version fetching
   }
+
   function validateAndAddEntry() {
     const formData = {
       grNo: $("#grNo").val(),
@@ -883,4 +885,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add a button to trigger the export function
   $("#exportCustomCSVButton").on("click", exportCustomCSV);
+
+  function fetchApiVersion() {
+    $.ajax({
+      url: API_URLS.SEWA_JATHA_FETCH.replace("/sewa-jatha.php", "/version.php"),
+      type: "GET",
+      dataType: "json",
+      timeout: 5000,
+      success: (response) => {
+        if (response && response.version) {
+          const date = new Date(response.version);
+          const formattedDate = date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZoneName: "short",
+          });
+          $("#apiLastUpdated").text(formattedDate);
+        } else {
+          $("#apiLastUpdated").text("Unknown");
+        }
+      },
+      error: (xhr, status, error) => {
+        console.log("Could not fetch API version:", error);
+        $("#apiLastUpdated").text("Unavailable");
+      },
+    });
+  }
 });

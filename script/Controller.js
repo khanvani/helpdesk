@@ -58,6 +58,7 @@ class Controller {
     }
     this.filterService.initFilters();
     this.downloadService.initFilters();
+    this.fetchApiVersion();
     /**
     document.addEventListener('contextmenu', function (e) {
       e.preventDefault();
@@ -68,6 +69,35 @@ class Controller {
         e.preventDefault();
       }
     });**/
+  }
+
+  fetchApiVersion() {
+    $.ajax({
+      url: API_URLS.CURRENT_URL.replace("/query-desk.php", "/version.php"),
+      type: "GET",
+      dataType: "json",
+      timeout: 5000,
+      success: (response) => {
+        if (response && response.version) {
+          const date = new Date(response.version);
+          const formattedDate = date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZoneName: "short",
+          });
+          $("#apiLastUpdated").text(formattedDate);
+        } else {
+          $("#apiLastUpdated").text("Unknown");
+        }
+      },
+      error: (xhr, status, error) => {
+        console.log("Could not fetch API version:", error);
+        $("#apiLastUpdated").text("Unavailable");
+      },
+    });
   }
 
   uploadAndProcessFile(event) {
@@ -176,7 +206,7 @@ class Controller {
 
 const storageService = new StorageService();
 const tableService = new TableService();
-const excelService = new ExcelService(storageService)
+const excelService = new ExcelService(storageService);
 const filterService = new FilterService(storageService);
 const downloadService = new DownloadService(filterService);
 const pivotService = new PivotService();

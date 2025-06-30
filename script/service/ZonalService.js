@@ -13,6 +13,7 @@ class ZonalService {
     this.setupPersonSelect();
     this.setupEditHandler();
     this.setupSaveHandler();
+    this.fetchApiVersion();
   }
 
   async loadSewadarsData() {
@@ -379,6 +380,35 @@ class ZonalService {
           $("#errorModal").modal("show");
         },
       });
+    });
+  }
+
+  fetchApiVersion() {
+    $.ajax({
+      url: API_URLS.ZONAL_DATA_FETCH.replace("/zonal-data.php", "/version.php"),
+      type: "GET",
+      dataType: "json",
+      timeout: 5000,
+      success: (response) => {
+        if (response && response.version) {
+          const date = new Date(response.version);
+          const formattedDate = date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZoneName: "short",
+          });
+          $("#apiLastUpdated").text(formattedDate);
+        } else {
+          $("#apiLastUpdated").text("Unknown");
+        }
+      },
+      error: (xhr, status, error) => {
+        console.log("Could not fetch API version:", error);
+        $("#apiLastUpdated").text("Unavailable");
+      },
     });
   }
 }
