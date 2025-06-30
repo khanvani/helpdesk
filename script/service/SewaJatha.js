@@ -221,7 +221,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-
   document.getElementById("clearStorageModalYes").addEventListener("click", () => {
     localStorage.removeItem("dataTableData");
     localStorage.removeItem("lastAddedData");
@@ -433,6 +432,7 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#loader").hide();
         console.error("Error adding Gr No:", error);
         modalErrorMessage.text("An error occurred. Please try again.");
+        $("#errorModal").modal("show");
       }
       $("#loader").hide();
     });
@@ -745,13 +745,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       });
 
-      if (response?.status === 401) {
-        localStorage.removeItem(API_KEYS.CURRENT_API_KEY);
-        $("#apiKeyModal").modal("show");
-        $("#errorAPIKey").show();
-        errorAPIKey.text("Unauthorized access. Please enter a valid API key.");        return;
-      }
-
+      // Only runs for 2xx responses
       if (response.success) {
         $("#exportCustomCSVButton").click();
         $("#newStorageTrigger").click();
@@ -759,10 +753,26 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(response.error || "Failed to append data to Google Sheet.");
       }
       $("#loader").hide();
-    } catch (error) {
+    } catch (jqXHR) {
       $("#loader").hide();
-      console.error("Error appending data to Google Sheet:", error);
+      // jqXHR is the XHR object, not an Error
+      if (jqXHR.status === 401) {
+        localStorage.removeItem(API_KEYS.CURRENT_API_KEY);
+        $("#apiKeyModal").modal("show");
+        $("#errorAPIKey").show();
+        errorAPIKey.text("Unauthorized access. Please enter a valid API key.");
+        return;
+      }
+      if (jqXHR.status === 409) {
+        let response = jqXHR.responseJSON || {};
+        $("#errorModal .modal-body").html(response.error || "Duplicate entry found."); // Show duplicate error in the modal
+        $("#errorModal").modal("show");
+        return;
+      }
+      // Other errors
+      console.error("Error appending data to Google Sheet:", jqXHR);
       alert("An error occurred. Please try again.");
+      $("#errorModal").modal("show");
     }
   });
 
