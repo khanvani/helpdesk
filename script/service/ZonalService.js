@@ -300,23 +300,25 @@ class ZonalService {
           }
         });
 
-      const family1 = data["E_Family_1_Sewadar"];
-      const family1Relation = data["E_Family_1_RWith_Sewadar"];
-      const family2 = data["E_Family_2_Sewadar"];
-      const family2Relation = data["E_Family_2_RWith_Sewadar"];
+      // Validate family references (up to 5 families)
+      const familyFields = [
+        { member: "E_Family_1_Sewadar", relation: "E_Family_1_RWith_Sewadar", name: "Family 1" },
+        { member: "E_Family_2_Sewadar", relation: "E_Family_2_RWith_Sewadar", name: "Family 2" },
+        { member: "E_Family_3_Sewadar", relation: "E_Family_3_RWith_Sewadar", name: "Family 3" },
+        { member: "E_Family_4_Sewadar", relation: "E_Family_4_RWith_Sewadar", name: "Family 4" },
+        { member: "E_Family_5_Sewadar", relation: "E_Family_5_RWith_Sewadar", name: "Family 5" },
+      ];
 
-      if (family1 && (!family1Relation || family1Relation.trim() === "")) {
-        allFieldsFilled = false;
-        $('select[name="E_Family_1_ReltionWith_Sewadar"]').addClass("is-invalid");
-        alert("Please fill Family 1 relation field.");
-        return;
-      }
+      for (const family of familyFields) {
+        const familyMember = data[family.member];
+        const familyRelation = data[family.relation];
 
-      if (family2 && (!family2Relation || family2Relation.trim() === "")) {
-        allFieldsFilled = false;
-        $('select[name="E_Family_2_ReltionWith_Sewadar"]').addClass("is-invalid");
-        alert("Please fill Family 2 relation field.");
-        return;
+        if (familyMember && (!familyRelation || familyRelation.trim() === "")) {
+          allFieldsFilled = false;
+          $(`select[name="${family.relation}"]`).addClass("is-invalid");
+          alert(`Please fill ${family.name} relation field.`);
+          return;
+        }
       }
 
       if (!allFieldsFilled) {
