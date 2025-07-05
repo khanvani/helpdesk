@@ -578,14 +578,10 @@ footer p:first-child {
   background: linear-gradient(to bottom, #20c997 0%, #17a2b8 100%) !important;
 }
 
-#loggedInUsername {
-  font-weight: bold;
-  color: white;
-}
-
 #clearStorageTrigger {
   background: linear-gradient(to bottom, #585858 0%, #111 100%) !important;
   transform: translateX(0px) !important;
+  padding: 0px 10px !important;
   .sidebar-text{
     max-width: 200px !important;
     opacity: 1 !important;

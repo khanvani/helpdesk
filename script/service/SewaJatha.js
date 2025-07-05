@@ -913,5 +913,41 @@ document.addEventListener("DOMContentLoaded", () => {
         $("#apiLastUpdated").text("Unavailable");
       },
     });
+    displayUsername();
+  }
+  function displayUsername() {
+    try {
+      // Add loading state
+      const encodedApiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
+      $("#loggedInUsername").addClass("loading").text("Loading...");
+      // Decode the base64 API key
+      const decodedApiKey = atob(encodedApiKey);
+      // Decode it again (double encoded as per PHP config)
+      const finalDecoded = atob(decodedApiKey);
+      // Split by comma to get username and password
+      const parts = finalDecoded.split(",");
+      if (parts.length === 2) {
+        const username = parts[0].trim();
+
+        // Update the username display with animation
+        $("#loggedInUsername").removeClass("loading").addClass("success").text(username).removeClass("loaded");
+
+        // Trigger animation
+        setTimeout(() => {
+          $("#loggedInUsername").addClass("loaded");
+        }, 100);
+
+        // Show the logout button
+        $("#clearStorageTrigger").show();
+      } else {
+        console.error("Invalid API key format");
+        $("#loggedInUsername").removeClass("loading success").text("User");
+        $("#clearStorageTrigger").hide();
+      }
+    } catch (error) {
+      console.error("Error decoding API key:", error);
+      $("#loggedInUsername").removeClass("loading success").text("User");
+      $("#clearStorageTrigger").hide();
+    }
   }
 });

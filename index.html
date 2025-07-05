@@ -32,9 +32,10 @@
           <span class="sidebar-text">Pivot By Gender</span>
         </a> -->
 
-        <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal" class="sidebar-item right">
-          <i class="fas fa-broom"></i>
-          <span class="sidebar-text">Logout</span>
+        <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal"
+           class="sidebar-item right">
+            <span class="sidebar-text" id="loggedInUsername">Logout</span>
+            <i class="fas fa-sign-out-alt"></i>
         </a>
         <a href="#" id="uploadTrigger" class="sidebar-item right">
           <i class="fa-solid fa-upload"></i>
@@ -116,7 +117,7 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">Are you sure you want to clear all storage data?</div>
+          <div class="modal-body">Are you sure you want to logout?</div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
             <button type="button" class="btn btn-primary" id="clearStorageModalYes">Yes</button>
