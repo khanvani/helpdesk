@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!apiKey) {
     apiKeyModal.modal("show");
     errorAPIKey.hide();
+  } else {
+    displayUsername(apiKey);
+    initAutoLogout();
   }
 
   $("#apiKeyForm").on("keydown", function (e) {
@@ -27,11 +30,221 @@ document.addEventListener("DOMContentLoaded", () => {
     if (apiKeyValue) {
       localStorage.setItem(API_KEYS.CURRENT_API_KEY, btoa(apiKeyValue)); // Store encoded API key
       apiKeyModal.modal("hide");
+      displayUsername(btoa(apiKeyValue));
       window.location.reload();
     } else {
       errorAPIKey.text("Please enter a valid API key").show();
     }
   });
+
+  function displayUsername(encodedApiKey) {
+    try {
+      // Add loading state
+      $("#loggedInUsername").addClass("loading").text("Loading...");
+
+      // Decode the base64 API key
+      const decodedApiKey = atob(encodedApiKey);
+      // Decode it again (double encoded as per PHP config)
+      const finalDecoded = atob(decodedApiKey);
+      // Split by comma to get username and password
+      const parts = finalDecoded.split(",");
+
+      if (parts.length === 2) {
+        const username = parts[0].trim();
+
+        // Update the username display with animation
+        $("#loggedInUsername").removeClass("loading").addClass("success").text(username).removeClass("loaded");
+
+        // Trigger animation
+        setTimeout(() => {
+          $("#loggedInUsername").addClass("loaded");
+        }, 100);
+
+        // Show the logout button
+        $("#clearStorageTrigger").show();
+      } else {
+        console.error("Invalid API key format");
+        $("#loggedInUsername").removeClass("loading success").text("User");
+        $("#clearStorageTrigger").hide();
+      }
+    } catch (error) {
+      console.error("Error decoding API key:", error);
+      $("#loggedInUsername").removeClass("loading success").text("User");
+      $("#clearStorageTrigger").hide();
+    }
+  }
+
+  function initAutoLogout() {
+    let inactivityTimer;
+    let warningTimer;
+
+    // Check if session has expired on page load
+    checkSessionExpiry();
+
+    // Function to update last activity timestamp
+    const updateLastActivity = () => {
+      if (localStorage.getItem(API_KEYS.CURRENT_API_KEY)) {
+        localStorage.setItem(SESSION_CONFIG.LAST_ACTIVITY_KEY, Date.now().toString());
+      }
+    };
+
+    // Function to reset timers
+    const resetTimers = () => {
+      clearTimeout(inactivityTimer);
+      clearTimeout(warningTimer);
+
+      // Clear countdown timer if running
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+
+      // Hide warning modal if it's open
+      $("#inactivityWarningModal").modal("hide");
+
+      // Update last activity timestamp
+      updateLastActivity();
+
+      // Set new timers
+      inactivityTimer = setTimeout(() => {
+        autoLogout();
+      }, SESSION_CONFIG.INACTIVITY_TIMEOUT);
+
+      // Show warning before logout
+      warningTimer = setTimeout(() => {
+        showInactivityWarning();
+      }, SESSION_CONFIG.INACTIVITY_TIMEOUT - SESSION_CONFIG.WARNING_TIME);
+    };
+
+    // Function to handle user activity
+    const handleUserActivity = (event) => {
+      // Don't reset timers if the warning modal is open
+      if ($("#inactivityWarningModal").hasClass("show") || $("#inactivityWarningModal").is(":visible")) {
+        return;
+      }
+
+      if (localStorage.getItem(API_KEYS.CURRENT_API_KEY)) {
+        resetTimers();
+      }
+    };
+
+    // Track user activity events
+    const activityEvents = ["mousedown", "mousemove", "keypress", "scroll", "touchstart", "click", "focus", "input", "change", "submit"];
+
+    activityEvents.forEach((event) => {
+      document.addEventListener(event, handleUserActivity, true);
+    });
+
+    // Initialize timers
+    resetTimers();
+
+    // Add event handlers for inactivity warning modal
+    $("#stayLoggedInBtn").click(() => {
+      $("#inactivityWarningModal").modal("hide");
+      resetTimers();
+    });
+
+    $("#logoutNowBtn").click(() => {
+      $("#inactivityWarningModal").modal("hide");
+      autoLogout();
+    });
+  }
+
+  let countdownInterval = null;
+
+  function showInactivityWarning() {
+    $("#inactivityWarningModal").modal("show");
+
+    // Start countdown timer (WARNING_TIME in seconds)
+    const warningTimeSeconds = Math.floor(SESSION_CONFIG.WARNING_TIME / 1000);
+    countdownInterval = startCountdownTimer(warningTimeSeconds, "countdownTimer");
+  }
+
+  function checkSessionExpiry() {
+    const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
+    if (!apiKey) return;
+
+    const lastActivity = localStorage.getItem(SESSION_CONFIG.LAST_ACTIVITY_KEY);
+    const sessionStart = localStorage.getItem(SESSION_CONFIG.SESSION_START_KEY);
+
+    if (!lastActivity || !sessionStart) {
+      // Initialize session timestamps if not present
+      const now = Date.now();
+      localStorage.setItem(SESSION_CONFIG.LAST_ACTIVITY_KEY, now.toString());
+      localStorage.setItem(SESSION_CONFIG.SESSION_START_KEY, now.toString());
+      return;
+    }
+
+    const now = Date.now();
+    const timeSinceLastActivity = now - parseInt(lastActivity);
+    const totalSessionTime = now - parseInt(sessionStart);
+
+    // Check if session has expired
+    if (timeSinceLastActivity > SESSION_CONFIG.INACTIVITY_TIMEOUT) {
+      console.log("Session expired due to inactivity");
+      autoLogout();
+      return;
+    }
+
+    // Check if total session time exceeds maximum session time
+    if (totalSessionTime > SESSION_CONFIG.MAX_SESSION_TIME) {
+      console.log("Session expired due to maximum session time");
+      autoLogout();
+      return;
+    }
+
+    // If session is still valid, update last activity
+    localStorage.setItem(SESSION_CONFIG.LAST_ACTIVITY_KEY, now.toString());
+  }
+
+  function autoLogout() {
+    // Hide any open modals
+    $(".modal").modal("hide");
+
+    // Show logout notification
+    showLogoutNotification("You have been automatically logged out due to inactivity.");
+
+    // Clear storage and reload
+    localStorage.clear();
+
+    // Redirect to login after a short delay
+    setTimeout(() => {
+      window.location.reload();
+    }, SESSION_CONFIG.REDIRECT_DELAY);
+  }
+
+  function showLogoutNotification(message) {
+    // Create notification element
+    const notification = $(`
+      <div id="logoutNotification" style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #8b0002 0%, #a52a2a 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        z-index: 10000;
+        max-width: 300px;
+        font-weight: 500;
+        border: 2px solid rgba(255,255,255,0.2);
+      ">
+        <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+        ${message}
+      </div>
+    `);
+
+    // Add to page
+    $("body").append(notification);
+
+    // Auto-remove after configured time
+    setTimeout(() => {
+      notification.fadeOut(500, function () {
+        $(this).remove();
+      });
+    }, SESSION_CONFIG.NOTIFICATION_DISPLAY_TIME);
+  }
 
   const elements = {
     addButton: $("#addEntryButton"),
