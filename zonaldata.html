@@ -25,10 +25,20 @@
             <i class="fas fa-home"></i>
             <span class="sidebar-text">Details</span>
         </a>
-       
-                <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal" class="sidebar-item right" title="Logout">
-          <span class="sidebar-text" id="loggedInUsername" class="blink">User</span>
-          <i class="fas fa-sign-out-alt"></i>
+        <!--<a href="./forms.html" id="m-new-form" class="sidebar-item display-flag">
+          <i class="fa-brands fa-wpforms"></i>
+          <span class="sidebar-text">New Enrollment</span>
+        </a>
+
+        <a href="#" id="m-mf-pivot" class="sidebar-item display-flag">
+          <i class="fa-solid fa-restroom"></i>
+          <span class="sidebar-text">Pivot By Gender</span>
+        </a> -->
+
+        <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal"
+           class="sidebar-item right">
+            <i class="fas fa-broom"></i>
+            <span class="sidebar-text">Logout</span>
         </a>
         <a href="#" id="uploadTrigger" class="sidebar-item right">
             <i class="fa-solid fa-upload"></i>
@@ -495,31 +505,6 @@
         </div>
     </div>
 </div>
-
-<!-- Inactivity Warning Modal -->
-<div class="modal fade" id="inactivityWarningModal" tabindex="-1" aria-labelledby="inactivityWarningModalLabel" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title" id="inactivityWarningModalLabel">
-                    <i class="fas fa-exclamation-triangle"></i> Session Timeout Warning
-                </h5>
-            </div>
-            <div class="modal-body">
-                <p>Your session will expire in <strong id="countdownTimer">1:00</strong> seconds due to inactivity.</p>
-                <p>Click "Stay Logged In" to continue your session, or you will be automatically logged out.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-warning" id="stayLoggedInBtn">
-                    <i class="fas fa-clock"></i> Stay Logged In
-                </button>
-                <button type="button" class="btn btn-secondary" id="logoutNowBtn">
-                    <i class="fas fa-sign-out-alt"></i> Logout Now
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 <div id="loader" style="display: none;">
     <div id="loadingIndicator">
         <div class="spinner"></div>
@@ -558,28 +543,6 @@
     API_URLS.CURRENT_URL = API_URLS.ZONAL_DATA_FETCH;
     API_KEYS.CURRENT_API_KEY = API_KEYS.ZONAL;
     const zonalService = new ZonalService();
-
-    // API Key submission handler
-    $(document).ready(function() {
-        $("#submitApiKey").click(function() {
-            const apiKey = $("#apiKeyInput").val();
-            if (apiKey) {
-                localStorage.setItem(API_KEYS.CURRENT_API_KEY, btoa(apiKey));
-                $("#apiKeyModal").modal("hide");
-                zonalService.displayUsername();
-                window.location.reload();
-            } else {
-                $("#errorAPIKey").text("Please enter a valid API key").show();
-            }
-        });
-
-        $("#apiKeyForm").on("keydown", function (e) {
-            if (e.key === "Enter" || e.keyCode === 13) {
-                e.preventDefault();
-                $("#submitApiKey").click();
-            }
-        });
-    });
 </script>
 <script src="script/service/ExcelService.js?v=2.0"></script>
 <script src="script/service/StorageService.js?v=2.0"></script>

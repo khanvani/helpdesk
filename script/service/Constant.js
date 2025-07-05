@@ -1,5 +1,5 @@
 const API_URLS = {
-  CURRENT_URL: "https://sewasamiti.ahujaenterprise.com/php/query-desk.php",
+  CURRENT_URL:  "https://sewasamiti.ahujaenterprise.com/php/query-desk.php",
   QUERY_DESK: "https://sewasamiti.ahujaenterprise.com/php/query-desk.php",
   SEWA_JATHA_FETCH: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha.php",
   ZONAL_DATA_FETCH: "https://sewasamiti.ahujaenterprise.com/php/zonal-data.php",
@@ -9,58 +9,10 @@ const API_URLS = {
 };
 const API_KEYS = {
   CURRENT_API_KEY: "",
-  ZONAL: "zonalApiKey",
+  ZONAL:  "zonalApiKey",
   SEWAJATHA: "jathaApiKey",
   QUERY: "apiKey",
 };
-
-// Session Management Configuration
-const SESSION_CONFIG = {
-  INACTIVITY_TIMEOUT: 60 * 60 * 1000, // 60 minutes in milliseconds (for testing)
-  WARNING_TIME: 1 * 1000, // 1 minute warning before logout
-  NOTIFICATION_DISPLAY_TIME: 3000, // 3 seconds for logout notification
-  REDIRECT_DELAY: 2000, // 2 seconds delay before page reload
-  MAX_SESSION_TIME: 8 * 60 * 60 * 1000, // 8 hours maximum session time
-  LAST_ACTIVITY_KEY: "lastActivityTimestamp", // localStorage key for last activity
-  SESSION_START_KEY: "sessionStartTimestamp", // localStorage key for session start
-};
-
-// Utility function to update activity timestamp
-function updateActivityTimestamp() {
-  if (localStorage.getItem(API_KEYS.CURRENT_API_KEY)) {
-    localStorage.setItem(SESSION_CONFIG.LAST_ACTIVITY_KEY, Date.now().toString());
-  }
-}
-
-// Utility function to start countdown timer
-function startCountdownTimer(duration, elementId) {
-  const timerElement = document.getElementById(elementId);
-  if (!timerElement) return;
-
-  let timeLeft = duration;
-
-  const updateTimer = () => {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-
-    if (timeLeft <= 0) {
-      clearInterval(countdownInterval);
-      return;
-    }
-
-    timeLeft--;
-  };
-
-  // Update immediately
-  updateTimer();
-
-  // Update every second
-  const countdownInterval = setInterval(updateTimer, 1000);
-
-  // Return the interval ID so it can be cleared if needed
-  return countdownInterval;
-}
 const pinCode = [
   {
     Pincode: 383002,

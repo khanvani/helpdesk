@@ -10,8 +10,9 @@ body {
   padding: 20px; /* More padding for better spacing */
 }
 
-.dt-search label {
-  display: none;
+.dt-search label
+{
+display:none;
 }
 .sidebar-item {
   i {
@@ -105,8 +106,9 @@ th {
   padding: 10px; /* Padding for aesthetics */
   box-shadow: 0px 4px 2px -2px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
 }
-.dt-layout-start {
-  width: 100% !important;
+.dt-layout-start
+{
+width:100%; !important;
 }
 .custom-card {
   margin-top: 10px;
@@ -133,7 +135,7 @@ table.dataTable thead .sorting {
   background-repeat: no-repeat;
   background-position: right;
   background-size: 25px 15px;
-  padding-right: 25px;
+  padding-right:25px;
 }
 
 table.dataTable thead .sorting_asc {
@@ -196,7 +198,8 @@ table.dataTable thead .sorting_desc {
   }
 }
 
-.buttons-excel {
+.buttons-excel
+{
   display: none !important;
 }
 .heading {
@@ -268,95 +271,95 @@ table.dataTable thead .sorting_desc {
   animation: blinkEffect 1s linear infinite;
 }
 
+
 /* Mobile-specific styles */
 @media only screen and (max-width: 600px) {
   .dataTables_filter {
     display: inline-block;
-    float: right !important;
-    margin: 0px !important;
-    padding: 0px;
+      float: right !important;
+      margin: 0px !important;
+      padding: 0px;
   }
-  input.dt-input[type="search"] {
-    width: 100%;
+  input.dt-input[type='search']{
+    width:100%;
   }
-  .dataTables_length {
-    display: inline-block;
-    float: left;
-    margin: 0px;
-    padding: 0px;
+  .dataTables_length
+  {display: inline-block;
+         float: left;
+         margin: 0px;
+         padding: 0px;
   }
 }
 
-#h-dataTable_filter {
-  width: 100%;
-  label {
+
+#h-dataTable_filter{
+width:100%;
+label{
     width: 100%;
     text-align: left;
-  }
-  input {
-    width: 100%;
-  }
 }
+input{
+    width: 100%;
+}
+
+}
+
 
 /* Center the loader in the middle of the page */
 #loadingIndicator {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9999; /* Ensure it is on top of all other elements */
-}
-
-.spinner {
-  border: 8px solid #f3f3f3; /* Light grey */
-  border-top: 8px solid #8b0002; /* Blue */
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite; /* Spin animation */
-}
-
-/* Animation to spin the loader */
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 9999; /* Ensure it is on top of all other elements */
   }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 
-.footer-input {
-  width: 100%;
-}
+  .spinner {
+	border: 8px solid #f3f3f3; /* Light grey */
+	border-top: 8px solid #8b0002; /* Blue */
+	border-radius: 50%;
+	width: 60px;
+	height: 60px;
+	animation: spin 1s linear infinite; /* Spin animation */
+  }
+
+  /* Animation to spin the loader */
+  @keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+  }
+
+  .footer-input
+  {
+    width:100%;
+  }
+
 
 .dt-layout-cell.dt-layout-end {
-  width: 100%;
+    width: 100%;
 }
 
 .dt-search {
-  width: 100%;
-  text-align: right;
-  font-weight: bold;
+    width: 100%;
+    text-align:right;
+    font-weight:bold;
 }
 
 input#dt-search-0 {
-  width: 100%;
+    width: 100%;
 }
 
-#dt-length-0 {
-  float: right;
-  margin-bottom: 3px;
+#dt-length-0
+{
+float:right;
+margin-bottom:3px;
 }
-.dt-length label {
-  display: none !important;
-}
+.dt-length label{display:none !important;}
 div.dt-container select.dt-input {
   padding: 8px;
 }
 /* Match DataTables buttons with top menu icons */
-.dt-button,
-.btn-danger {
+.dt-button,.btn-danger {
   background-color: #8b0002 !important; /* Same as top menu background */
   color: white !important; /* White text */
   border: none; /* Remove border */
@@ -371,8 +374,7 @@ div.dt-container select.dt-input {
   transition: background-color 0.3s ease, transform 0.3s ease !important; /* Smooth hover effect */
 }
 
-.dt-button:hover,
-.btn-danger:hover {
+.dt-button:hover, .btn-danger:hover {
   background: linear-gradient(to bottom, #585858 0%, #111 100%) !important; /* Same hover effect as top menu */
   transform: translateY(-2px) !important; /* Slight lift on hover */
 }
@@ -380,110 +382,109 @@ div.dt-container select.dt-input {
 .left {
   float: left;
 }
-.nodata {
-  text-align: center;
-  padding-top: 20%;
-  height: 75vh;
-  font-size: 25px !important;
+.nodata
+{
+text-align:center;
+padding-top:20%;
+height:75vh;
+font-size:25px !important;
 }
 
 /* Apply blur effect to the background */
 #loader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.3); /* Semi-transparent background */
-  backdrop-filter: blur(5px); /* Blur effect */
-  z-index: 9998; /* Below the loader */
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(255, 255, 255, 0.3); /* Semi-transparent background */
+	backdrop-filter: blur(5px); /* Blur effect */
+	z-index: 9998; /* Below the loader */
 }
 
 .instruction-box {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: white;
-  margin: 0 auto;
-  width: 95vw; /* Full viewport width */
-  height: 80vh; /* 75% of the viewport height */
-  padding: 5%;
-  display: flex; /* Flexbox for centering */
-  align-items: center; /* Center vertically */
-  justify-content: center; /* Center horizontally */
-  text-align: center;
-  margin-bottom: 10px;
-  box-sizing: border-box; /* Ensures padding doesn't overflow */
-  flex-direction: column;
-}
+     border: 1px solid #ddd;
+     border-radius: 8px;
+     background: white;
+     margin: 0 auto;
+     width: 95vw; /* Full viewport width */
+     height: 80vh; /* 75% of the viewport height */
+     padding: 5%;
+     display: flex; /* Flexbox for centering */
+     align-items: center; /* Center vertically */
+     justify-content: center; /* Center horizontally */
+     text-align: center;
+     margin-bottom: 10px;
+     box-sizing: border-box; /* Ensures padding doesn't overflow */
+     flex-direction:column;
+ }
 
-.icon {
-  color: #8b0002;
-  margin-right: 10px;
-}
+        .icon {
+            color: #8b0002;
+            margin-right: 10px;
+        }
 
 /* Center the loader in the middle of the page */
 #loadingIndicator {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9999; /* Ensure it is on top of all other elements */
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 9999; /* Ensure it is on top of all other elements */
 }
 
 /* Spinner styling */
 .spinner {
-  border: 8px solid #f3f3f3; /* Light grey */
-  border-top: 8px solid #8b0002; /* Blue */
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite; /* Spin animation */
+	border: 8px solid #f3f3f3; /* Light grey */
+	border-top: 8px solid #8b0002; /* Blue */
+	border-radius: 50%;
+	width: 60px;
+	height: 60px;
+	animation: spin 1s linear infinite; /* Spin animation */
 }
 
 /* Animation to spin the loader */
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
 }
 
 @keyframes blink {
-  50% {
-    opacity: 0.2;
-  }
+    50% {
+        opacity: 0.2;
+    }
 }
 
 .blink {
-  animation: blink 1s steps(2, start) infinite;
+    animation: blink 1s steps(2, start) infinite;
 }
 
 .filter-container {
-  display: flex;
-  align-items: center; /* Ensures vertical alignment */
-  gap: 10px; /* Adds space between label and dropdown */
+    display: flex;
+    align-items: center; /* Ensures vertical alignment */
+    gap: 10px; /* Adds space between label and dropdown */
 }
 
 .filter-container label {
-  flex: 0 0 150px; /* Adjust width of label as needed */
-  text-align: right; /* Align label text to right */
+    flex: 0 0 150px; /* Adjust width of label as needed */
+    text-align: right; /* Align label text to right */
 }
 
 .filter-container select {
-  flex: 1; /* Allows dropdown to take remaining space */
+    flex: 1; /* Allows dropdown to take remaining space */
 }
 
-.custom-link {
-  color: #8b0002;
-  font-weight: bold;
-  text-decoration: underline;
+.custom-link
+{
+    color: #8b0002;
+    font-weight: bold;
+    text-decoration: underline;
 }
 
-.footer-dropdown {
-  width: 100%;
-  height: 30px;
+.footer-dropdown
+{
+    width: 100%;
+    height: 30px;
 }
 .copy-btn {
   padding: 0px;
@@ -523,18 +524,18 @@ div.dt-container select.dt-input {
   }
 }
 
-table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before,
-table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after,
-table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:before,
-table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:after {
+table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after, table.dataTable thead > tr > td.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > tr > td.dt-ordering-desc span.dt-column-order:after
+{
   opacity: 1 !important;
 }
 
-.bootstrap-select.form-control button {
+.bootstrap-select.form-control button
+{
   height: 35px;
 }
 
-.select2-container--default .select2-selection--multiple .select2-selection__clear {
+.select2-container--default .select2-selection--multiple .select2-selection__clear
+{
   margin-top: 2px;
 }
 
@@ -560,138 +561,33 @@ footer p:first-child {
 #apiLastUpdated {
   font-weight: 600;
   color: #8b0002;
-  font-family: "Courier New", monospace;
+  font-family: 'Courier New', monospace;
 }
 
 #logoutTrigger {
   background-color: #dc3545 !important;
 }
 
-/* Redesigned Logout Button with Username Display */
-#clearStorageTrigger {
-  border: 2px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 25px !important;
-  padding: 8px 15px !important;
-  margin-right: 10px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-  min-width: 120px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  background: linear-gradient(to bottom, #585858 0%, #111 100%) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-
-
+#usernameDisplay {
+  background-color: #28a745 !important;
+  border-radius: 5px;
+  margin-right: 10px;
 }
 
-#clearStorageTrigger::before {
-  content: "" !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
-  transition: left 0.5s !important;
+#usernameDisplay:hover {
+  background: linear-gradient(to bottom, #20c997 0%, #17a2b8 100%) !important;
 }
 
-#clearStorageTrigger:hover {
-  background: linear-gradient(135deg, #8b0002 0%, #a52a2a 100%) !important;
-  box-shadow: 0 4px 15px rgba(139, 0, 2, 0.3) !important;
-
-  transform: translateY(-2px) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
-}
-
-#clearStorageTrigger:hover::before {
-  left: 100% !important;
-}
-
-#clearStorageTrigger:active {
-  transform: translateY(0px) !important;
-  box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3) !important;
-}
-
-#clearStorageTrigger .sidebar-text {
-  max-width: 200px !important;
-  opacity: 1 !important;
-  font-weight: 600 !important;
-  color: white !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-  margin-right: 8px !important;
-  font-size: 14px !important;
-}
-
-#clearStorageTrigger i {
-  color: white !important;
-  font-size: 14px !important;
-  transition: transform 0.3s ease !important;
-}
-
-#clearStorageTrigger:hover i {
-  transform: rotate(15deg) !important;
-}
-
-/* Username display styling */
 #loggedInUsername {
-  font-weight: 600 !important;
-  color: white !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-  font-size: 14px !important;
-  max-width: 100px !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+  font-weight: bold;
+  color: white;
 }
 
-/* Responsive design for smaller screens */
-@media only screen and (max-width: 768px) {
-  #clearStorageTrigger {
-    min-width: 100px !important;
-    padding: 6px 12px !important;
+#clearStorageTrigger {
+  background: linear-gradient(to bottom, #585858 0%, #111 100%) !important;
+  transform: translateX(0px) !important;
+  .sidebar-text{
+    max-width: 200px !important;
+    opacity: 1 !important;
   }
-
-  #clearStorageTrigger .sidebar-text {
-    font-size: 12px !important;
-    max-width: 80px !important;
-  }
-
-  #loggedInUsername {
-    font-size: 12px !important;
-    max-width: 70px !important;
-  }
-}
-
-/* Animation for username loading */
-@keyframes usernameFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-#loggedInUsername.loaded {
-  animation: usernameFadeIn 0.5s ease-out;
-}
-
-/* Enhanced hover effects for better UX */
-#clearStorageTrigger:hover .sidebar-text {
-  transition: transform 0.2s ease;
-}
-
-/* Loading state for username */
-#loggedInUsername.loading {
-  opacity: 0.7;
-  font-style: italic;
-}
-
-/* Success state when username is loaded */
-#loggedInUsername.success {
-  text-shadow: 0 1px 2px rgba(144, 238, 144, 0.3) !important;
 }
