@@ -28,6 +28,7 @@ class ZonalService {
       { Gr_No: "M00946", Name: "Indra Mulani", Mobile: "7698141239" },
       { Gr_No: "G00687", Name: "Haresh Punjabi", Mobile: "9879018490" },
       { Gr_No: "G01893", Name: "Rajkumar Asudani", Mobile: "9879175800" },
+      { Gr_No: "M02027", Name: "Rajender Bathla", Mobile: "9725892505" },
     ];
     if (!this.cache.length) {
       try {
