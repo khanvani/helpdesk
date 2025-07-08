@@ -543,7 +543,7 @@ table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before, tab
 footer {
   background-color: #f8f9fa;
   border-top: 1px solid #dee2e6;
-  padding: 15px 0;
+  padding: 5px 0;
   margin-top: 30px;
   text-align: center;
 }
