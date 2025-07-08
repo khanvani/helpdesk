@@ -116,7 +116,14 @@ class ExcelService {
 
   normalizeSheet(sheet) {
     return {
-      data: sheet.data.map((row) => Object.fromEntries(Object.entries(row).map(([key, value]) => [key.trim().replace(/[^a-zA-Z0-9]+/g, "_"), value]))),
+      data: sheet.data.map((row) => {
+        const normalizedRow = Object.fromEntries(Object.entries(row).map(([key, value]) => [key.trim().replace(/[^a-zA-Z0-9]+/g, "_"), value]));
+        // Ensure _rowFormat exists for API data
+        if (!normalizedRow._rowFormat) {
+          normalizedRow._rowFormat = [];
+        }
+        return normalizedRow;
+      }),
       headers: sheet.headers.map((value) => ({
         data: typeof value === "string" ? value.trim().replace(/[^a-zA-Z0-9]+/g, "_") : value,
         title: value,
@@ -128,34 +135,138 @@ class ExcelService {
   getSheetData(sheet, startingRow) {
     const jsonData = sheet.getSheetValues().slice(startingRow - 1);
     const headers = sheet.getRow(startingRow).values.map((header) => (typeof header === "string" ? header.trim() : header));
-    return jsonData.slice(2).map((row) =>
-      headers.reduce((obj, header, index) => {
+
+    return jsonData.slice(2).map((row, rowIndex) => {
+      const rowData = headers.reduce((obj, header, index) => {
         obj[header.replace(/\s+/g, "_")] = row[index] || "";
         return obj;
-      }, {})
-    );
+      }, {});
+
+      // Add row formatting information
+      rowData._rowFormat = this.getRowFormat(sheet, startingRow + 2 + rowIndex, headers.length);
+
+      return rowData;
+    });
+  }
+
+  getRowFormat(sheet, rowNumber, columnCount) {
+    const row = sheet.getRow(rowNumber);
+    const rowFormat = [];
+
+    for (let colNumber = 1; colNumber <= columnCount; colNumber++) {
+      const cell = row.getCell(colNumber);
+
+      // Extract font properties
+      const font = {
+        bold: cell.font?.bold || false,
+        italic: cell.font?.italic || false,
+        underline: cell.font?.underline || false,
+        size: cell.font?.size || 11,
+        name: cell.font?.name || "Calibri",
+        color: cell.font?.color?.argb || { argb: "000000" },
+      };
+
+      // Extract fill properties
+      const fill = {
+        type: cell.fill?.type || "pattern",
+        pattern: cell.fill?.pattern || "solid",
+        fgColor: cell.fill?.fgColor || { argb: "FFFFFF" },
+        bgColor: cell.fill?.bgColor || { argb: "FFFFFF" },
+      };
+
+      // Extract alignment properties
+      const alignment = {
+        horizontal: cell.alignment?.horizontal || "left",
+        vertical: cell.alignment?.vertical || "middle",
+        wrapText: cell.alignment?.wrapText || false,
+        shrinkToFit: cell.alignment?.shrinkToFit || false,
+        indent: cell.alignment?.indent || 0,
+      };
+
+      // Extract number format
+      const numFmt = cell.numFmt || null;
+
+      const cellFormat = {
+        font: font,
+        fill: fill,
+        alignment: alignment,
+        numFmt: numFmt,
+      };
+
+      // Debug: Log if we find non-default formatting
+      if (cell.fill?.fgColor?.argb && cell.fill.fgColor.argb !== "FFFFFF") {
+        console.log(`Row ${rowNumber}, Col ${colNumber}: Found background color ${cell.fill.fgColor.argb}`);
+      }
+
+      rowFormat.push(cellFormat);
+    }
+
+    return rowFormat;
   }
 
   getHeaders(sheet, startingRow) {
-    return sheet
-      .getRow(startingRow)
-      .values.map((value, colIndex) => ({
+    const row = sheet.getRow(startingRow);
+    const headers = [];
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      const value = cell.value;
+      headers.push({
         data: typeof value === "string" ? value.trim().replace(/\s+/g, "_") : value,
         title: value,
-        width: sheet.getColumn(colIndex).width,
-      }))
-      .filter((header) => header.title);
+        width: sheet.getColumn(colNumber).width,
+        // Get the header cell color if available; returns ARGB value or null
+        color: cell.fill && cell.fill.fgColor ? cell.fill.fgColor.argb : null,
+      });
+    });
+    return headers.filter((header) => header.title);
   }
 
   getFormat(sheet, startingRow) {
-    return sheet
-      .getRow(startingRow)
-      .values.map((value, colIndex) => ({
+    const row = sheet.getRow(startingRow);
+    const format = [];
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      const value = cell.value;
+
+      // Extract font properties
+      const font = {
+        bold: cell.font?.bold || false,
+        italic: cell.font?.italic || false,
+        underline: cell.font?.underline || false,
+        size: cell.font?.size || 11,
+        name: cell.font?.name || "Calibri",
+        color: cell.font?.color?.argb || { argb: "000000" },
+      };
+
+      // Extract fill properties
+      const fill = {
+        type: cell.fill?.type || "pattern",
+        pattern: cell.fill?.pattern || "solid",
+        fgColor: cell.fill?.fgColor || { argb: "FFFFFF" },
+        bgColor: cell.fill?.bgColor || { argb: "FFFFFF" },
+      };
+
+      // Extract alignment properties
+      const alignment = {
+        horizontal: cell.alignment?.horizontal || "left",
+        vertical: cell.alignment?.vertical || "middle",
+        wrapText: cell.alignment?.wrapText || false,
+        shrinkToFit: cell.alignment?.shrinkToFit || false,
+        indent: cell.alignment?.indent || 0,
+      };
+
+      // Extract number format
+      const numFmt = cell.numFmt || null;
+
+      format.push({
         data: typeof value === "string" ? value.trim().replace(/\s+/g, "_") : value,
         title: value,
-        width: sheet.getColumn(colIndex).width,
-      }))
-      .filter((column) => column.title);
+        width: sheet.getColumn(colNumber).width,
+        font: font,
+        fill: fill,
+        alignment: alignment,
+        numFmt: numFmt,
+      });
+    });
+    return format.filter((column) => column.title);
   }
 
   reloadFiles() {
