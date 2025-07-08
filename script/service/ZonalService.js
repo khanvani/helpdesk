@@ -395,13 +395,12 @@ class ZonalService {
       success: (response) => {
         if (response && response.version) {
           const date = new Date(response.version);
-          const formattedDate = date.toLocaleString("en-US", {
+          const formattedDate = date.toLocaleString("en-IN", {
             year: "numeric",
             month: "short",
             day: "numeric",
             hour: "2-digit",
             minute: "2-digit",
-            timeZoneName: "short",
           });
           $("#apiLastUpdated").text(formattedDate);
         } else {
