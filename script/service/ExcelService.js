@@ -143,7 +143,7 @@ class ExcelService {
       }, {});
 
       // Add row formatting information
-      rowData._rowFormat = this.getRowFormat(sheet, startingRow + 2 + rowIndex, headers.length);
+      rowData._rowFormat = this.getRowFormat(sheet, startingRow + 1 + rowIndex, headers.length);
 
       return rowData;
     });
