@@ -104,19 +104,32 @@ class DownloadService {
 
     const headerRow = worksheet.addRow(headers.map((header) => header.title));
 
+    // Map header format to match the current header order
+    const originalHeaders = StorageService.currentRecord.headers || [];
+    const originalFormat = StorageService.currentRecord.format || [];
+    const mappedHeaderFormat = headers.map((header) => {
+      const origIdx = originalHeaders.findIndex((h) => h.data === header.data);
+      return origIdx !== -1 ? originalFormat[origIdx] : {};
+    });
+
+    // Set row height if available
+    if (mappedHeaderFormat[0] && mappedHeaderFormat[0].rowHeight) {
+      headerRow.height = mappedHeaderFormat[0].rowHeight;
+    }
+
     headerRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
       const header = headers[colNumber - 1];
-      cell.font = header.font || defaultFont;
-      cell.fill = header.fill || defaultFill;
-      cell.alignment = header.alignment || defaultAlignment;
+      const format = mappedHeaderFormat[colNumber - 1] || {};
+      cell.font = format.font || header.font || defaultFont;
+      cell.fill = format.fill || header.fill || defaultFill;
+      cell.alignment = format.alignment || header.alignment || defaultAlignment;
       cell.border = {
         top: { style: "thin" },
         left: { style: "thin" },
         bottom: { style: "thin" },
         right: { style: "thin" },
       };
-
-      cell.numFmt = header.numFmt || defaultNumFmt;
+      cell.numFmt = format.numFmt || header.numFmt || defaultNumFmt;
     });
   }
 

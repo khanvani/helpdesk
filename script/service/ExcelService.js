@@ -221,52 +221,8 @@ class ExcelService {
   }
 
   getFormat(sheet, startingRow) {
-    const row = sheet.getRow(startingRow);
-    const format = [];
-    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-      const value = cell.value;
-
-      // Extract font properties
-      const font = {
-        bold: cell.font?.bold || false,
-        italic: cell.font?.italic || false,
-        underline: cell.font?.underline || false,
-        size: cell.font?.size || 11,
-        name: cell.font?.name || "Calibri",
-        color: cell.font?.color?.argb || { argb: "000000" },
-      };
-
-      // Extract fill properties
-      const fill = {
-        type: cell.fill?.type || "pattern",
-        pattern: cell.fill?.pattern || "solid",
-        fgColor: cell.fill?.fgColor || { argb: "FFFFFF" },
-        bgColor: cell.fill?.bgColor || { argb: "FFFFFF" },
-      };
-
-      // Extract alignment properties
-      const alignment = {
-        horizontal: cell.alignment?.horizontal || "left",
-        vertical: cell.alignment?.vertical || "middle",
-        wrapText: cell.alignment?.wrapText || false,
-        shrinkToFit: cell.alignment?.shrinkToFit || false,
-        indent: cell.alignment?.indent || 0,
-      };
-
-      // Extract number format
-      const numFmt = cell.numFmt || null;
-
-      format.push({
-        data: typeof value === "string" ? value.trim().replace(/\s+/g, "_") : value,
-        title: value,
-        width: sheet.getColumn(colNumber).width,
-        font: font,
-        fill: fill,
-        alignment: alignment,
-        numFmt: numFmt,
-      });
-    });
-    return format.filter((column) => column.title);
+    // Use getRowFormat for the header row to ensure identical logic
+    return this.getRowFormat(sheet, startingRow, sheet.getRow(startingRow).cellCount);
   }
 
   reloadFiles() {
