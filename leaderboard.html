@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaderboard - Sewadar Updates</title>
+
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="style/lib/bootstrap.min.css?V=3.0" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css?V=3.0" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.css?V=3.0" />
+    <link rel="stylesheet" href="resources/fontawesome-free-6.5.2-web/css/all.min.css?V=3.0" />
+    <link rel="stylesheet" href="style/lib/jquery-ui.css?V=3.0" />
+    <link rel="stylesheet" href="style/lib/searchPanes.dataTables.css?V=3.0" />
+    <link rel="stylesheet" href="style/style.css?V=3.0" />
+    <link href="style/lib/bootstrap-select.css?V=3.0" rel="stylesheet" />
+
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  </head>
+  <body>
+    <!-- Header Navigation -->
+    <div id="header">
+      <div id="topMenu">
+        <div id="topMenu">
+            <a href="index.html" id="m-home" class="sidebar-item force-show">
+              <i class="fas fa-home"></i>
+              <span class="sidebar-text">Helpdesk</span>
+          </a>
+          <a href="zonaldata.html" id="m-leaderboard" class="sidebar-item force-show">
+              <i class="fas fa-th-list"></i>
+              <span class="sidebar-text">Zonal Data</span>
+          </a>
+          <a href="leaderboard.html" id="m-leaderboard" class="sidebar-item force-show selected">
+              <i class="fas fa-trophy"></i>
+              <span class="sidebar-text">Leaderboard</span>
+          </a>
+
+        <!-- Right side menu items -->
+        <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal" class="sidebar-item right">
+          <span class="sidebar-text" id="loggedInUsername">Logout</span>&nbsp;&nbsp;
+          <i class="fas fa-sign-out-alt"></i>
+        </a>
+       
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+      <div class="custom-card" style="display: block">
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3><i class="fas fa-trophy text-warning"></i> Sewadar Updation Report</h3>
+                <button id="downloadChart" class="btn btn-outline-primary btn-sm">
+                  <i class="fas fa-download"></i> Download Chart
+                </button>
+              </div>
+              <div class="card-body">
+                <!-- Filter Controls -->
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="dateRange">Date Range:</label>
+                      <select id="dateRange" class="form-control">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="topCount">Show Top:</label>
+                      <select id="topCount" class="form-control">
+                        <option value="all">All</option>
+                        <option value="10">Top 10</option>
+                        <option value="20">Top 20</option>
+                        <option value="50">Top 50</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Total Count Display -->
+                <div class="row mb-3">
+                  <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                      <div class="card-body py-3">
+                        <div class="row text-center">
+                          <div class="col-md-6">
+                            <div class="d-flex align-items-center justify-content-center">
+                              <div class="mr-3">
+                                <i class="fas fa-check-circle text-success" style="font-size: 2rem;"></i>
+                              </div>
+                              <div>
+                                <h5 class="mb-1 text-muted">Completed Forms</h5>
+                                <h3 class="mb-0 text-success font-weight-bold">
+                                  <span id="totalForms">0</span>
+                                </h3>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-md-6 remaining-forms-section">
+                            <div class="d-flex align-items-center justify-content-center">
+                              <div class="mr-3">
+                                <i class="fas fa-clock text-primary" style="font-size: 2rem;"></i>
+                              </div>
+                              <div>
+                                <h5 class="mb-1 text-muted">Remaining Forms</h5>
+                                <h3 class="mb-0 text-primary font-weight-bold">
+                                  <span id="remainingForms">0</span>
+                                </h3>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row mt-3 progress-section">
+                          <div class="col-12">
+                            <div class="progress" style="height: 8px;">
+                              <div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div class="text-center mt-2">
+                              <small class="text-muted">
+                                Progress: <span id="progressPercentage">0%</span> Complete
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Chart Container -->
+                <div class="row">
+                  <div class="col-12">
+                    <div class="chart-container" style="position: relative; height: 60vh; width: 100%">
+                      <canvas id="leaderboardChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="row mt-4">
+                  <div class="col-12">
+                    <div class="table-responsive">
+                      <table id="leaderboardTable" class="table table-striped table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Rank</th>
+                            <th>Sewadar Name</th>
+                            <th>Forms Completed</th>
+                            <th>Last Activity</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <!-- Data will be populated dynamically -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loader" style="display: none">
+      <div id="loadingIndicator">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-body text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+            <p class="mt-2">Loading...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Error</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="errorModalBody">An error occurred while loading the leaderboard data.</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Key Modal -->
+    <div class="modal fade" id="apiKeyModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Enter Password</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="errorAPIKey" class="alert alert-danger" style="display: none"></div>
+            <form id="apiKeyForm">
+              <div class="form-group">
+                <label for="apiKeyInput">Password:</label>
+                <input type="password" class="form-control" id="apiKeyInput" placeholder="Enter your password" required />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="submitApiKey">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="clearStorageModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Action</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">Are you sure you want to logout?</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <button type="button" class="btn btn-primary" id="clearStorageModalYes">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p style="text-align: center">
+        &copy; 2024 Copyright by khanvani.github.io, Not authorised to fork or use without consent, All rights reserved. Last Updated:
+        <span id="apiLastUpdated">Loading...</span>
+      </p>
+    </footer>
+
+    <!-- JavaScript Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js?V=3.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js?V=3.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js?V=3.0"></script>
+    <script src="script/lib/jquery-ui.js?V=3.0"></script>
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js?V=3.0"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js?V=3.0"></script>
+    <script src="script/lib/bootstrap-select.min.js?V=3.0"></script>
+    <script src="script/service/Constant.js"></script>
+
+    <!-- Main Application Script -->
+    <script>
+      // Global variables
+      let leaderboardChart = null;
+      let leaderboardTable = null;
+      let currentData = [];
+
+      // Register Chart.js plugins
+      if (typeof ChartDataLabels !== 'undefined') {
+        Chart.register(ChartDataLabels);
+        console.log("ChartDataLabels plugin registered successfully");
+      } else {
+        console.warn("ChartDataLabels plugin not available, count labels may not display");
+      }
+
+      // Initialize application
+      $(document).ready(function () {
+        console.log("Leaderboard page initialized");
+
+        // Check authentication
+        const apiKey = localStorage.getItem(API_KEYS.ZONAL);
+        if (!apiKey) {
+          console.log("No API key found, showing login modal");
+          $("#apiKeyModal").modal("show");
+          $("#errorAPIKey").hide();
+        } else {
+          console.log("API key found, initializing page");
+          initializePage();
+          loadLeaderboardData();
+        }
+
+        // Attach event listeners
+        attachEventListeners();
+      });
+
+      function attachEventListeners() {
+        // Download chart button
+        $("#downloadChart").on("click", function () {
+          console.log("Download chart button clicked");
+          downloadChart();
+        });
+
+        // Refresh button
+        $("#refreshLeaderboard").on("click", function () {
+          console.log("Refresh button clicked");
+          loadLeaderboardData();
+        });
+
+        // Filter changes
+        $("#dateRange, #topCount").on("change", function () {
+          console.log("Filter changed:", $(this).attr("id"), $(this).val());
+          loadLeaderboardData();
+          
+          // Update display visibility based on date range
+          if ($(this).attr("id") === "dateRange") {
+            updateDisplayVisibility();
+          }
+        });
+
+        // Logout
+        $("#clearStorageModalYes").on("click", function () {
+          localStorage.clear();
+          window.location.href = "index.html";
+        });
+
+        // API Key form
+        $("#submitApiKey").on("click", function () {
+          const apiKey = $("#apiKeyInput").val();
+          if (apiKey) {
+            localStorage.setItem(API_KEYS.ZONAL, btoa(btoa(apiKey)));
+            $("#apiKeyModal").modal("hide");
+            window.location.reload();
+          } else {
+            $("#errorAPIKey").text("Please enter a valid password").show();
+          }
+        });
+
+        // Enter key in API key form
+        $("#apiKeyForm").on("keydown", function (e) {
+          if (e.key === "Enter" || e.keyCode === 13) {
+            e.preventDefault();
+            $("#submitApiKey").click();
+          }
+        });
+      }
+
+      function initializePage() {
+        console.log("Initializing page components");
+
+        // Set username
+        const apiKey = localStorage.getItem(API_KEYS.ZONAL);
+        if (apiKey) {
+          try {
+            const decodedApiKey = atob(apiKey);
+            const finalDecoded = atob(decodedApiKey);
+            const parts = finalDecoded.split(",");
+            if (parts.length === 2) {
+              const username = parts[0].trim();
+              $("#loggedInUsername").text(username);
+            }
+          } catch (error) {
+            console.error("Error decoding API key:", error);
+          }
+        }
+
+        // Initialize DataTable
+        leaderboardTable = $("#leaderboardTable").DataTable({
+          responsive: true,
+          pageLength: 25,
+          order: [[2, "desc"]], // Sort by forms completed descending
+          columnDefs: [
+            { targets: 0, width: "80px" }, // Rank
+            { targets: 1, width: "250px" }, // Name
+            { targets: 2, width: "150px" }, // Forms Completed
+            { targets: 3, width: "150px" }, // Last Activity
+          ],
+        });
+
+        console.log("Page components initialized");
+      }
+
+      function loadLeaderboardData() {
+        console.log("Loading leaderboard data");
+        showLoading();
+
+        const dateRange = $("#dateRange").val();
+        const topCount = $("#topCount").val();
+        const apiKey = localStorage.getItem(API_KEYS.ZONAL);
+
+        if (!apiKey) {
+          hideLoading();
+          showError("Authentication required. Please login again.");
+          return;
+        }
+
+        $.ajax({
+          url: "php/leaderboard-api.php",
+          method: "POST",
+          data: {
+            api_key: apiKey,
+            dateRange: dateRange,
+            topCount: topCount,
+          },
+          success: function (response) {
+            hideLoading();
+            console.log("API Response:", response);
+
+            if (response.success) {
+              currentData = response.data;
+              console.log("Data received:", currentData);
+              console.log("Debug info:", response.debug);
+
+              if (currentData && currentData.length > 0) {
+                updateChart();
+                updateTable(response);
+              } else {
+                showError("No data available for the selected criteria. Debug: " + JSON.stringify(response.debug));
+              }
+            } else {
+              showError(response.message || "Failed to load leaderboard data");
+            }
+          },
+          error: function (xhr, status, error) {
+            hideLoading();
+            console.error("API Error:", error);
+            showError("Network error: " + error);
+          },
+        });
+      }
+
+      function updateChart() {
+        console.log("Updating chart with data:", currentData);
+
+        // Check if Chart.js is available
+        if (typeof Chart === "undefined") {
+          console.error("Chart.js is not available");
+          showError("Chart library is not available. Please refresh the page.");
+          return;
+        }
+
+        const canvas = document.getElementById("leaderboardChart");
+        if (!canvas) {
+          console.error("Canvas element not found");
+          return;
+        }
+
+        // Destroy existing chart
+        if (leaderboardChart) {
+          leaderboardChart.destroy();
+        }
+
+        // Prepare data
+        const labels = currentData.map((item) => item.user);
+        const data = currentData.map((item) => item.formCount || 0); // Ensure no undefined values
+        const colors = generateColors(currentData.length);
+
+        console.log("Chart data prepared:", { labels, data, colors });
+        
+        // Validate data
+        if (!data || data.length === 0) {
+          console.warn("No valid data for chart");
+          return;
+        }
+
+        try {
+          // Register datalabels plugin if available
+          if (typeof ChartDataLabels !== 'undefined') {
+            Chart.register(ChartDataLabels);
+          }
+
+          // Get current date range for title
+          const currentDateRange = $("#dateRange").val();
+          let chartTitle = "Sewadar Updation Leaderboard";
+          
+          if (currentDateRange !== "all") {
+            const now = new Date();
+            
+            switch (currentDateRange) {
+              case "today":
+                const today = now.toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                });
+                chartTitle = `Updation on ${today}`;
+                break;
+                
+              case "week":
+                const weekStart = new Date(now);
+                weekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6); // Sunday
+                
+                const weekStartStr = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const weekEndStr = weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                chartTitle = `Performance: ${weekStartStr} - ${weekEndStr}`;
+                break;
+                
+              case "month":
+                const monthYear = now.toLocaleDateString('en-US', { 
+                  month: 'long', 
+                  year: 'numeric' 
+                });
+                chartTitle = `Performance for ${monthYear}`;
+                break;
+                
+              case "year":
+                const year = now.getFullYear();
+                chartTitle = `Performance for ${year}`;
+                break;
+            }
+          }
+
+          leaderboardChart = new Chart(canvas, {
+            type: "bar",
+            data: {
+              labels: labels,
+              datasets: [
+                {
+                  label: "Forms Completed",
+                  data: data,
+                  backgroundColor: colors,
+                  borderColor: colors.map((color) => color.replace("0.8", "1")),
+                  borderWidth: 1,
+                  borderRadius: 6,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                title: {
+                  display: true,
+                  text: chartTitle,
+                  font: {
+                    size: 18,
+                    weight: 'bold'
+                  },
+                  color: '#333',
+                  padding: {
+                    top: 10,
+                    bottom: 20
+                  }
+                },
+                legend: {
+                  display: false,
+                },
+                tooltip: {
+                  backgroundColor: "rgba(0, 0, 0, 0.9)",
+                  titleColor: "white",
+                  bodyColor: "white",
+                  borderColor: "rgba(54, 162, 235, 1)",
+                  borderWidth: 1,
+                  cornerRadius: 8,
+                  displayColors: false,
+                  callbacks: {
+                    label: function(context) {
+                      return `Forms: ${context.parsed.y}`;
+                    }
+                  }
+                },
+                datalabels: {
+                  color: "#333",
+                  anchor: "end",
+                  align: "top",
+                  offset: 8,
+                  font: {
+                    weight: "bold",
+                    size: 13
+                  },
+                  formatter: function(value, context) {
+                    if (context.parsed && context.parsed.y !== undefined) {
+                      return context.parsed.y;
+                    }
+                    return value || '';
+                  },
+                  display: function(context) {
+                    return context.parsed && context.parsed.y && context.parsed.y > 0;
+                  }
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  grid: {
+                    color: "rgba(0, 0, 0, 0.05)",
+                    drawBorder: false,
+                  },
+                  ticks: {
+                    color: "#666",
+                    font: {
+                      size: 11
+                    },
+                    padding: 8
+                  },
+                  title: {
+                    display: false
+                  }
+                },
+                x: {
+                  grid: {
+                    display: false
+                  },
+                  ticks: {
+                    color: "#666",
+                    font: {
+                      size: 10
+                    },
+                    maxRotation: 45,
+                    minRotation: 0
+                  },
+                  title: {
+                    display: false
+                  }
+                },
+              }
+            },
+          });
+          console.log("Chart created successfully");
+          
+          // Debug: Check if datalabels are working
+          if (typeof ChartDataLabels !== 'undefined') {
+            console.log("ChartDataLabels plugin is available and should show count labels");
+          } else {
+            console.warn("ChartDataLabels plugin not loaded - count labels may not appear");
+            // Fallback: Manually add count labels
+            addManualCountLabels();
+          }
+        } catch (error) {
+          console.error("Error creating chart:", error);
+          showError("Failed to create chart: " + error.message);
+        }
+      }
+
+      function updateTable(response) {
+        console.log("Updating table with data:", currentData);
+
+        if (!leaderboardTable) {
+          console.error("DataTable not initialized");
+          return;
+        }
+
+        // Get total completed forms from API response
+        const totalCompletedForms = response.totalCompletedForms || 0;
+        const totalTargetForms = 13660; // Total target forms
+        const remainingForms = totalTargetForms - totalCompletedForms;
+        const progressPercentage = Math.round((totalCompletedForms / totalTargetForms) * 100);
+        
+        // Get current date range
+        const currentDateRange = $("#dateRange").val();
+        
+        // Update completed forms (always shown)
+        $("#totalForms").text(totalCompletedForms.toLocaleString());
+        
+        // Show/hide remaining forms and progress based on date range
+        if (currentDateRange === "all") {
+          // Show remaining forms and progress for "All Time"
+          $("#remainingForms").text(remainingForms.toLocaleString());
+          $("#progressPercentage").text(progressPercentage + "%");
+          
+          // Update progress bar
+          $("#progressBar").css("width", progressPercentage + "%");
+          
+          // Change progress bar color based on completion
+          if (progressPercentage >= 80) {
+            $("#progressBar").removeClass("bg-warning bg-danger").addClass("bg-success");
+          } else if (progressPercentage >= 50) {
+            $("#progressBar").removeClass("bg-success bg-danger").addClass("bg-warning");
+          } else {
+            $("#progressBar").removeClass("bg-success bg-warning").addClass("bg-danger");
+          }
+          
+          // Show remaining forms section and progress bar
+          $(".remaining-forms-section").show();
+          $(".progress-section").show();
+        } else {
+          // Hide remaining forms and progress for other date ranges
+          $(".remaining-forms-section").hide();
+          $(".progress-section").hide();
+        }
+
+        // Clear existing data
+        leaderboardTable.clear();
+
+        // Add new data
+        currentData.forEach((item, index) => {
+          const rank = index + 1;
+          let rankDisplay = rank;
+          
+          if (rank === 1) {
+            rankDisplay = `<span class="badge badge-warning" style="background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; font-weight: bold;">
+              ${rank}
+            </span>`;
+          } else if (rank === 2) {
+            rankDisplay = `<span class="badge badge-secondary" style="background: linear-gradient(45deg, #C0C0C0, #A0A0A0); color: #000; font-weight: bold;">
+              ${rank}
+            </span>`;
+          } else if (rank === 3) {
+            rankDisplay = `<span class="badge badge-danger" style="background: linear-gradient(45deg, #CD7F32, #B8860B); color: #fff; font-weight: bold;">
+              ${rank}
+            </span>`;
+          }
+
+          leaderboardTable.row.add([rankDisplay, item.user, `<span class="badge badge-success">${item.formCount}</span>`, formatDate(item.lastActivity)]);
+        });
+
+        leaderboardTable.draw();
+        console.log("Table updated successfully");
+      }
+
+      function generateColors(count) {
+        const colors = [
+          "rgba(255, 99, 132, 0.8)",
+          "rgba(54, 162, 235, 0.8)",
+          "rgba(255, 206, 86, 0.8)",
+          "rgba(75, 192, 192, 0.8)",
+          "rgba(153, 102, 255, 0.8)",
+          "rgba(255, 159, 64, 0.8)",
+          "rgba(199, 199, 199, 0.8)",
+          "rgba(83, 102, 255, 0.8)",
+          "rgba(78, 252, 3, 0.8)",
+          "rgba(252, 3, 244, 0.8)",
+        ];
+
+        const result = [];
+        for (let i = 0; i < count; i++) {
+          result.push(colors[i % colors.length]);
+        }
+        return result;
+      }
+
+      function formatDate(dateString) {
+        if (!dateString) return "N/A";
+        const date = new Date(dateString);
+        return (
+          date.toLocaleDateString("en-IN") +
+          " " +
+          date.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        );
+      }
+
+      function showLoading() {
+        $("#loadingModal").modal("show");
+      }
+
+      function hideLoading() {
+        $("#loadingModal").modal("hide");
+      }
+
+      function showError(message) {
+        $("#errorModalBody").text(message);
+        $("#errorModal").modal("show");
+      }
+
+      function addManualCountLabels() {
+        if (!leaderboardChart) return;
+        
+        const canvas = document.getElementById("leaderboardChart");
+        const ctx = canvas.getContext("2d");
+        
+        // Get chart data
+        const data = leaderboardChart.data.datasets[0].data;
+        const meta = leaderboardChart.getDatasetMeta(0);
+        
+        // Draw count labels manually
+        data.forEach((value, index) => {
+          if (value > 0 && meta.data[index] && meta.data[index].y !== undefined) {
+            const bar = meta.data[index];
+            const x = bar.x;
+            const y = bar.y - 10; // Position above the bar
+            
+            // Draw background for better readability
+            ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+            ctx.fillRect(x - 15, y - 15, 30, 20);
+            
+            // Draw the count text
+            ctx.fillStyle = "#333";
+            ctx.font = "bold 13px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(value, x, y);
+          }
+        });
+      }
+
+      function updateDisplayVisibility() {
+        const currentDateRange = $("#dateRange").val();
+        
+        if (currentDateRange === "all") {
+          // Show remaining forms section and progress bar for "All Time"
+          $(".remaining-forms-section").show();
+          $(".progress-section").show();
+        } else {
+          // Hide remaining forms and progress for other date ranges
+          $(".remaining-forms-section").hide();
+          $(".progress-section").hide();
+        }
+      }
+
+      function downloadChart() {
+        if (!leaderboardChart) {
+          showError("No chart available to download. Please load data first.");
+          return;
+        }
+
+        try {
+          // Get current date range and top count for filename
+          const dateRange = $("#dateRange").val();
+          const topCount = $("#topCount").val();
+          const currentDate = new Date().toISOString().split('T')[0];
+          
+          // Create filename
+          let filename = `leaderboard_${dateRange}`;
+          if (topCount !== 'all') {
+            filename += `_top${topCount}`;
+          }
+          filename += `_${currentDate}.png`;
+
+          // Download the chart as PNG
+          const canvas = document.getElementById("leaderboardChart");
+          const link = document.createElement('a');
+          link.download = filename;
+          link.href = canvas.toDataURL('image/png');
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          console.log("Chart downloaded successfully:", filename);
+        } catch (error) {
+          console.error("Error downloading chart:", error);
+          showError("Failed to download chart: " + error.message);
+        }
+      }
+    </script>
+  </body>
+</html>

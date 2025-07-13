@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leaderboard API Test</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      pre {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 3px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Leaderboard API Test</h1>
+
+    <div class="test-section">
+      <h3>Test API Connection</h3>
+      <button id="testApi">Test API</button>
+      <div id="apiResult"></div>
+    </div>
+
+    <div class="test-section">
+      <h3>Test with Parameters</h3>
+      <label
+        >Date Range:
+        <select id="dateRange">
+          <option value="all">All Time</option>
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+        </select></label
+      >
+      <br /><br />
+      <label
+        >Top Count:
+        <select id="topCount">
+          <option value="10">Top 10</option>
+          <option value="20">Top 20</option>
+          <option value="50">Top 50</option>
+          <option value="all">All</option>
+        </select></label
+      >
+      <br /><br />
+      <button id="testWithParams">Test with Parameters</button>
+      <div id="paramResult"></div>
+    </div>
+
+    <script>
+      // Mock API key for testing
+      const mockApiKey = btoa(btoa("testuser,r$$bZ2025"));
+
+      $("#testApi").click(function () {
+        $.ajax({
+          url: "php/leaderboard-api.php",
+          method: "POST",
+          data: {
+            api_key: mockApiKey,
+            dateRange: "all",
+            topCount: "10",
+          },
+          success: function (response) {
+            $("#apiResult").html('<div class="success"><h4>Success!</h4><pre>' + JSON.stringify(response, null, 2) + "</pre></div>");
+          },
+          error: function (xhr, status, error) {
+            $("#apiResult").html(
+              '<div class="error"><h4>Error!</h4><p>Status: ' + status + "</p><p>Error: " + error + "</p><pre>" + xhr.responseText + "</pre></div>"
+            );
+          },
+        });
+      });
+
+      $("#testWithParams").click(function () {
+        const dateRange = $("#dateRange").val();
+        const topCount = $("#topCount").val();
+
+        $.ajax({
+          url: "php/leaderboard-api.php",
+          method: "POST",
+          data: {
+            api_key: mockApiKey,
+            dateRange: dateRange,
+            topCount: topCount,
+          },
+          success: function (response) {
+            $("#paramResult").html('<div class="success"><h4>Success!</h4><pre>' + JSON.stringify(response, null, 2) + "</pre></div>");
+          },
+          error: function (xhr, status, error) {
+            $("#paramResult").html(
+              '<div class="error"><h4>Error!</h4><p>Status: ' + status + "</p><p>Error: " + error + "</p><pre>" + xhr.responseText + "</pre></div>"
+            );
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

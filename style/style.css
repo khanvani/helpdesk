@@ -587,3 +587,17 @@ footer p:first-child {
     opacity: 1 !important;
   }
 }
+
+
+.force-show {
+  transform: translateX(0px) !important;
+  padding: 0px 10px !important;
+  .sidebar-text{
+    max-width: 200px !important;
+    opacity: 1 !important;
+  }
+}
+
+.force-show.selected {
+  background: linear-gradient(to bottom, #585858 0%, #111 100%) !important;
+}

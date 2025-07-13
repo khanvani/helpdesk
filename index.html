@@ -3,25 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <title></title>
-    <link rel="stylesheet" href="style/lib/bootstrap.min.css?v=2.0" />
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css?v=2.0">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.css?v=2.0">
+    <link rel="stylesheet" href="style/lib/bootstrap.min.css?V=3.0" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.css?V=3.0">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.3/css/responsive.dataTables.css?V=3.0">
 
-    <link rel="stylesheet" href="resources/fontawesome-free-6.5.2-web/css/all.min.css?v=2.0" />
-    <link rel="stylesheet" href="style/lib/jquery-ui.css?v=2.0" />
-    <link rel="stylesheet" href="style/lib/searchPanes.dataTables.css?v=2.0" />
+    <link rel="stylesheet" href="resources/fontawesome-free-6.5.2-web/css/all.min.css?V=3.0" />
+    <link rel="stylesheet" href="style/lib/jquery-ui.css?V=3.0" />
+    <link rel="stylesheet" href="style/lib/searchPanes.dataTables.css?V=3.0" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="stylesheet" href="style/style.css?v=2.0" />
+    <link rel="stylesheet" href="style/style.css?V=3.0" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="style/lib/bootstrap-select.css?v=2.0" rel="stylesheet" />
+    <link href="style/lib/bootstrap-select.css?V=3.0" rel="stylesheet" />
   </head>
   <body>
     <div id="header">
       <div id="topMenu">
-        <a href="#" id="m-home" class="sidebar-item">
+        <a href="index.html" id="m-home" class="sidebar-item force-show selected">
           <i class="fas fa-home"></i>
-          <span class="sidebar-text">Details</span>
-        </a>
+          <span class="sidebar-text">Helpdesk</span>
+      </a>
+      <a href="zonaldata.html" id="m-leaderboard" class="sidebar-item force-show">
+          <i class="fas fa-th-list"></i>
+          <span class="sidebar-text">Zonal Data</span>
+      </a>
+      <a href="leaderboard.html" id="m-leaderboard" class="sidebar-item force-show">
+          <i class="fas fa-trophy"></i>
+          <span class="sidebar-text">Leaderboard</span>
+      </a>
         <!--<a href="./forms.html" id="m-new-form" class="sidebar-item display-flag">
           <i class="fa-brands fa-wpforms"></i>
           <span class="sidebar-text">New Enrollment</span>
@@ -209,38 +217,42 @@
     <footer>
       <p style="text-align:center;">&copy; 2024 Copyright by khanvani.github.io, Not authorised to fork or use without consent, All rights reserved.  Last Updated: <span id="apiLastUpdated">Loading...</span> </p>
     </footer>
-    <script src="https://code.jquery.com/jquery-3.7.1.js?v=2.0"></script>
-    <script src="script/lib/popper.min.js?v=2.0"></script>
-    <script src="script/lib/exceljs.min.js?v=2.0"></script>
-    <script src="script/lib/bootstrap.min.js?v=2.0"></script>
-    <script src="script/lib/jquery-ui.js?v=2.0"></script>
-    <script src="script/lib/searchPanes.dataTables.js?v=2.0"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js?V=3.0"></script>
+    <script src="script/lib/popper.min.js?V=3.0"></script>
+    <script src="script/lib/exceljs.min.js?V=3.0"></script>
+    <script src="script/lib/bootstrap.min.js?V=3.0"></script>
+    <script src="script/lib/jquery-ui.js?V=3.0"></script>
+    <script src="script/lib/searchPanes.dataTables.js?V=3.0"></script>
 
-    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js?v=2.0"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js?v=2.0"></script>
-    <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.dataTables.js?v=2.0"></script>
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.js?V=3.0"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.3/js/dataTables.responsive.js?V=3.0"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.3/js/responsive.dataTables.js?V=3.0"></script>
 
-    <script src="https://cdn.datatables.net/buttons/3.1.2/js/dataTables.buttons.js?v=2.0"></script>
-    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.dataTables.js?v=2.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js?v=2.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js?v=2.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js?v=2.0"></script>
-    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.html5.min.js?v=2.0"></script>
-    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.print.min.js?v=2.0"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/dataTables.buttons.js?V=3.0"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.dataTables.js?V=3.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js?V=3.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js?V=3.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js?V=3.0"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.html5.min.js?V=3.0"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.print.min.js?V=3.0"></script>
     <script src="script/service/Constant.js"></script>
     <script>
       localStorage.removeItem("currentData")
       API_URLS.CURRENT_URL = API_URLS.QUERY_DESK;
       API_KEYS.CURRENT_API_KEY = API_KEYS.QUERY;
+      let apiKey = localStorage.getItem(API_KEYS.ZONAL);
+      if (apiKey) {
+        API_KEYS.CURRENT_API_KEY = API_KEYS.ZONAL;
+      }
     </script>
-    <script src="script/lib/FileSaver.min.js?v=2.0"></script>
-    <script src="script/lib/bootstrap-select.min.js?v=2.0"></script>
-    <script src="script/service/ExcelService.js?v=2.0"></script>
-    <script src="script/service/StorageService.js?v=2.0"></script>
-    <script src="script/service/TableService.js?v=2.0"></script>
-    <script src="script/service/FilterService.js?v=2.0"></script>
-    <script src="script/service/DownloadService.js?v=2.0"></script>
-    <script src="script/service/PivotService.js?v=2.0"></script>
-    <script src="script/Controller.js?v=2.0"></script>
+    <script src="script/lib/FileSaver.min.js?V=3.0"></script>
+    <script src="script/lib/bootstrap-select.min.js?V=3.0"></script>
+    <script src="script/service/ExcelService.js?V=3.0"></script>
+    <script src="script/service/StorageService.js?V=3.0"></script>
+    <script src="script/service/TableService.js?V=3.0"></script>
+    <script src="script/service/FilterService.js?V=3.0"></script>
+    <script src="script/service/DownloadService.js?V=3.0"></script>
+    <script src="script/service/PivotService.js?V=3.0"></script>
+    <script src="script/Controller.js?V=3.0"></script>
   </body>
 </html>
