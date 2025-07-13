@@ -88,54 +88,40 @@
                 </div>
 
                 <!-- Total Count Display -->
-                <div class="row mb-3">
-                  <div class="col-12">
-                    <div class="card border-0 shadow-sm">
-                      <div class="card-body py-3">
-                        <div class="row text-center">
-                          <div class="col-md-6">
-                            <div class="d-flex align-items-center justify-content-center">
-                              <div class="mr-3">
-                                <i class="fas fa-check-circle text-success" style="font-size: 2rem;"></i>
-                              </div>
-                              <div>
-                                <h5 class="mb-1 text-muted">Completed Forms</h5>
-                                <h3 class="mb-0 text-success font-weight-bold">
-                                  <span id="totalForms">0</span>
-                                </h3>
-                              </div>
-                            </div>
+                <div class="row text-center mb-2" id="metricsRow">
+                          <div class="col metric-col">
+                            <div class="metric-label">Completed</div>
+                            <div class="metric-value text-primary" id="totalForms">0</div>
                           </div>
-                          <div class="col-md-6 remaining-forms-section">
-                            <div class="d-flex align-items-center justify-content-center">
-                              <div class="mr-3">
-                                <i class="fas fa-clock text-primary" style="font-size: 2rem;"></i>
-                              </div>
-                              <div>
-                                <h5 class="mb-1 text-muted">Remaining Forms</h5>
-                                <h3 class="mb-0 text-primary font-weight-bold">
-                                  <span id="remainingForms">0</span>
-                                </h3>
-                              </div>
-                            </div>
+                          <div class="col metric-col remaining-forms-section">
+                            <div class="metric-label">Remaining</div>
+                            <div class="metric-value text-primary" id="remainingForms">0</div>
+                          </div>
+                          <div class="col metric-col" id="avgSpeedCol">
+                            <div class="metric-label">Avg Forms Per Day</div>
+                            <div class="metric-value text-primary" id="avgSpeed">-</div>
+                          </div>
+                          <div class="col metric-col" id="targetDateCol">
+                            <div class="metric-label">Tentative Completion Date</div>
+                            <div class="metric-value text-primary" id="targetDate">-</div>
+                          </div>
+                          <div class="col metric-col">
+                            <div class="metric-label">Progress</div>
+                            <div class="metric-value text-primary" id="progressPercentage">0%</div>
                           </div>
                         </div>
-                        <div class="row mt-3 progress-section">
+                        <div class="row mt-2 progress-section">
                           <div class="col-12">
                             <div class="progress" style="height: 8px;">
                               <div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
                             </div>
-                            <div class="text-center mt-2">
-                              <small class="text-muted">
-                                Progress: <span id="progressPercentage">0%</span> Complete
-                              </small>
-                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                        <style>
+                          .metric-col { padding: 0 0.5rem; }
+                          .metric-label { font-size: 0.95rem; color: #888; margin-bottom: 2px; }
+                          .metric-value { font-size: 1.5rem; font-weight: bold; }
+                        </style>
 
                 <!-- Chart Container -->
                 <div class="row">

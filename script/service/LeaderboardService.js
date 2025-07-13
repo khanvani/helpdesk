@@ -222,7 +222,7 @@ $(document).ready(function () {
 
       // Get current date range for title
       const currentDateRange = $("#dateRange").val();
-      let chartTitle = "Sewadar Updation Leaderboard";
+      let chartTitle = "Sewadar Form Updation Status";
 
       if (currentDateRange !== "all") {
         const now = new Date();
@@ -398,19 +398,36 @@ $(document).ready(function () {
     // Get current date range
     const currentDateRange = $("#dateRange").val();
 
-    // Update completed forms (always shown)
-    $("#totalForms").text(totalCompletedForms.toLocaleString());
-
-    // Show/hide remaining forms and progress based on date range
+    // Show/hide metrics and progress based on date range
     if (currentDateRange === "all") {
-      // Show remaining forms and progress for "All Time"
+      $("#metricsRow").show();
+      $(".remaining-forms-section").show();
+      $(".progress-section").show();
+      // Calculate and display average speed and target date
+      const firstDate = response.firstSubmissionDate;
+      const lastDate = response.lastSubmissionDate;
+      let avgSpeed = "-";
+      let targetDate = "-";
+      if (firstDate && lastDate) {
+        const first = new Date(firstDate);
+        const last = new Date(lastDate);
+        const today = new Date();
+        const end = last > today ? today : last;
+        const days = Math.max(1, Math.ceil((end - first) / (1000 * 60 * 60 * 24)) + 1);
+        avgSpeed = Math.round(totalCompletedForms / days);
+        if (avgSpeed > 0) {
+          const daysToFinish = Math.ceil(remainingForms / avgSpeed);
+          const finishDate = new Date();
+          finishDate.setDate(finishDate.getDate() + daysToFinish);
+          targetDate = finishDate.toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" });
+        }
+      }
+      $("#avgSpeed").text(avgSpeed);
+      $("#targetDate").text(targetDate);
+      $("#totalForms").text(totalCompletedForms.toLocaleString());
       $("#remainingForms").text(remainingForms.toLocaleString());
       $("#progressPercentage").text(progressPercentage + "%");
-
-      // Update progress bar
       $("#progressBar").css("width", progressPercentage + "%");
-
-      // Change progress bar color based on completion
       if (progressPercentage >= 80) {
         $("#progressBar").removeClass("bg-warning bg-danger").addClass("bg-success");
       } else if (progressPercentage >= 50) {
@@ -418,14 +435,15 @@ $(document).ready(function () {
       } else {
         $("#progressBar").removeClass("bg-success bg-warning").addClass("bg-danger");
       }
-
-      // Show remaining forms section and progress bar
-      $(".remaining-forms-section").show();
-      $(".progress-section").show();
     } else {
-      // Hide remaining forms and progress for other date ranges
+      $("#metricsRow").show();
       $(".remaining-forms-section").hide();
       $(".progress-section").hide();
+      $("#avgSpeed").text("-");
+      $("#targetDate").text("-");
+      $("#remainingForms").text("-");
+      $("#progressPercentage").text("-");
+      $("#progressBar").css("width", "0%");
     }
 
     // Clear existing data
