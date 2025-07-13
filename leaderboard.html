@@ -290,6 +290,10 @@
         console.warn("ChartDataLabels plugin not available, count labels may not display");
       }
 
+      // Set the correct endpoint and API key for leaderboard
+      API_URLS.CURRENT_URL = './php/leaderboard-api.php';
+      API_KEYS.CURRENT_API_KEY = localStorage.getItem(API_KEYS.ZONAL) || localStorage.getItem(API_KEYS.QUERY);
+
       // Initialize application
       $(document).ready(function () {
         console.log("Leaderboard page initialized");
@@ -411,10 +415,10 @@
         }
 
         $.ajax({
-          url: "php/leaderboard-api.php",
+          url: API_URLS.CURRENT_URL,
           method: "POST",
           data: {
-            api_key: apiKey,
+            api_key: API_KEYS.CURRENT_API_KEY,
             dateRange: dateRange,
             topCount: topCount,
           },
