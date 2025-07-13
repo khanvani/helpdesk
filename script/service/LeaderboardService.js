@@ -228,7 +228,7 @@ $(document).ready(function () {
         const now = new Date();
         switch (currentDateRange) {
           case "today":
-            const today = now.toLocaleDateString("en-US", {
+            const today = now.toLocaleDateString("en-IN", {
               weekday: "long",
               year: "numeric",
               month: "long",
@@ -237,16 +237,19 @@ $(document).ready(function () {
             chartTitle = `Updation on ${today}`;
             break;
           case "week":
+            // Calculate Monday of this week
+            const dayOfWeek = now.getDay(); // 0 (Sun) - 6 (Sat)
+            const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // If Sunday, go back 6 days
             const weekStart = new Date(now);
-            weekStart.setDate(now.getDate() - now.getDay() + 1); // Monday
+            weekStart.setDate(now.getDate() + mondayOffset);
             const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekStart.getDate() + 6); // Sunday
-            const weekStartStr = weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-            const weekEndStr = weekEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+            weekEnd.setDate(weekStart.getDate() + 6);
+            const weekStartStr = weekStart.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+            const weekEndStr = weekEnd.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
             chartTitle = `Performance: ${weekStartStr} - ${weekEndStr}`;
             break;
           case "month":
-            const monthYear = now.toLocaleDateString("en-US", {
+            const monthYear = now.toLocaleDateString("en-IN", {
               month: "long",
               year: "numeric",
             });
@@ -391,18 +394,20 @@ $(document).ready(function () {
 
     // Get total completed forms from API response
     const totalCompletedForms = response.totalCompletedForms || 0;
+    const totalFormCount = response.totalFormCount || 0;
     const totalTargetForms = 13660; // Total target forms
-    const remainingForms = totalTargetForms - totalCompletedForms;
-    const progressPercentage = Math.round((totalCompletedForms / totalTargetForms) * 100);
-
-    // Get current date range
-    const currentDateRange = $("#dateRange").val();
+    // For 'all' use totalFormCount, for filtered use totalCompletedForms
+    const isAll = $("#dateRange").val() === "all";
+    const completed = isAll ? totalFormCount : totalCompletedForms;
+    const remainingForms = totalTargetForms - completed;
+    const progressPercentage = Math.round((completed / totalTargetForms) * 100);
 
     // Show/hide metrics and progress based on date range
-    if (currentDateRange === "all") {
+    if (isAll) {
       $("#metricsRow").show();
       $(".remaining-forms-section").show();
       $(".progress-section").show();
+      $(".hide-on-filter").show();
       // Calculate and display average speed and target date
       const firstDate = response.firstSubmissionDate;
       const lastDate = response.lastSubmissionDate;
@@ -414,7 +419,7 @@ $(document).ready(function () {
         const today = new Date();
         const end = last > today ? today : last;
         const days = Math.max(1, Math.ceil((end - first) / (1000 * 60 * 60 * 24)) + 1);
-        avgSpeed = Math.round(totalCompletedForms / days);
+        avgSpeed = Math.round(totalFormCount / days);
         if (avgSpeed > 0) {
           const daysToFinish = Math.ceil(remainingForms / avgSpeed);
           const finishDate = new Date();
@@ -424,7 +429,7 @@ $(document).ready(function () {
       }
       $("#avgSpeed").text(avgSpeed);
       $("#targetDate").text(targetDate);
-      $("#totalForms").text(totalCompletedForms.toLocaleString());
+      $("#totalForms").text(completed.toLocaleString());
       $("#remainingForms").text(remainingForms.toLocaleString());
       $("#progressPercentage").text(progressPercentage + "%");
       $("#progressBar").css("width", progressPercentage + "%");
@@ -439,38 +444,29 @@ $(document).ready(function () {
       $("#metricsRow").show();
       $(".remaining-forms-section").hide();
       $(".progress-section").hide();
+      $(".hide-on-filter").hide();
       $("#avgSpeed").text("-");
       $("#targetDate").text("-");
+      $("#totalForms").text(completed.toLocaleString());
       $("#remainingForms").text("-");
       $("#progressPercentage").text("-");
       $("#progressBar").css("width", "0%");
     }
 
-    // Clear existing data
+    // Always update the table, regardless of date range
     leaderboardTable.clear();
-
-    // Add new data
     currentData.forEach((item, index) => {
       const rank = index + 1;
       let rankDisplay = rank;
-
       if (rank === 1) {
-        rankDisplay = `<span class="badge badge-warning" style="background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; font-weight: bold;">
-          ${rank}
-        </span>`;
+        rankDisplay = `<span class="badge badge-warning" style="background: linear-gradient(45deg, #FFD700, #FFA500); color: #000; font-weight: bold;">${rank}</span>`;
       } else if (rank === 2) {
-        rankDisplay = `<span class="badge badge-secondary" style="background: linear-gradient(45deg, #C0C0C0, #A0A0A0); color: #000; font-weight: bold;">
-          ${rank}
-        </span>`;
+        rankDisplay = `<span class="badge badge-secondary" style="background: linear-gradient(45deg, #C0C0C0, #A0A0A0); color: #000; font-weight: bold;">${rank}</span>`;
       } else if (rank === 3) {
-        rankDisplay = `<span class="badge badge-danger" style="background: linear-gradient(45deg, #CD7F32, #B8860B); color: #fff; font-weight: bold;">
-          ${rank}
-        </span>`;
+        rankDisplay = `<span class="badge badge-danger" style="background: linear-gradient(45deg, #CD7F32, #B8860B); color: #fff; font-weight: bold;">${rank}</span>`;
       }
-
       leaderboardTable.row.add([rankDisplay, item.user, `<span class="badge badge-success">${item.formCount}</span>`, formatDate(item.lastActivity)]);
     });
-
     leaderboardTable.draw();
     console.log("Table updated successfully");
   }
