@@ -166,7 +166,7 @@ $(document).ready(function () {
             updateChart();
             updateTable(response);
           } else {
-            showError("No data available for the selected criteria. Debug: " + JSON.stringify(response.debug));
+            showError("No data available for the selected criteria.");
           }
         } else {
           showError(response.message || "Failed to load leaderboard data");
