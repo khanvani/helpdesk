@@ -123,7 +123,7 @@ $(document).ready(function () {
 
     const dateRange = $("#dateRange").val();
     const topCount = $("#topCount").val();
-    const apiKey = API_KEYS.CURRENT_API_KEY;
+    const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
 
     if (!apiKey) {
       $("#loader").hide();
