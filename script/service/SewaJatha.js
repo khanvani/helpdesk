@@ -184,6 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
           type: "POST",
           dataType: "json",
           data: { api_key: apiKey },
+          crossDomain: true, // Enable CORS
         });
 
         if (response?.status === 401) {
@@ -391,6 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
           type: "POST",
           dataType: "json",
           data: grNoData,
+          crossDomain: true, // Enable CORS
         });
         if (response?.status === 401) {
           localStorage.removeItem(API_KEYS.CURRENT_API_KEY);
@@ -742,6 +744,7 @@ document.addEventListener("DOMContentLoaded", () => {
           action: "appendToGoogleSheet",
           data: formattedData,
         },
+        crossDomain: true, // Enable CORS
       });
 
       // Only runs for 2xx responses
@@ -889,6 +892,7 @@ document.addEventListener("DOMContentLoaded", () => {
       type: "GET",
       dataType: "json",
       timeout: 5000,
+      crossDomain: true, // Enable CORS
       success: (response) => {
         if (response && response.version) {
           const date = new Date(response.version);

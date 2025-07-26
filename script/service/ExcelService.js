@@ -21,6 +21,7 @@ class ExcelService {
         type: "POST",
         dataType: "json",
         data: { api_key: apiKey },
+        crossDomain: true, // Enable CORS
       });
 
       await this.storeResponse(response);

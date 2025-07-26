@@ -6,6 +6,7 @@ function loadUserMenus() {
     url: API_URLS.USER_MENUS,
     method: "POST",
     data: { api_key: apiKey },
+    crossDomain: true, // Enable CORS
     success: function (response) {
       if (response.menus) {
         renderMenus(response.menus);
@@ -47,6 +48,7 @@ function handleLogout() {
     method: "POST",
     data: { api_key: apiKey || "" },
     timeout: 5000,
+    crossDomain: true, // Enable CORS
   }).always(function () {
     localStorage.clear();
     window.location.href = "index.html";

@@ -139,6 +139,7 @@ $(document).ready(function () {
         dateRange: dateRange,
         topCount: topCount,
       },
+      crossDomain: true, // Enable CORS
       success: function (response) {
         $("#loader").hide();
         console.log("API Response:", response);

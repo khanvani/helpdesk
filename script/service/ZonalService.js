@@ -336,6 +336,7 @@ class ZonalService {
         type: "POST",
         dataType: "json",
         data,
+        crossDomain: true, // Enable CORS
         success: function (response) {
           $("#loader").hide();
 
@@ -392,6 +393,7 @@ class ZonalService {
       type: "GET",
       dataType: "json",
       timeout: 5000,
+      crossDomain: true, // Enable CORS
       success: (response) => {
         if (response && response.version) {
           const date = new Date(response.version);
