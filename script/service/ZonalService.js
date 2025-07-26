@@ -29,7 +29,7 @@ class ZonalService {
       { Gr_No: "G01893", Name: "Rajkumar Asudani", Mobile: "9879175800" },
       { Gr_No: "M02027", Name: "Rajender Bathla", Mobile: "9725892505" },
     ];
-    
+
     // Use data from StorageService if available, otherwise load from API
     if (StorageService.currentRecord?.data) {
       this.cache = StorageService.currentRecord.data;
@@ -388,7 +388,7 @@ class ZonalService {
 
   fetchApiVersion() {
     $.ajax({
-      url: API_URLS.ZONAL_DATA_FETCH.replace("/zonal-data.php", "/version.php"),
+      url: API_URLS.VERSION,
       type: "GET",
       dataType: "json",
       timeout: 5000,

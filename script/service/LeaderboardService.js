@@ -4,7 +4,7 @@
 $(document).ready(function () {
   // Set the correct endpoint and API key for leaderboard
   API_URLS.CURRENT_URL = "https://sewasamiti.ahujaenterprise.com/php/leaderboard-api.php";
-  API_KEYS.CURRENT_API_KEY = localStorage.getItem(API_KEYS.ZONAL) || localStorage.getItem(API_KEYS.QUERY);
+  // API key is now managed through CURRENT_API_KEY only
 
   // Global variables
   let leaderboardChart = null;
@@ -22,16 +22,8 @@ $(document).ready(function () {
   // Initialize application
   console.log("Leaderboard page initialized");
 
-  // Check authentication - use ZONAL if available, otherwise use QUERY
-  let apiKey = localStorage.getItem(API_KEYS.ZONAL);
-  if (!apiKey) {
-    // Fallback to QUERY API key
-    apiKey = localStorage.getItem(API_KEYS.QUERY);
-    if (apiKey) {
-      console.log("ZONAL API key not found, using QUERY API key");
-      localStorage.setItem(API_KEYS.ZONAL, apiKey); // Store QUERY key as ZONAL for consistency
-    }
-  }
+  // Check authentication
+  let apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
 
   if (!apiKey) {
     console.log("No API key found, showing login modal");
@@ -73,7 +65,7 @@ $(document).ready(function () {
     $("#submitApiKey").on("click", function () {
       const apiKey = $("#apiKeyInput").val();
       if (apiKey) {
-        localStorage.setItem(API_KEYS.ZONAL, btoa(btoa(apiKey)));
+        localStorage.setItem(API_KEYS.CURRENT_API_KEY, btoa(btoa(apiKey)));
         $("#apiKeyModal").modal("hide");
         window.location.reload();
       } else {
@@ -94,7 +86,7 @@ $(document).ready(function () {
     console.log("Initializing page components");
 
     // Set username
-    const apiKey = localStorage.getItem(API_KEYS.ZONAL);
+    const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
     if (apiKey) {
       try {
         const decodedApiKey = atob(apiKey);

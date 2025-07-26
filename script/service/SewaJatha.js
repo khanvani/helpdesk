@@ -885,7 +885,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function fetchApiVersion() {
     $.ajax({
-      url: API_URLS.SEWA_JATHA_FETCH.replace("/sewa-jatha.php", "/version.php"),
+      url: API_URLS.VERSION,
       type: "GET",
       dataType: "json",
       timeout: 5000,

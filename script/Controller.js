@@ -73,7 +73,7 @@ class Controller {
 
   fetchApiVersion() {
     $.ajax({
-      url: "php/version.php",
+      url: API_URLS.VERSION,
       type: "GET",
       dataType: "json",
       timeout: 5000,
@@ -166,7 +166,7 @@ class Controller {
         this.downloadService.initFilters();
         localStorage.removeItem("zonalDataCache");
         $("#sheetNamesCombo").val($("#sheetNamesCombo option:first").val()).trigger("change");
-        
+
         // Refresh ZonalService cache if it exists
         if (window.zonalService) {
           window.zonalService.refreshCache();
