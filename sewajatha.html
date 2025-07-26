@@ -102,22 +102,7 @@
   <body>
     <div id="header">
       <div id="topMenu">
-        <a href="./index.html" id="c-back" class="sidebar-item">
-          <i class="fa fa-arrow-left" aria-hidden="true"></i>
-          <span class="sidebar-text">Back</span>
-        </a>
-        <a href="index.html" id="m-home" class="sidebar-item force-show">
-          <i class="fas fa-home"></i>
-          <span class="sidebar-text">Helpdesk</span>
-        </a>
-        <a href="zonaldata.html" id="m-leaderboard" class="sidebar-item force-show selected">
-          <i class="fas fa-th-list"></i>
-          <span class="sidebar-text">Zonal Data</span>
-        </a>
-        <a href="leaderboard.html" id="m-leaderboard" class="sidebar-item force-show">
-          <i class="fas fa-trophy"></i>
-          <span class="sidebar-text">Status</span>
-        </a>
+        <div id="dynamic-menus"></div>
         <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal" class="sidebar-item right">
           <span class="sidebar-text" id="loggedInUsername">Logout</span>&nbsp;&nbsp;
           <i class="fas fa-sign-out-alt"></i>
@@ -367,6 +352,8 @@
     <script src="script/lib/bootstrap-select.min.js?V=3.0"></script>
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script src="script/service/MenuService.js?V=3.0"></script>
 
     <footer>
       <p style="text-align: center">

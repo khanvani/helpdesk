@@ -223,13 +223,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  document.getElementById("clearStorageModalYes").addEventListener("click", () => {
-    localStorage.removeItem("dataTableData");
-    localStorage.removeItem("lastAddedData");
-    localStorage.removeItem("sewadarsDataCache");
-    window.location.reload();
-  });
-
   document.getElementById("newStorageTrigger").addEventListener("click", () => {
     const lastAddedData = JSON.parse(localStorage.getItem("lastAddedData")) || {};
     const preservedData = {

@@ -9,15 +9,14 @@ class ZonalService {
   }
 
   async init() {
-    await this.loadSewadarsData();
+    // Don't load data immediately - let Controller handle it
     this.setupPersonSelect();
     this.setupEditHandler();
     this.setupSaveHandler();
-    this.fetchApiVersion();
+    // Don't fetch version - Controller already does this
   }
 
   async loadSewadarsData() {
-    this.cache = [];
     this.securitySewadarsCache = [
       { Gr_No: "G00651", Name: "Hansraj Vacheta", Mobile: "9825763328" },
       { Gr_No: "G03001", Name: "Harsh Dholani", Mobile: "7575068231" },
@@ -30,19 +29,20 @@ class ZonalService {
       { Gr_No: "G01893", Name: "Rajkumar Asudani", Mobile: "9879175800" },
       { Gr_No: "M02027", Name: "Rajender Bathla", Mobile: "9725892505" },
     ];
-    if (!this.cache.length) {
-      try {
-        const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
-        const res = await $.ajax({
-          url: API_URLS.ZONAL_DATA_FETCH,
-          type: "POST",
-          dataType: "json",
-          data: { api_key: apiKey },
-        });
-        this.cache = res?.["Help Desk"]?.["Zonal Data"]?.data || [];
-      } catch (err) {
-        console.error("Failed to load sewadars data:", err);
-      }
+    
+    // Use data from StorageService if available, otherwise load from API
+    if (StorageService.currentRecord?.data) {
+      this.cache = StorageService.currentRecord.data;
+    } else {
+      this.cache = [];
+    }
+  }
+
+  refreshCache() {
+    // Called by Controller after data is loaded
+    if (StorageService.currentRecord?.data) {
+      this.cache = StorageService.currentRecord.data;
+      this.setupPersonSelect(); // Refresh the select options
     }
   }
 

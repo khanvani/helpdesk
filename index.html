@@ -19,28 +19,8 @@
   <body>
     <div id="header">
       <div id="topMenu">
-        <a href="index.html" id="m-home" class="sidebar-item force-show selected">
-          <i class="fas fa-home"></i>
-          <span class="sidebar-text">Helpdesk</span>
-      </a>
-      <a href="zonaldata.html" id="m-leaderboard" class="sidebar-item force-show">
-          <i class="fas fa-th-list"></i>
-          <span class="sidebar-text">Zonal Data</span>
-      </a>
-      <a href="leaderboard.html" id="m-leaderboard" class="sidebar-item force-show">
-          <i class="fas fa-trophy"></i>
-          <span class="sidebar-text">Status</span>
-      </a>
-        <!--<a href="./forms.html" id="m-new-form" class="sidebar-item display-flag">
-          <i class="fa-brands fa-wpforms"></i>
-          <span class="sidebar-text">New Enrollment</span>
-        </a>
-
-        <a href="#" id="m-mf-pivot" class="sidebar-item display-flag">
-          <i class="fa-solid fa-restroom"></i>
-          <span class="sidebar-text">Pivot By Gender</span>
-        </a> -->
-
+        <div id="dynamic-menus"></div>
+    
         <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal"
            class="sidebar-item right">
             <span class="sidebar-text" id="loggedInUsername">Logout</span>&nbsp;&nbsp;
@@ -255,5 +235,6 @@
     <script src="script/service/DownloadService.js?V=3.0"></script>
     <script src="script/service/PivotService.js?V=3.0"></script>
     <script src="script/Controller.js?V=3.0"></script>
+    <script src="script/service/MenuService.js?V=3.0"></script>
   </body>
 </html>

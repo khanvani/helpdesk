@@ -29,7 +29,7 @@ class Controller {
       $("#inputExcel").change(this.uploadAndProcessFile);
       $("#fileNamesCombo").change(this.loadDataFromFiles);
       $("#sheetNamesCombo").change(this.loadDataFromSheet);
-      $("#clearStorageModalYes").click(this.clearStorageAndReload);
+      // Remove this line since MenuService handles logout now
       $("#sidebar-toggle-btn").click(this.toggleSidebar);
       $("#m-mf-pivot").click(this.pivotByMaleFemale);
       $("#filterTrigger").click(this.filter);
@@ -73,7 +73,7 @@ class Controller {
 
   fetchApiVersion() {
     $.ajax({
-      url: API_URLS.CURRENT_URL.replace("/query-desk.php", "/version.php"),
+      url: "php/version.php",
       type: "GET",
       dataType: "json",
       timeout: 5000,
@@ -166,6 +166,11 @@ class Controller {
         this.downloadService.initFilters();
         localStorage.removeItem("zonalDataCache");
         $("#sheetNamesCombo").val($("#sheetNamesCombo option:first").val()).trigger("change");
+        
+        // Refresh ZonalService cache if it exists
+        if (window.zonalService) {
+          window.zonalService.refreshCache();
+        }
       })
       .catch((err) => {
         console.error("Error loading the table:", err);

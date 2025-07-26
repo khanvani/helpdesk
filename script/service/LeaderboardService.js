@@ -69,12 +69,6 @@ $(document).ready(function () {
       }
     });
 
-    // Logout
-    $("#clearStorageModalYes").on("click", function () {
-      localStorage.clear();
-      window.location.href = "index.html";
-    });
-
     // API Key form
     $("#submitApiKey").on("click", function () {
       const apiKey = $("#apiKeyInput").val();

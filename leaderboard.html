@@ -24,19 +24,8 @@
     <!-- Header Navigation -->
     <div id="header">
       <div id="topMenu">
-        <div id="topMenu">
-            <a href="index.html" id="m-home" class="sidebar-item force-show">
-              <i class="fas fa-home"></i>
-              <span class="sidebar-text">Helpdesk</span>
-          </a>
-          <a href="zonaldata.html" id="m-leaderboard" class="sidebar-item force-show">
-              <i class="fas fa-th-list"></i>
-              <span class="sidebar-text">Zonal Data</span>
-          </a>
-          <a href="leaderboard.html" id="m-leaderboard" class="sidebar-item force-show selected">
-              <i class="fas fa-trophy"></i>
-              <span class="sidebar-text">Status</span>
-          </a>
+          <div id="dynamic-menus"></div>
+
 
         <!-- Right side menu items -->
         <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal" class="sidebar-item right">
@@ -44,7 +33,6 @@
           <i class="fas fa-sign-out-alt"></i>
         </a>
        
-      </div>
     </div>
 
     <!-- Main Content -->
@@ -265,6 +253,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <!-- Import the new LeaderboardService -->
     <script src="script/service/LeaderboardService.js"></script>
+    <script src="script/service/MenuService.js?V=3.0"></script>
 
   </body>
 </html>
