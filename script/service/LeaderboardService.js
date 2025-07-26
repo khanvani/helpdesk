@@ -85,21 +85,8 @@ $(document).ready(function () {
   function initializePage() {
     console.log("Initializing page components");
 
-    // Set username
-    const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
-    if (apiKey) {
-      try {
-        const decodedApiKey = atob(apiKey);
-        const finalDecoded = atob(decodedApiKey);
-        const parts = finalDecoded.split(",");
-        if (parts.length === 2) {
-          const username = parts[0].trim();
-          $("#loggedInUsername").text(username);
-        }
-      } catch (error) {
-        console.error("Error decoding API key:", error);
-      }
-    }
+    // Username will be set by fetchApiVersion
+    fetchApiVersion();
 
     // Initialize DataTable
     leaderboardTable = $("#leaderboardTable").DataTable({
@@ -574,5 +561,48 @@ $(document).ready(function () {
   function showError(message) {
     $("#errorModalBody").text(message);
     $("#errorModal").modal("show");
+  }
+
+  function fetchApiVersion() {
+    $.ajax({
+      url: API_URLS.VERSION,
+      type: "GET",
+      dataType: "json",
+      timeout: 5000,
+      crossDomain: true,
+      success: (response) => {
+        if (response && response.version) {
+          const date = new Date(response.version);
+          const formattedDate = date.toLocaleString("en-IN", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          $("#apiLastUpdated").text(formattedDate);
+        } else {
+          $("#apiLastUpdated").text("Unknown");
+        }
+        displayUsername(response?.username);
+      },
+      error: (xhr, status, error) => {
+        console.log("Could not fetch API version:", error);
+        $("#apiLastUpdated").text("Unavailable");
+        displayUsername();
+      },
+    });
+  }
+
+  function displayUsername(username) {
+    $("#loggedInUsername").addClass("loading").text("Loading...");
+
+    if (username) {
+      $("#loggedInUsername").removeClass("loading").addClass("success").text(username).removeClass("loaded");
+      setTimeout(() => {
+        $("#loggedInUsername").addClass("loaded");
+      }, 100);
+      $("#clearStorageTrigger").show();
+    }
   }
 });
