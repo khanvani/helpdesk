@@ -7,6 +7,7 @@ const API_URLS = {
   ZONAL_DATA_UPDATE: "https://sewasamiti.ahujaenterprise.com/php/zonal-data-update.php",
   SEWA_JATHA_STORE: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-store.php",
   SEWA_JATHA_UPDATE: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-update.php",
+  USER_MENUS: "https://sewasamiti.ahujaenterprise.com/php/user-menus.php",
 };
 const API_KEYS = {
   CURRENT_API_KEY: "apiKey",

@@ -3,7 +3,7 @@ function loadUserMenus() {
   if (!apiKey) return;
 
   $.ajax({
-    url: "php/user-menus.php",
+    url: API_URLS.USER_MENUS,
     method: "POST",
     data: { api_key: apiKey },
     success: function (response) {
