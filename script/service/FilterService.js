@@ -1,5 +1,35 @@
 class FilterService {
-  static filterFields = ["Type","Open/Perm","Place","Secretary_/_Care_Taker","Care_Taker","Secretary","Satsang_Place","Department", "SubDept", "Gender", "Status", "Center", "Area", "OutSide","OS", "Satsang_Center","SatsangCenter", "Sub_Dept", "Sub_Department","SubDepartment","Satsang_Area","SatsangArea","Initiated","Initiation_Place","InitiationPlace","Action"];
+  static filterFields = [
+    "Type",
+    "Open/Perm",
+    "Place",
+    "Secretary_/_Care_Taker",
+    "Care_Taker",
+    "Secretary",
+    "Satsang_Place",
+    "Department",
+    "SubDept",
+    "Gender",
+    "Status",
+    "Center",
+    "Area",
+    "OutSide",
+    "OS",
+    "Satsang_Center",
+    "SatsangCenter",
+    "Sub_Dept",
+    "Sub_Department",
+    "SubDepartment",
+    "Satsang_Area",
+    "SatsangArea",
+    "Initiated",
+    "Initiation_Place",
+    "InitiationPlace",
+    "Action",
+    "Sub_Center",
+    "Badge_Type",
+    "Marital_Status",
+  ];
 
   constructor(storageService) {
     this.storageService = storageService;
@@ -47,19 +77,19 @@ class FilterService {
   }
 
   renderSelectBoxes(filterModalBodySelector) {
-      const filterModalBody = $(filterModalBodySelector);
-      filterModalBody.empty();
+    const filterModalBody = $(filterModalBodySelector);
+    filterModalBody.empty();
 
-      Object.keys(this.filters).forEach((field) => {
-          if (this.filters[field].size) {
-              const options = Array.from(this.filters[field])
-                  .map((val) => {
-                      return `<option value="${val}">${val}</option>`;
-                  })
-                  .join("");
-              const displayValue = String(field).trim().replace(/_/g, " ");
+    Object.keys(this.filters).forEach((field) => {
+      if (this.filters[field].size) {
+        const options = Array.from(this.filters[field])
+          .map((val) => {
+            return `<option value="${val}">${val}</option>`;
+          })
+          .join("");
+        const displayValue = String(field).trim().replace(/_/g, " ");
 
-              const selectHtml = `
+        const selectHtml = `
                   <div class="form-group filter-container">
                       <label for="filter-${field}">${displayValue}</label>
                       <select id="filter-${field}" class="selectpicker form-control" multiple data-live-search="true">
@@ -68,43 +98,39 @@ class FilterService {
                   </div>
               `;
 
-              filterModalBody.append(selectHtml);
-          }
-      });
+        filterModalBody.append(selectHtml);
+      }
+    });
   }
 
   filter() {
-      const data = StorageService.currentData[StorageService.currentFile][StorageService.currentSheet].data;
+    const data = StorageService.currentData[StorageService.currentFile][StorageService.currentSheet].data;
 
-      this.filters = Object.fromEntries(
-          Object.keys(this.filters).map(field => {
-              const sanitizedField = field.trim().replace(/[^a-zA-Z0-9]+/g, "_");
-              return [field, $(`#filter-${sanitizedField}`).val()];
-          })
-      );
+    this.filters = Object.fromEntries(
+      Object.keys(this.filters).map((field) => {
+        const sanitizedField = field.trim().replace(/[^a-zA-Z0-9]+/g, "_");
+        return [field, $(`#filter-${sanitizedField}`).val()];
+      })
+    );
 
-      $("#filterModal").modal("hide");
+    $("#filterModal").modal("hide");
 
-      return data.filter((item) =>
-          Object.entries(this.filters).every(([key, values]) => !values || !values.length || values.includes(item[key]))
-      );
+    return data.filter((item) => Object.entries(this.filters).every(([key, values]) => !values || !values.length || values.includes(item[key])));
   }
-
 
   clearFilter() {
-      Object.keys(this.filters).forEach(field => {
-          const sanitizedField = field.trim().replace(/[^a-zA-Z0-9]+/g, "_");
-          $(`#filter-${sanitizedField}`).val([]).selectpicker("refresh");
-      });
+    Object.keys(this.filters).forEach((field) => {
+      const sanitizedField = field.trim().replace(/[^a-zA-Z0-9]+/g, "_");
+      $(`#filter-${sanitizedField}`).val([]).selectpicker("refresh");
+    });
 
-      return StorageService.currentData[StorageService.currentFile][StorageService.currentSheet].data;
+    return StorageService.currentData[StorageService.currentFile][StorageService.currentSheet].data;
   }
 
-
   initializeFilters(columns) {
-      this.filters = columns.reduce((acc, column) => {
-          acc[column] = new Set();
-          return acc;
-      }, {});
+    this.filters = columns.reduce((acc, column) => {
+      acc[column] = new Set();
+      return acc;
+    }, {});
   }
 }

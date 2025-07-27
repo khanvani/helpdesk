@@ -32,13 +32,7 @@ class ExcelService {
       console.error("Error in fetching data:", error);
       $("#loader").hide();
       if (error.status === 401) {
-        $("#errorAPIKey").show();
-
-        let errorMessage = [error.responseJSON?.error, error.responseJSON?.message].filter(Boolean).join("<br>");
-        $("#errorModalLabel").html();
-        $("#errorAPIKey").html(errorMessage);
-        $("#apiKeyModal").removeAttr("aria-hidden");
-        $("#apiKeyModal").modal("show");
+        window.location.href = "index.html";
       } else if (error.status != 200) {
         $("#apiKeyModal").modal("hide");
         $("#apiKeyModal").attr("aria-hidden", "true");
