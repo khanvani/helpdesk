@@ -2,9 +2,21 @@
 
 class ZonalService {
   static cache;
-  static securitySewadarsCache = [];
+  static securitySewadarsCache = [
+    { Gr_No: "G00651", Name: "Hansraj Vacheta", Mobile: "9825763328" },
+    { Gr_No: "G03001", Name: "Harsh Dholani", Mobile: "7575068231" },
+    { Gr_No: "G02123", Name: "Sanjay Patel", Mobile: "9824540287" },
+    { Gr_No: "L01738", Name: "Reshma bhagwani", Mobile: "9726995595" },
+    { Gr_No: "L01579", Name: "Pushpa Sharma", Mobile: "9726077130" },
+    { Gr_No: "L02043", Name: "Simran Jagnani", Mobile: "7226935055" },
+    { Gr_No: "M00946", Name: "Indra Mulani", Mobile: "7698141239" },
+    { Gr_No: "G00687", Name: "Haresh Punjabi", Mobile: "9879018490" },
+    { Gr_No: "G01893", Name: "Rajkumar Asudani", Mobile: "9879175800" },
+    { Gr_No: "M02027", Name: "Rajender Bathla", Mobile: "9725892505" },
+  ];
   constructor() {
     API_URLS.CURRENT_URL = API_URLS.ZONAL_DATA_FETCH;
+    this.cache = [];
     this.init();
   }
 
@@ -14,28 +26,6 @@ class ZonalService {
     this.setupEditHandler();
     this.setupSaveHandler();
     // Don't fetch version - Controller already does this
-  }
-
-  async loadSewadarsData() {
-    this.securitySewadarsCache = [
-      { Gr_No: "G00651", Name: "Hansraj Vacheta", Mobile: "9825763328" },
-      { Gr_No: "G03001", Name: "Harsh Dholani", Mobile: "7575068231" },
-      { Gr_No: "G02123", Name: "Sanjay Patel", Mobile: "9824540287" },
-      { Gr_No: "L01738", Name: "Reshma bhagwani", Mobile: "9726995595" },
-      { Gr_No: "L01579", Name: "Pushpa Sharma", Mobile: "9726077130" },
-      { Gr_No: "L02043", Name: "Simran Jagnani", Mobile: "7226935055" },
-      { Gr_No: "M00946", Name: "Indra Mulani", Mobile: "7698141239" },
-      { Gr_No: "G00687", Name: "Haresh Punjabi", Mobile: "9879018490" },
-      { Gr_No: "G01893", Name: "Rajkumar Asudani", Mobile: "9879175800" },
-      { Gr_No: "M02027", Name: "Rajender Bathla", Mobile: "9725892505" },
-    ];
-
-    // Use data from StorageService if available, otherwise load from API
-    if (StorageService.currentRecord?.data) {
-      this.cache = StorageService.currentRecord.data;
-    } else {
-      this.cache = [];
-    }
   }
 
   refreshCache() {
@@ -48,22 +38,6 @@ class ZonalService {
 
   setupPersonSelect() {
     const $select = $(".person").empty().append("<option></option>");
-    /*
-    this.cache.forEach((row) => {
-      const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
-      $select.append(
-        `<option value="${row.Gr_No}" 
-          data-gr-no="${row.Gr_No}" 
-          data-name="${row.Name}" 
-          data-gender="${row.Gender}" 
-          data-status="${row.Status}" 
-          data-satsang-center="${row.Center}" 
-          data-satsang-area="${row.Area}">
-          ${label}
-        </option>`
-      );
-    });
-    */
 
     $("#editRowModal .person").select2({
       placeholder: "Select Sewadar",
@@ -73,13 +47,14 @@ class ZonalService {
       ajax: {
         transport: (params, success) => {
           const term = (params.data.term || "").toLowerCase();
+          const cache = this.cache || [];
           const results =
             term.length === 0
-              ? this.cache.slice(0, 15).map((row) => {
+              ? cache.slice(0, 15).map((row) => {
                   const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
                   return { id: `${row.Gr_No}`, text: label };
                 })
-              : this.cache
+              : cache
                   .filter((row) => {
                     const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`.toLowerCase();
                     return label.indexOf(term) !== -1;
@@ -105,45 +80,14 @@ class ZonalService {
       ajax: {
         transport: (params, success) => {
           const term = (params.data.term || "").toLowerCase();
+          const securityCache = ZonalService.securitySewadarsCache || [];
           const results =
             term.length === 0
-              ? this.securitySewadarsCache.slice(0, 15).map((row) => {
+              ? securityCache.slice(0, 15).map((row) => {
                   const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
                   return { id: `${row.Gr_No}`, text: label };
                 })
-              : this.securitySewadarsCache
-                  .filter((row) => {
-                    const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`.toLowerCase();
-                    return label.indexOf(term) !== -1;
-                  })
-                  .slice(0, 15)
-                  .map((row) => {
-                    const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
-                    return { id: `${row.Gr_No}`, text: label };
-                  });
-
-          success({ results });
-        },
-        processResults: (data) => ({ results: data.results }),
-        delay: 200,
-      },
-    });
-
-    $("#editRowModal .person").select2({
-      placeholder: "Select Sewadar",
-      allowClear: true,
-      width: "100%",
-      minimumResultsForSearch: 3,
-      ajax: {
-        transport: (params, success) => {
-          const term = (params.data.term || "").toLowerCase();
-          const results =
-            term.length === 0
-              ? this.cache.slice(0, 15).map((row) => {
-                  const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`;
-                  return { id: `${row.Gr_No}`, text: label };
-                })
-              : this.cache
+              : securityCache
                   .filter((row) => {
                     const label = `${row.Gr_No} - ${row.Name} - ${row.Mobile}`.toLowerCase();
                     return label.indexOf(term) !== -1;
