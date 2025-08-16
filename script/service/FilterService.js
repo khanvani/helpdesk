@@ -1,6 +1,7 @@
 class FilterService {
   static filterFields = [
     "Type",
+    "Assigned_To",
     "Open/Perm",
     "Place",
     "Secretary_/_Care_Taker",

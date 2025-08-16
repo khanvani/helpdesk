@@ -86,12 +86,20 @@ class TableService {
         searchable: false,
         render: function (data, type, row, meta) {
           if (typeof data === "string" && data.trim().toLowerCase() === "edit") {
-            const filteredRow = {};
-            Object.keys(row).forEach((key) => {
-              if (key.startsWith("E_") || key.startsWith("R_") || key === "Id" || key === "Name" || key === "Gr_No") {
-                filteredRow[key] = row[key];
-              }
-            });
+            // For requests, check if status is closed
+            if (API_URLS.CURRENT_URL === API_URLS.REQUESTS_FETCH && row.Status === "Closed") {
+              return '<span class="text-muted">Closed</span>';
+            }
+            // For requests, include all row data
+            const filteredRow = API_URLS.CURRENT_URL === API_URLS.REQUESTS_FETCH ? row : {};
+
+            if (API_URLS.CURRENT_URL !== API_URLS.REQUESTS_FETCH) {
+              Object.keys(row).forEach((key) => {
+                if (key.startsWith("E_") || key.startsWith("R_") || key === "Id" || key === "Name" || key === "Gr_No") {
+                  filteredRow[key] = row[key];
+                }
+              });
+            }
 
             return `<button class="btn btn-sm btn-primary zonal-edit-button" data-row='${JSON.stringify(filteredRow)}'>Edit</button>`;
           }
@@ -157,7 +165,7 @@ class TableService {
       searching: true,
       paging: true,
       scrollX: true,
-      order: [], // Disable default sorting (initial ordering)
+      order: [], // Will be set after table creation
       search: {
         regex: true,
       },
@@ -167,6 +175,14 @@ class TableService {
       scrollCollapse: false,
       pageLength: TableService.DEFAULT_PAGE_LENGTH,
     });
+
+    // Set default sort by Updated On column for requests only
+    if (API_URLS.CURRENT_URL === API_URLS.REQUESTS_FETCH) {
+      const updatedOnColumnIndex = currentRecord.headers.findIndex((header) => header.title === "Submitted On");
+      if (updatedOnColumnIndex !== -1) {
+        table.order([updatedOnColumnIndex, "desc"]).draw();
+      }
+    }
 
     $("#h-dataTable").on("order.dt", function () {
       if (typeof table.colResize === "function") {

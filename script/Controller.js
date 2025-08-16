@@ -144,9 +144,12 @@ class Controller {
         localStorage.removeItem("zonalDataCache");
         $("#sheetNamesCombo").val($("#sheetNamesCombo option:first").val()).trigger("change");
 
-        // Refresh ZonalService cache if it exists
         if (window.zonalService) {
           window.zonalService.refreshCache();
+        }
+
+        if (window.requestsService) {
+          window.requestsService.refreshCache();
         }
       })
       .catch((err) => {

@@ -8,6 +8,9 @@ const API_URLS = {
   SEWA_JATHA_STORE: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-store.php",
   SEWA_JATHA_UPDATE: "https://sewasamiti.ahujaenterprise.com/php/sewa-jatha-update.php",
   USER_MENUS: "https://sewasamiti.ahujaenterprise.com/php/user-menus.php",
+  REQUESTS_FETCH: "https://sewasamiti.ahujaenterprise.com/php/requests.php",
+  REQUESTS_STORE: "https://sewasamiti.ahujaenterprise.com/php/requests-store.php",
+  REQUESTS_UPDATE: "https://sewasamiti.ahujaenterprise.com/php/requests-update.php",
 };
 const API_KEYS = {
   CURRENT_API_KEY: "apiKey",
