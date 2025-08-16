@@ -31,9 +31,7 @@ class ExcelService {
     } catch (error) {
       console.error("Error in fetching data:", error);
       $("#loader").hide();
-      if (error.status === 401) {
-        window.location.href = "index.html";
-      } else if (error.status != 200) {
+      if (error.status != 200) {
         $("#apiKeyModal").modal("hide");
         $("#apiKeyModal").attr("aria-hidden", "true");
         $("#errorAPIKey").hide();
