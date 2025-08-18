@@ -371,6 +371,30 @@ class RequestsService {
       return;
     }
 
+    // Check for duplicate card requests
+    if (formData.requestType === "Duplicate Card" && formData.sewadarGrNo) {
+      const table = $("#h-dataTable").DataTable();
+      let existingRequest = null;
+
+      table.rows().every(function () {
+        const rowData = this.data();
+        if (
+          rowData.Gr_No === formData.sewadarGrNo[0] &&
+          rowData.Type === "Duplicate Card" &&
+          (rowData.Status === "Pending" || rowData.Status === "Completed")
+        ) {
+          existingRequest = rowData;
+          return false; // Break the loop
+        }
+      });
+
+      if (existingRequest) {
+        $("#newRequestModal").modal("hide");
+        this.showMessage("Error", `A duplicate card request already exists for Gr No ${formData.sewadarGrNo} with status: ${existingRequest.Status}`);
+        return;
+      }
+    }
+
     $("#loader").show();
 
     try {
@@ -389,27 +413,8 @@ class RequestsService {
         $("#newRequestModal").modal("hide");
         $("#newRequestForm")[0].reset();
         $("#sewadarGrNo").val("").trigger("change");
-
-        // Add new row to table instead of refreshing
-        const table = $("#h-dataTable").DataTable();
-        const newRowId = response.rowId || table.rows().count() + 2;
-
-        const newRow = {
-          Action: "Edit",
-          Id: newRowId,
-          Gr_No: formData.sewadarGrNo,
-          Name: formData.sewadarName,
-          Type: formData.requestType,
-          Status: "Pending",
-          Details: formData.details,
-          Assigned_To: "",
-          Remarks: "",
-          Submitted_By: response.submittedBy || "Unknown",
-          Submitted_On: new Date().toISOString().slice(0, 19).replace("T", " "),
-          Updated_By: "",
-          Updated_On: "",
-        };
-        table.row.add(newRow);
+        // Refresh page to show updated data
+        setTimeout(() => window.location.reload(), 200);
       } else {
         this.showMessage("Error", response.error || "Failed to create request");
       }
