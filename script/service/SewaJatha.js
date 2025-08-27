@@ -4,7 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const $ = window.jQuery;
   const cachedDataKey = "sewadarsDataCache"; // Key for local storage
   const apiKeyModal = $("#apiKeyModal");
-  const apiKeyInput = $("#apiKeyInput");
   const IN_TIME = "7:00";
   const OUT_TIME = "19:00";
   const apiKeyInput = $("#apiKeyInput");
