@@ -5,6 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const cachedDataKey = "sewadarsDataCache"; // Key for local storage
   const apiKeyModal = $("#apiKeyModal");
   const apiKeyInput = $("#apiKeyInput");
+  const IN_TIME = "7:00";
+  const OUT_TIME = "19:00";
+  const apiKeyInput = $("#apiKeyInput");
+
   const errorAPIKey = $("#errorAPIKey");
   const submitApiKeyButton = $("#submitApiKey");
   const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
@@ -691,25 +695,22 @@ document.addEventListener("DOMContentLoaded", () => {
             outTime = providedOutTime;
           } else if (formattedDate === startDate) {
             inTime = providedInTime;
-            if (parseInt(providedInTime.substring(0, 2)) > 16) {
-              if (parseInt(providedInTime.substring(0, 2)) >= 19) {
-                outTime = providedInTime.substring(0, 2) + ":" + (parseInt(providedInTime.substring(3, 5)) + 5);
-              } else {
-                outTime = "19:00";
-              }
+            if (parseInt(providedInTime.substring(0, 2)) >= 19) {
+              outTime = providedInTime.substring(0, 2) + ":" + (parseInt(providedInTime.substring(3, 5)) + 5);
             } else {
-              outTime = "16:30";
+              outTime = OUT_TIME;
             }
+            
           } else if (formattedDate === endDate) {
             outTime = providedOutTime;
             if (parseInt(providedOutTime.substring(0, 2)) <= 7) {
               inTime = providedOutTime.substring(0, 2) + ":" + (parseInt(providedOutTime.substring(3, 5)) - 5);
             } else {
-              inTime = "06:30";
+              inTime = IN_TIME;
             }
           } else {
-            inTime = "06:30";
-            outTime = "16:30";
+            inTime = IN_TIME;
+            outTime = OUT_TIME;
           }
 
           formattedData.push([
@@ -838,32 +839,26 @@ document.addEventListener("DOMContentLoaded", () => {
           outTime = providedOutTime;
         } else if (formattedDate === startDate) {
           inTime = providedInTime;
-          if (parseInt(providedInTime.substring(0, 2)) > 16) {
-            if (parseInt(providedInTime.substring(0, 2)) >= 19) {
-              outTime = providedInTime.substring(0, 2) + ":" + (parseInt(providedInTime.substring(3, 5)) + 5);
-            } else {
-              outTime = "19:00";
-            }
+          if (parseInt(providedInTime.substring(0, 2)) >= 19) {
+            outTime = providedInTime.substring(0, 2) + ":" + (parseInt(providedInTime.substring(3, 5)) + 5);
           } else {
-            outTime = "16:30";
+            outTime = OUT_TIME;
           }
         } else if (formattedDate === endDate) {
           outTime = providedOutTime;
           if (parseInt(providedOutTime.substring(0, 2)) <= 7) {
             inTime = providedOutTime.substring(0, 2) + ":" + (parseInt(providedOutTime.substring(3, 5)) - 5);
           } else {
-            inTime = "06:30";
+            inTime = IN_TIME;
           }
         } else {
-          inTime = "06:30";
-          outTime = "16:30";
+          inTime = IN_TIME;
+          outTime = OUT_TIME;
         }
 
-        // Add IN and OUT entries for the current date with double quotes
         csvRows.push(`"${row.gr_no}","${formattedDate}","${inTime}","IN","Added Sewa Jatha Entry for ${serialPrefix}."`);
         csvRows.push(`"${row.gr_no}","${formattedDate}","${outTime}","OUT",""`);
 
-        // Move to the next date
         currentDate.setDate(currentDate.getDate() + 1);
       }
     });
