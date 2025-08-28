@@ -441,8 +441,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const satsangAreaInputs = $("#satsangArea, #satsangAreaInput");
     const satsangCenterInputs = $("#satsangCenter, #satsangCenterInput");
     const areaData = {
-      AHEMDABAD: [
-        "AHEMDABAD-I",
+      AHMEDABAD: [
+        "AHMEDABAD-I",
         "JAMLA",
         "JESAR",
         "PATI",
@@ -561,7 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const satsangAreaInput = $(this);
       satsangAreaInput.empty().append('<option value="">Select Area</option>');
       Object.keys(areaData).forEach((area) => {
-        satsangAreaInput.append(`<option value="${area}" ${area === "AHEMDABAD" ? "selected" : ""}>${area}</option>`);
+        satsangAreaInput.append(`<option value="${area}" ${area === "AHMEDABAD" ? "selected" : ""}>${area}</option>`);
       });
 
       satsangAreaInput.on("change", function () {
@@ -574,15 +574,13 @@ document.addEventListener("DOMContentLoaded", () => {
             satsangCenterInput.append(`<option value="${center}">${center}</option>`);
           });
         }
-
         satsangCenterInput.prop("disabled", !selectedArea);
       });
 
       // Trigger change in case the default selection requires disabling/enabling the center dropdown
-      satsangAreaInput.trigger("change");
+      $("#satsangArea").trigger("change");
     });
 
-    satsangCenterInputs.prop("disabled", true);
     const lastAddedData = JSON.parse(localStorage.getItem("lastAddedData"));
 
     if (lastAddedData) {
