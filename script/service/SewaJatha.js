@@ -1,5 +1,4 @@
-// Define validateAndAddEntry in the global scope
-
+// Define validateAndAddEntry in the global scope Temp
 document.addEventListener("DOMContentLoaded", () => {
   const $ = window.jQuery;
   const cachedDataKey = "sewadarsDataCache"; // Key for local storage
