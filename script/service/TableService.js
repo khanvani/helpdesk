@@ -90,6 +90,14 @@ class TableService {
             if (API_URLS.CURRENT_URL === API_URLS.REQUESTS_FETCH && row.Status === "Closed") {
               return '<span class="text-muted">Closed</span>';
             }
+
+            // For visits, use visit-edit-button class
+            if (API_URLS.CURRENT_URL === API_URLS.VISIT_FETCH) {
+              return `<button class="btn btn-sm btn-primary visit-edit-button" data-row='${JSON.stringify(row)}'>
+                        <i class="fas fa-edit"></i>
+                      </button>`;
+            }
+
             // For requests, include all row data
             const filteredRow = API_URLS.CURRENT_URL === API_URLS.REQUESTS_FETCH ? row : {};
 

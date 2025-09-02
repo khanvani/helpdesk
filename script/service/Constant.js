@@ -11,6 +11,9 @@ const API_URLS = {
   REQUESTS_FETCH: "https://sewasamiti.ahujaenterprise.com/php/requests.php",
   REQUESTS_STORE: "https://sewasamiti.ahujaenterprise.com/php/requests-store.php",
   REQUESTS_UPDATE: "https://sewasamiti.ahujaenterprise.com/php/requests-update.php",
+  VISIT_FETCH: "https://sewasamiti.ahujaenterprise.com/php/visit.php",
+  VISIT_STORE: "https://sewasamiti.ahujaenterprise.com/php/visit-store.php",
+  VISIT_UPDATE: "https://sewasamiti.ahujaenterprise.com/php/visit-update.php",
 };
 const API_KEYS = {
   CURRENT_API_KEY: "apiKey",

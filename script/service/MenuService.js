@@ -11,6 +11,7 @@ function loadUserMenus() {
       if (response.menus) {
         renderMenus(response.menus);
         $("#loggedInUsername").text(response.username);
+        $("#sidebar-username").text(response.username);
       }
     },
     error: function () {
@@ -21,24 +22,43 @@ function loadUserMenus() {
 }
 
 function renderMenus(menus) {
-  const menuContainer = $("#dynamic-menus");
-  // Remove existing menu items (but keep right-side items)
-  menuContainer.find(".sidebar-item:not(.right)").remove();
+  const sidebarMenu = $("#sidebar-menu");
+  sidebarMenu.empty();
 
   // Get current page to highlight selected menu
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
+  let currentMenuName = "Helpdesk";
 
   // Add user's allowed menus
   menus.forEach((menu) => {
-    const isSelected = menu.url === currentPage ? " selected" : "";
+    const isActive = menu.url === currentPage ? " active" : "";
+    if (menu.url === currentPage) {
+      currentMenuName = menu.name;
+    }
     const menuItem = `
-            <a href="${menu.url}" id="${menu.id}" class="sidebar-item force-show${isSelected}">
+            <a href="${menu.url}" id="${menu.id}" class="sidebar-menu-item${isActive}">
                 <i class="${menu.icon}"></i>
-                <span class="sidebar-text">${menu.name}</span>
+                <span>${menu.name}</span>
             </a>
         `;
-    menuContainer.append(menuItem);
+    sidebarMenu.append(menuItem);
   });
+
+  // Display current menu in top bar
+  if ($("#current-menu").length === 0) {
+    $("#dynamic-menus").append(`<span id="current-menu">${currentMenuName}</span>`);
+  } else {
+    $("#current-menu").text(currentMenuName);
+  }
+
+  // Add logout option at the bottom
+  const logoutItem = `
+        <a href="#" id="sidebar-logout" class="sidebar-menu-item" data-toggle="modal" data-target="#clearStorageModal">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    `;
+  $("#sidebar-actions").html(logoutItem);
 }
 
 function handleLogout() {
@@ -59,8 +79,30 @@ $(document).ready(function () {
   // Load dynamic menus based on user permissions
   loadUserMenus();
 
+  // Sidebar toggle functionality
+  $(document).on("click", "#sidebar-toggle", function() {
+    $("#sidebar").toggleClass("open");
+    $("#sidebar-overlay").toggleClass("show");
+  });
+
+  // Close sidebar when clicking overlay (mobile)
+  $(document).on("click", "#sidebar-overlay", function() {
+    $("#sidebar").removeClass("open");
+    $("#sidebar-overlay").removeClass("show");
+  });
+
+  // Close sidebar when clicking menu item (all devices)
+  $(document).on("click", ".sidebar-menu-item", function() {
+    $("#sidebar").removeClass("open");
+    $("#sidebar-overlay").removeClass("show");
+  });
+
   // Bind logout handler
-  $(document).on("click", "#clearStorageModalYes", function (e) {
+  $(document).on("click", "#clearStorageModalYes, #sidebar-logout", function (e) {
+    if ($(this).attr('id') === 'sidebar-logout') {
+      e.preventDefault();
+      return; // Let modal handle it
+    }
     e.preventDefault();
     handleLogout();
   });

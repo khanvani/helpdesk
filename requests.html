@@ -17,12 +17,34 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body>
+<!-- Sidebar -->
+<div id="sidebar">
+    <div class="sidebar-header">
+        <small>Welcome !</small>
+        <h5 id="sidebar-username">User</h5>
+    </div>
+    <div id="sidebar-menu" class="sidebar-menu">
+        <!-- Dynamic menu items will be inserted here -->
+    </div>
+    <div id="sidebar-actions" class="sidebar-actions">
+        <!-- Logout button will be inserted here -->
+    </div>
+</div>
+
+<!-- Sidebar Overlay for mobile -->
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+<!-- Sidebar Toggle Button -->
+<button id="sidebar-toggle">
+    <i class="fas fa-bars"></i>
+</button>
+
 <div id="header">
     <div id="topMenu">
         <div id="dynamic-menus"></div>
-        <a href="#" id="clearStorageTrigger" data-toggle="modal" data-target="#clearStorageModal" class="sidebar-item right">
-            <span class="sidebar-text" id="loggedInUsername">Logout</span>&nbsp;&nbsp;
+        <a href="#" id="logoutTrigger" class="sidebar-item right" data-toggle="modal" data-target="#clearStorageModal">
             <i class="fas fa-sign-out-alt"></i>
+            <span class="sidebar-text">Logout</span>
         </a>
         <a href="#" id="refreshTrigger" class="sidebar-item right">
             <i class="fa-solid fa-refresh"></i>
