@@ -262,9 +262,9 @@ class VisitService {
         name: "Sub_Dept",
         value: rowData.Sub_Dept,
         label: "Sub Department",
-        type: rowData.Department === "General" || rowData.Sub_Dept === "General" ? "select" : "text",
+        type: rowData.Department === "General" || rowData.Sub_Dept === "General" ? "select" : "select",
         readonly: !(rowData.Department === "General" || rowData.Sub_Dept === "General"),
-        options: rowData.Department === "General" || rowData.Sub_Dept === "General" ? ["", "Art Work", "Stores", "Safai"] : [],
+        options: DEPARTMENT_SUB_DEPT[rowData.Department] || [""],
       },
       { name: "Area", value: rowData.Area, label: "Area", readonly: true },
       { name: "Center", value: rowData.Center, label: "Center", readonly: true },
@@ -272,9 +272,17 @@ class VisitService {
       { name: "Emergency_Contact", value: rowData.Emergency_Contact, label: "Emergency Contact", readonly: true },
       { name: "Counter", value: rowData.Counter, label: "Counter", readonly: true },
       {
+        name: "Status",
+        value: rowData.Status || "General",
+        label: "Status",
+        type: "select",
+        options: ["Permanent", "Open", "Elderly", "General"],
+        readonly: true,
+      },
+      {
         name: "Badge",
         value: rowData.Badge || "Requested",
-        label: "Badge Status",
+        label: "Badge",
         type: "select",
         options: ["Requested", "Ready", "Delivered", "Denied"],
         readonly: false,
@@ -348,21 +356,18 @@ class VisitService {
     $(document).on("change", 'select[name="Department"]', function () {
       const department = $(this).val();
       const subDeptSelect = $('select[name="Sub_Dept"]');
+      const currentSubDept = subDeptSelect.data("original-value") || "";
 
       // Clear existing options
-      subDeptSelect.empty().append('<option value="">Select Sub Department</option>');
+      subDeptSelect.empty();
 
       // Add sub departments based on selected department
-      if (department === "Sanitation") {
-        subDeptSelect.append('<option value="">Blank</option>');
-        subDeptSelect.append('<option value="Safai">Safai</option>');
-      } else if (department === "Sewa Samiti") {
-        subDeptSelect.append('<option value="">Blank</option>');
-        subDeptSelect.append('<option value="Stores">Stores</option>');
-        subDeptSelect.append('<option value="Art Work">Art Work</option>');
-      } else if (department !== "General") {
-        // For other departments, just add blank option
-        subDeptSelect.append('<option value="">Blank</option>');
+      if (department && DEPARTMENT_SUB_DEPT[department]) {
+        DEPARTMENT_SUB_DEPT[department].forEach((subDept) => {
+          const displayText = subDept === "" ? "Blank" : subDept;
+          const selected = subDept === currentSubDept ? "selected" : "";
+          subDeptSelect.append(`<option value="${subDept}" ${selected}>${displayText}</option>`);
+        });
       }
 
       // If department is no longer General, make sub department readonly again
@@ -389,8 +394,6 @@ class VisitService {
         this.updateVisit();
       }
     });
-
-
 
     // New Visit Modal Trigger
     $(document).on("click", "#newVisitTrigger", (e) => {
@@ -422,15 +425,12 @@ class VisitService {
       subDeptSelect.empty().append('<option value="">Select Sub Department</option>');
 
       // Add sub departments based on selected department
-      if (department === "Sanitation") {
-        subDeptSelect.append('<option value="">Blank</option>');
-        subDeptSelect.append('<option value="Safai">Safai</option>');
-      } else if (department === "Sewa Samiti") {
-        subDeptSelect.append('<option value="">Blank</option>');
-        subDeptSelect.append('<option value="Art Work">Art Work</option>');
-        subDeptSelect.append('<option value="Stores">Stores</option>');
+      if (department && DEPARTMENT_SUB_DEPT[department]) {
+        DEPARTMENT_SUB_DEPT[department].forEach((subDept) => {
+          const displayText = subDept === "" ? "Blank" : subDept;
+          subDeptSelect.append(`<option value="${subDept}">${displayText}</option>`);
+        });
       }
-      // Add more department-specific sub departments as needed
 
       subDeptSelect.trigger("change");
     };
@@ -536,18 +536,19 @@ class VisitService {
       return;
     }
 
-    if (!formData.initiated || !['Yes', 'No'].includes(formData.initiated)) {
+    if (!formData.initiated || !["Yes", "No"].includes(formData.initiated)) {
       this.showMessage("Error", "Please select Yes or No for Initiated");
       return;
     }
 
-    if (!formData.emergencyContact) {
-      this.showMessage("Error", "Emergency Contact is required");
+    // Validate sub department is not blank
+    if (formData.subDept === "") {
+      this.showMessage("Error", "Sub Department cannot be blank");
       return;
     }
 
-    // Validate emergency contact format (10 digits)
-    if (!/^[0-9]{10}$/.test(formData.emergencyContact)) {
+    // Validate emergency contact format if provided (10 digits)
+    if (formData.emergencyContact && !/^[0-9]{10}$/.test(formData.emergencyContact)) {
       this.showMessage("Error", "Emergency Contact must be 10 digits");
       return;
     }
@@ -658,8 +659,8 @@ class VisitService {
           rowData.Sub_Dept = data.subDept;
           rowData.Remarks = data.remarks;
 
-          // Increment counter if badge status changed from Requested to Ready
-          if (originalBadge === "Requested" && data.badgeStatus === "Ready") {
+          // Increment counter if badge status changed from Ready to Delivered
+          if (originalBadge === "Ready" && data.badgeStatus === "Delivered") {
             rowData.Counter = (parseInt(rowData.Counter) || 0) + 1;
           }
 

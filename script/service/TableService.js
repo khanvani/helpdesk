@@ -1,6 +1,6 @@
 class TableService {
   static MAIN_CONTENT_HEIGHT_OFFSET = 370;
-  static DEFAULT_PAGE_LENGTH = 100;
+  static DEFAULT_PAGE_LENGTH = 10;
 
   constructor() {
     this.generateTable = this.generateTable.bind(this);

@@ -142,12 +142,11 @@ class Controller {
         this.filterService.initFilters();
         this.downloadService.initFilters();
         localStorage.removeItem("zonalDataCache");
+        localStorage.removeItem("sewadarsDataCache");
         $("#sheetNamesCombo").val($("#sheetNamesCombo option:first").val()).trigger("change");
-
         if (window.zonalService) {
           window.zonalService.refreshCache();
         }
-
         if (window.requestsService) {
           window.requestsService.refreshCache();
         }

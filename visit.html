@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Visit</title>
-    <link rel="stylesheet" href="style/lib/bootstrap.min.css?V=3.1"/>
-    <link rel="stylesheet" href="style/lib/dataTables.dataTables.css?V=3.1">
-    <link rel="stylesheet" href="style/lib/responsive.dataTables.css?V=3.1">
-    <link rel="stylesheet" href="resources/fontawesome-free-6.5.2-web/css/all.min.css?V=3.1"/>
-    <link rel="stylesheet" href="style/lib/jquery-ui.css?V=3.1"/>
-    <link rel="stylesheet" href="style/lib/searchPanes.dataTables.css?V=3.1"/>
-    <link rel="stylesheet" href="style/lib/bootstrap-select.min.css?V=3.1"/>
+    <link rel="stylesheet" href="style/lib/bootstrap.min.css?V=3.2"/>
+    <link rel="stylesheet" href="style/lib/dataTables.dataTables.css?V=3.2">
+    <link rel="stylesheet" href="style/lib/responsive.dataTables.css?V=3.2">
+    <link rel="stylesheet" href="resources/fontawesome-free-6.5.2-web/css/all.min.css?V=3.2"/>
+    <link rel="stylesheet" href="style/lib/jquery-ui.css?V=3.2"/>
+    <link rel="stylesheet" href="style/lib/searchPanes.dataTables.css?V=3.2"/>
+    <link rel="stylesheet" href="style/lib/bootstrap-select.min.css?V=3.2"/>
     <link href="style/lib/select2.min.css" rel="stylesheet"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link rel="stylesheet" href="style/style.css?V=3.1"/>
-    <link href="style/lib/bootstrap-select.css?V=3.1" rel="stylesheet"/>
+    <link rel="stylesheet" href="style/style.css?V=3.2"/>
+    <link href="style/lib/bootstrap-select.css?V=3.2" rel="stylesheet"/>
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body>
@@ -81,7 +81,7 @@
     <div id="c-home" class="custom-card">
         <div class="instruction-box">
             <p><i class="fas fa-refresh icon"></i> Click on the <strong>refresh icon</strong> to fetch the data from Cloud.</p><br>
-            <p class="force-show"><i class="fas fa-plus icon"></i> Click on the <strong>New Sewadar</strong> button to create a new visit record.</p>
+            <p class="force-show"><i class="fas fa-plus icon"></i> Click on the <strong>New Sewadar</strong> button to create a new sewadar record.</p>
         </div>
     </div>
 
@@ -93,7 +93,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="newVisitModalLabel">New Visit</h5>
+                <h5 class="modal-title" id="newVisitModalLabel">New Sewadar Record</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -103,14 +103,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="name" class="font-weight-bold">Name (Required)</label>
-                                <input type="text" id="name" name="name" class="form-control" required>
+                                <label for="name" class="font-weight-bold">First Name & Last Name (Required)</label>
+                                <input type="text" id="name" name="name" class="form-control" placeholder="First Name & Last Name" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="middleName" class="font-weight-bold">Middle Name (Required)</label>
-                                <input type="text" id="middleName" name="middleName" class="form-control" required>
+                                <label for="middleName" class="font-weight-bold">Father/Husband's Name (Required)</label>
+                                <input type="text" id="middleName" name="middleName" class="form-control" placeholder="Father/Husband's Name" required>
                             </div>
                         </div>
                     </div>
@@ -142,7 +142,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="age" class="font-weight-bold">Age (Auto Calculated)</label>
-                                <input type="number" id="age" name="age" class="form-control" readonly>
+                                <input type="number" id="age" name="age" class="form-control" placeholder="Age will be calculated automatically" readonly>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -218,8 +218,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="emergencyContact" class="font-weight-bold">Emergency Contact (Required)</label>
-                                <input type="tel" id="emergencyContact" name="emergencyContact" class="form-control" required pattern="[0-9]{10}" placeholder="Enter 10 digit emergency contact">
+                                <label for="emergencyContact" class="font-weight-bold">Emergency Contact</label>
+                                <input type="tel" id="emergencyContact" name="emergencyContact" class="form-control" pattern="[0-9]{10}" placeholder="Enter 10 digit emergency contact">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -391,44 +391,42 @@
     <p style="text-align:center;">&copy; 2024 Copyright by khanvani.github.io, Not authorised to fork or use without consent, All rights reserved. Last Updated: <span id="apiLastUpdated">Loading...</span></p>
 </footer>
 
-<script src="script/lib/jquery-3.7.1.js?V=3.1"></script>
-<script src="script/lib/popper.min.js?V=3.1"></script>
-<script src="script/lib/exceljs.min.js?V=3.1"></script>
-<script src="script/lib/bootstrap.min.js?V=3.1"></script>
-<script src="script/lib/jquery-ui.js?V=3.1"></script>
-<script src="script/lib/searchPanes.dataTables.js?V=3.1"></script>
+<script src="script/lib/jquery-3.7.1.js?V=3.2"></script>
+<script src="script/lib/popper.min.js?V=3.2"></script>
+<script src="script/lib/exceljs.min.js?V=3.2"></script>
+<script src="script/lib/bootstrap.min.js?V=3.2"></script>
+<script src="script/lib/jquery-ui.js?V=3.2"></script>
+<script src="script/lib/searchPanes.dataTables.js?V=3.2"></script>
 
-<script src="script/lib/dataTables.js?V=3.1"></script>
-<script src="script/lib/dataTables.responsive.js?V=3.1"></script>
-<script src="script/lib/responsive.dataTables.js?V=3.1"></script>
+<script src="script/lib/dataTables.js?V=3.2"></script>
+<script src="script/lib/dataTables.responsive.js?V=3.2"></script>
+<script src="script/lib/responsive.dataTables.js?V=3.2"></script>
 
-<script src="script/lib/dataTables.buttons.js?V=3.1"></script>
-<script src="script/lib/buttons.dataTables.js?V=3.1"></script>
-<script src="script/lib/jszip.min.js?V=3.1"></script>
-<script src="script/lib/pdfmake.min.js?V=3.1"></script>
-<script src="script/lib/vfs_fonts.js?V=3.1"></script>
-<script src="script/lib/buttons.html5.min.js?V=3.1"></script>
-<script src="script/lib/buttons.print.min.js?V=3.1"></script>
-<script src="script/lib/bootstrap-select.min.js?V=3.1"></script>
+<script src="script/lib/dataTables.buttons.js?V=3.2"></script>
+<script src="script/lib/buttons.dataTables.js?V=3.2"></script>
+<script src="script/lib/jszip.min.js?V=3.2"></script>
+<script src="script/lib/pdfmake.min.js?V=3.2"></script>
+<script src="script/lib/vfs_fonts.js?V=3.2"></script>
+<script src="script/lib/buttons.html5.min.js?V=3.2"></script>
+<script src="script/lib/buttons.print.min.js?V=3.2"></script>
+<script src="script/lib/bootstrap-select.min.js?V=3.2"></script>
 <!-- Select2 JS -->
 <script src="script/lib/select2.min.js"></script>
 <script src="script/service/Constant.js"></script>
-<script src="script/lib/FileSaver.min.js?V=3.1"></script>
-<script src="script/lib/bootstrap-select.min.js?V=3.1"></script>
-<script src="script/service/VisitService.js?V=1.0"></script>
+<script src="script/lib/FileSaver.min.js?V=3.2"></script>
+<script src="script/lib/bootstrap-select.min.js?V=3.2"></script>
+<script src="script/service/VisitService.js?V=3.2"></script>
 <script>
-    localStorage.removeItem("currentData")
     API_URLS.CURRENT_URL = API_URLS.VISIT_FETCH;
-    // API key is now managed through CURRENT_API_KEY only
     window.visitService = new VisitService();
 </script>
-<script src="script/service/ExcelService.js?V=3.1"></script>
-<script src="script/service/StorageService.js?V=3.1"></script>
-<script src="script/service/TableService.js?V=3.1"></script>
-<script src="script/service/FilterService.js?V=3.1"></script>
-<script src="script/service/DownloadService.js?V=3.1"></script>
-<script src="script/service/PivotService.js?V=3.1"></script>
-<script src="script/Controller.js?V=3.1"></script>
+<script src="script/service/ExcelService.js?V=3.2"></script>
+<script src="script/service/StorageService.js?V=3.2"></script>
+<script src="script/service/TableService.js?V=3.2"></script>
+<script src="script/service/FilterService.js?V=3.2"></script>
+<script src="script/service/DownloadService.js?V=3.2"></script>
+<script src="script/service/PivotService.js?V=3.2"></script>
+<script src="script/Controller.js?V=3.2"></script>
 <script src="script/service/MenuService.js?V=4.0"></script>
 
 </body>
