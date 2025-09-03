@@ -120,6 +120,7 @@ const DEPARTMENT_SUB_DEPT = {
   "Sound & TV": ["", "Telephone"],
   Traffic: ["", "Group P32", "Group R01", "Group R02", "Group P01", "Group P31", "Group P02"],
   "Watch And Ward": [""],
+  "Task Force - Hirabhai": [""],
   General: [""],
 };
 const pinCode = [

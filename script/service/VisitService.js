@@ -184,6 +184,18 @@ class VisitService {
   }
 
   setupDepartmentDropdowns() {
+    // Populate department dropdown from DEPARTMENT_SUB_DEPT constant
+    const departments = Object.keys(DEPARTMENT_SUB_DEPT);
+    const departmentSelect = $("#department");
+    
+    // Clear existing options except the first one
+    departmentSelect.find('option:not(:first)').remove();
+    
+    // Add departments from DEPARTMENT_SUB_DEPT
+    departments.forEach(dept => {
+      departmentSelect.append(`<option value="${dept}">${dept}</option>`);
+    });
+    
     $("#department").select2({
       placeholder: "Select Department",
       allowClear: true,
@@ -231,31 +243,7 @@ class VisitService {
         readonly: rowData.Department !== "General",
         options:
           rowData.Department === "General"
-            ? [
-                "General",
-                "Accommodation",
-                "Administration",
-                "Bav",
-                "Canteen",
-                "Construction",
-                "Electric",
-                "Fire Services",
-                "Guest House",
-                "Horticulture",
-                "Langar",
-                "Luggage",
-                "Medical",
-                "Naam Daan",
-                "Pandal",
-                "Paramedical",
-                "Sanitation",
-                "Security",
-                "Sewa Samiti",
-                "Shamiana",
-                "Sound & TV",
-                "Traffic",
-                "Watch And Ward",
-              ]
+            ? Object.keys(DEPARTMENT_SUB_DEPT)
             : [],
       },
       {
