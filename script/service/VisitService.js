@@ -275,8 +275,6 @@ class VisitService {
         name: "Status",
         value: rowData.Status || "General",
         label: "Status",
-        type: "select",
-        options: ["Permanent", "Open", "Elderly", "General"],
         readonly: true,
       },
       {
