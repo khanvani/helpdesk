@@ -247,7 +247,7 @@ class RequestsService {
 
     // New Request Button - add to header
     if (!$("#newRequestTrigger").length) {
-      $("#clearStorageTrigger").after(`
+      $("#logoutTrigger").after(`
                 <a href="#" id="newRequestTrigger" class="sidebar-item right force-show">
                     <i class="fas fa-plus"></i>
                     <span class="sidebar-text force-show">New Request</span>
