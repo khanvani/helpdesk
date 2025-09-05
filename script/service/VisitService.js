@@ -187,15 +187,15 @@ class VisitService {
     // Populate department dropdown from DEPARTMENT_SUB_DEPT constant
     const departments = Object.keys(DEPARTMENT_SUB_DEPT);
     const departmentSelect = $("#department");
-    
+
     // Clear existing options except the first one
-    departmentSelect.find('option:not(:first)').remove();
-    
+    departmentSelect.find("option:not(:first)").remove();
+
     // Add departments from DEPARTMENT_SUB_DEPT
-    departments.forEach(dept => {
+    departments.forEach((dept) => {
       departmentSelect.append(`<option value="${dept}">${dept}</option>`);
     });
-    
+
     $("#department").select2({
       placeholder: "Select Department",
       allowClear: true,
@@ -241,10 +241,7 @@ class VisitService {
         label: "Department",
         type: rowData.Department === "General" ? "select" : "text",
         readonly: rowData.Department !== "General",
-        options:
-          rowData.Department === "General"
-            ? Object.keys(DEPARTMENT_SUB_DEPT)
-            : [],
+        options: rowData.Department === "General" ? Object.keys(DEPARTMENT_SUB_DEPT) : [],
       },
       {
         name: "Sub_Dept",
@@ -708,5 +705,52 @@ class VisitService {
 
     // If not a valid number, return the cleaned string
     return cleanAge;
+  }
+
+  // Optimized CSV export function
+  exportToCSV() {
+    const table = $('#h-dataTable').DataTable();
+    if (!table) {
+      console.error('Table not found.');
+      return;
+    }
+
+    const filteredData = table.rows({ search: 'applied' }).data();
+    if (filteredData.length > 200) {
+      this.showMessage('Error', 'Cannot export more than 200 records. Please apply filters to reduce the data.');
+      return;
+    }
+
+    const exportColumns = ['Name', 'Gr_No', 'Department', 'Sub_Dept', 'Area', 'Center', 'Gender'];
+    const csvHeaders = ['Name', 'Gr No', 'Department', 'Sub Dept', 'Area', 'Center', 'Gender'];
+    const headers = $('#h-dataTable thead th').map((_, th) => $(th).text().trim()).get();
+    const columnIndexes = exportColumns.map(col => headers.indexOf(col)).filter(i => i !== -1);
+    
+    if (columnIndexes.length === 0) {
+      console.error('No valid columns found.');
+      return;
+    }
+
+    const csvRows = [csvHeaders.map(h => `"${h.replace(/"/g, '""')}"`).join(',')];
+    
+    filteredData.each((row) => {
+      const values = Array.isArray(row) 
+        ? columnIndexes.map(i => row[i] ?? '') 
+        : exportColumns.map(col => row[col] ?? '');
+      csvRows.push(values.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','));
+    });
+
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }).replace(/\s/g, '-');
+    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }).replace(/\s/g, '-').replace(':', '-');
+    const filename = `Export-${dateStr}-${timeStr}.csv`;
+
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }

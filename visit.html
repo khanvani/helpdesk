@@ -46,6 +46,10 @@
             <i class="fas fa-plus"></i>
             <span class="sidebar-text">New Sewadar</span>
         </a>
+        <a href="#" id="csvDownloadTrigger" class="sidebar-item right" style="display: none;">
+            <i class="fas fa-download"></i>
+            <span class="sidebar-text">Download</span>
+        </a>
         <a href="#" id="refreshTrigger" class="sidebar-item right">
             <i class="fa-solid fa-refresh"></i>
             <span class="sidebar-text">Refresh</span>
@@ -405,6 +409,17 @@
 <script src="script/service/PivotService.js?V=3.3"></script>
 <script src="script/Controller.js?V=3.3"></script>
 <script src="script/service/MenuService.js?V=4.0"></script>
+
+<script>
+$(document).ready(function() {
+  $('#csvDownloadTrigger').on('click', function(e) {
+    e.preventDefault();
+    if (window.visitService) {
+      window.visitService.exportToCSV();
+    }
+  });
+});
+</script>
 
 </body>
 </html>

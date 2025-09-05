@@ -12,6 +12,7 @@ class FilterService {
     "SubDept",
     "Gender",
     "Status",
+    "Badge",
     "Center",
     "Area",
     "OutSide",

@@ -12,6 +12,9 @@ function loadUserMenus() {
         renderMenus(response.menus);
         $("#loggedInUsername").text(response.username);
         $("#sidebar-username").text(response.username);
+        if (response.username === "Shubham Patel" && $("#csvDownloadTrigger").length) {
+          $("#csvDownloadTrigger").show();
+        }
       }
     },
     error: function () {
@@ -80,26 +83,26 @@ $(document).ready(function () {
   loadUserMenus();
 
   // Sidebar toggle functionality
-  $(document).on("click", "#sidebar-toggle", function() {
+  $(document).on("click", "#sidebar-toggle", function () {
     $("#sidebar").toggleClass("open");
     $("#sidebar-overlay").toggleClass("show");
   });
 
   // Close sidebar when clicking overlay (mobile)
-  $(document).on("click", "#sidebar-overlay", function() {
+  $(document).on("click", "#sidebar-overlay", function () {
     $("#sidebar").removeClass("open");
     $("#sidebar-overlay").removeClass("show");
   });
 
   // Close sidebar when clicking menu item (all devices)
-  $(document).on("click", ".sidebar-menu-item", function() {
+  $(document).on("click", ".sidebar-menu-item", function () {
     $("#sidebar").removeClass("open");
     $("#sidebar-overlay").removeClass("show");
   });
 
   // Bind logout handler
   $(document).on("click", "#clearStorageModalYes, #sidebar-logout", function (e) {
-    if ($(this).attr('id') === 'sidebar-logout') {
+    if ($(this).attr("id") === "sidebar-logout") {
       e.preventDefault();
       return; // Let modal handle it
     }
