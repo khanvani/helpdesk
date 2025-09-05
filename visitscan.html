@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Visit Scan</title>
+    <link rel="stylesheet" href="style/lib/bootstrap.min.css?V=3.3" />
+    <link rel="stylesheet" href="resources/fontawesome-free-6.5.2-web/css/all.min.css?V=3.3" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="style/style.css?V=3.3" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <style>
+      .scan-container {
+        text-align: center;
+        padding: 50px 20px;
+      }
+      .scan-button {
+        font-size: 18px;
+        padding: 15px 30px;
+        margin: 20px;
+        border-radius: 10px;
+      }
+      #scanner-container {
+        max-width: 400px;
+        margin: 20px auto;
+      }
+      #scanner {
+        width: 100%;
+        border: 2px solid #007bff;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div class="sidebar-header">
+        <small>Welcome !</small>
+        <h5 id="sidebar-username">User</h5>
+      </div>
+      <div id="sidebar-menu" class="sidebar-menu">
+        <!-- Dynamic menu items will be inserted here -->
+      </div>
+      <div id="sidebar-actions" class="sidebar-actions">
+        <!-- Logout button will be inserted here -->
+      </div>
+    </div>
+
+    <!-- Sidebar Overlay for mobile -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Sidebar Toggle Button -->
+    <button id="sidebar-toggle">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <div id="header">
+      <div id="topMenu">
+        <div id="dynamic-menus"></div>
+        <a href="#" id="logoutTrigger" class="sidebar-item right" data-toggle="modal" data-target="#clearStorageModal">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="sidebar-text">Logout</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+      <div class="scan-container">
+        <h2><i class="fas fa-qrcode"></i> Visit Badge Scanner</h2>
+        <p class="text-muted">Scan visitor badges to mark them as delivered</p>
+
+        <button id="markDeliveredBtn" class="btn btn-success scan-button"><i class="fas fa-camera"></i> Mark Delivered</button>
+
+        <div id="scanner-container" style="display: none">
+          <video id="scanner" autoplay></video>
+          <button id="stopScanBtn" class="btn btn-secondary mt-3"><i class="fas fa-stop"></i> Stop Scanning</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barcode Result Modal -->
+    <div class="modal fade" id="barcodeModal" tabindex="-1" aria-labelledby="barcodeModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="barcodeModalLabel">Scanned Barcode</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="scannedBarcode">Barcode Number:</label>
+              <input type="text" id="scannedBarcode" class="form-control" readonly />
+            </div>
+            <div id="visitorInfo" style="display: none">
+              <h6>Visitor Information:</h6>
+              <p id="visitorDetails"></p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-success" id="confirmDeliveryBtn">Confirm Delivery</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="errorModalLabel">Message</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="errorModalBody"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="clearStorageModal" tabindex="-1" aria-labelledby="clearStorageModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="clearStorageModalLabel">Confirm Action</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">Are you sure you want to logout?</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <button type="button" class="btn btn-primary" id="clearStorageModalYes">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API Key Modal -->
+    <div class="modal fade" id="apiKeyModal" tabindex="-1" aria-labelledby="apiKeyModalLabel">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="apiKeyModalLabel">Enter Password</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="errorAPIKey" class="alert alert-danger" role="alert" style="display: none"></div>
+            <form id="apiKeyForm">
+              <div class="form-group">
+                <label for="apiKeyInput">Password:</label>
+                <input type="password" class="form-control" id="apiKeyInput" placeholder="Enter your password" required />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="submitApiKey">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="loader" style="display: none">
+      <div id="loadingIndicator">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <footer>
+      <p style="text-align: center">
+        &copy; 2024 Copyright by khanvani.github.io, Not authorised to fork or use without consent, All rights reserved. Last Updated:
+        <span id="apiLastUpdated">Loading...</span>
+      </p>
+    </footer>
+
+    <script src="script/lib/jquery-3.7.1.js?V=3.3"></script>
+    <script src="script/lib/bootstrap.min.js?V=3.3"></script>
+    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+    <script src="script/service/Constant.js"></script>
+    <script>
+      API_URLS.CURRENT_URL = API_URLS.VISIT_FETCH;
+    </script>
+    <script src="script/service/MenuService.js?V=4.0"></script>
+
+    <script>
+      class VisitScanService {
+        constructor() {
+          this.codeReader = new ZXing.BrowserMultiFormatReader();
+          this.scanning = false;
+          this.init();
+        }
+
+        init() {
+          $("#markDeliveredBtn").on("click", () => this.startScanning());
+          $("#stopScanBtn").on("click", () => this.stopScanning());
+          $("#confirmDeliveryBtn").on("click", () => this.confirmDelivery());
+        }
+
+        async startScanning() {
+          try {
+            $("#scanner-container").show();
+            $("#markDeliveredBtn").hide();
+            this.scanning = true;
+
+            const result = await this.codeReader.decodeOnceFromVideoDevice(undefined, "scanner");
+
+            if (result) {
+              this.stopScanning();
+              $("#scannedBarcode").val(result.text);
+              $("#barcodeModal").modal("show");
+            }
+          } catch (err) {
+            console.error("Scanning error:", err);
+            this.showMessage("Error", "Failed to access camera or scan barcode");
+            this.stopScanning();
+          }
+        }
+
+        stopScanning() {
+          this.codeReader.reset();
+          this.scanning = false;
+          $("#scanner-container").hide();
+          $("#markDeliveredBtn").show();
+        }
+
+        async confirmDelivery() {
+          const barcode = $("#scannedBarcode").val();
+          if (!barcode) return;
+
+          $("#loader").show();
+
+          try {
+            const response = await $.ajax({
+              url: "php/visit-scan-delivery.php",
+              type: "POST",
+              dataType: "json",
+              data: {
+                grNo: barcode,
+                api_key: localStorage.getItem("apiKey"),
+              },
+              crossDomain: true,
+            });
+
+            $("#loader").hide();
+            $("#barcodeModal").modal("hide");
+
+            if (response.success) {
+              this.showMessage("Success", `Badge for ${response.visitorName} (Gr No: ${response.grNo}) marked as delivered successfully!`);
+            } else {
+              this.showMessage("Error", response.error || "Failed to mark as delivered");
+            }
+          } catch (error) {
+            $("#loader").hide();
+            console.error("Delivery confirmation error:", error);
+
+            if (error.status === 401) {
+              localStorage.removeItem("apiKey");
+              $("#apiKeyModal").modal("show");
+            } else {
+              const errorMsg = error.responseJSON?.error || "Failed to mark as delivered";
+              this.showMessage("Error", errorMsg);
+            }
+          }
+        }
+
+        showMessage(title, message) {
+          $("#errorModalLabel").text(title);
+          $("#errorModalBody").html(message);
+          $("#errorModal").modal("show");
+        }
+      }
+
+      $(document).ready(function () {
+        window.visitScanService = new VisitScanService();
+
+        // API Key handling
+        const apiKey = localStorage.getItem("apiKey");
+        if (!apiKey) {
+          $("#apiKeyModal").modal("show");
+        }
+
+        $("#submitApiKey").on("click", function () {
+          const key = $("#apiKeyInput").val();
+          if (key) {
+            localStorage.setItem("apiKey", btoa(key));
+            $("#apiKeyModal").modal("hide");
+            window.location.reload();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
