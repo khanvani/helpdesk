@@ -18,6 +18,7 @@
         padding: 15px 30px;
         margin: 20px;
         border-radius: 10px;
+        min-width: 200px;
       }
       #scanner-container {
         max-width: 400px;
@@ -202,11 +203,11 @@
         }
 
         init() {
-          $("#markDeliveredBtn").on("click", () => this.startScanning('delivered'));
-          $("#markReadyBtn").on("click", () => this.startScanning('ready'));
+          $("#markDeliveredBtn").on("click", () => this.startScanning("delivered"));
+          $("#markReadyBtn").on("click", () => this.startScanning("ready"));
           $("#stopScanBtn").on("click", () => this.stopScanning());
-          $("#confirmDeliveryBtn").on("click", () => this.confirmAction('delivered'));
-          $("#confirmReadyBtn").on("click", () => this.confirmAction('ready'));
+          $("#confirmDeliveryBtn").on("click", () => this.confirmAction("delivered"));
+          $("#confirmReadyBtn").on("click", () => this.confirmAction("ready"));
         }
 
         async startScanning(actionType) {
@@ -222,6 +223,16 @@
             if (result) {
               this.stopScanning();
               $("#scannedBarcode").val(result.text);
+
+              // Show/hide buttons based on action type
+              if (actionType === "delivered") {
+                $("#confirmDeliveryBtn").show();
+                $("#confirmReadyBtn").hide();
+              } else {
+                $("#confirmReadyBtn").show();
+                $("#confirmDeliveryBtn").hide();
+              }
+
               $("#barcodeModal").modal("show");
             }
           } catch (err) {
@@ -245,12 +256,12 @@
 
           $("#loader").show();
 
-          const status = actionType === 'ready' ? 'Ready' : 'Delivered';
-          
+          const status = actionType === "ready" ? "Ready" : "Delivered";
+
           const requestData = {
             grNo: barcode,
             status: status,
-            api_key: localStorage.getItem("apiKey")
+            api_key: localStorage.getItem("apiKey"),
           };
 
           try {
@@ -266,8 +277,8 @@
             $("#barcodeModal").modal("hide");
 
             if (response.success) {
-              const actionText = actionType === 'ready' ? 'marked as ready' : 'marked as delivered';
-              this.showMessage("Success", `Badge for ${response.visitorName || 'visitor'} (Gr No: ${barcode}) ${actionText} successfully!`);
+              const actionText = actionType === "ready" ? "marked as ready" : "marked as delivered";
+              this.showMessage("Success", `Badge for ${response.visitorName || "visitor"} (Gr No: ${barcode}) ${actionText} successfully!`);
             } else {
               this.showMessage("Error", response.error || `Failed to mark as ${actionType}`);
             }
