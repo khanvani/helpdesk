@@ -27,6 +27,19 @@
         width: 100%;
         border: 2px solid #007bff;
         border-radius: 10px;
+        background: #000;
+      }
+      .scanning-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #007bff;
+        font-size: 16px;
+        background: rgba(255,255,255,0.9);
+        padding: 10px;
+        border-radius: 5px;
+        display: none;
       }
       .remarks-cell {
         white-space: pre-wrap;
@@ -91,9 +104,13 @@
 
         <button id="fetchDataBtn" class="btn btn-primary scan-button"><i class="fas fa-camera"></i> Fetch Data</button>
 
-        <div id="scanner-container" style="display: none">
+        <div id="scanner-container" style="display: none; position: relative">
           <video id="scanner" autoplay></video>
+          <div class="scanning-indicator" id="scanningIndicator">
+            <i class="fas fa-search"></i> Scanning for barcodes...
+          </div>
           <button id="stopScanBtn" class="btn btn-secondary mt-3"><i class="fas fa-stop"></i> Stop Scanning</button>
+          <p class="text-muted mt-2">Hold barcode steady in camera view. Scanner will automatically detect codes.</p>
         </div>
       </div>
     </div>
@@ -213,6 +230,8 @@
         constructor() {
           this.codeReader = new ZXing.BrowserMultiFormatReader();
           this.scanning = false;
+          this.scanAttempts = 0;
+          this.maxAttempts = 10;
           this.init();
         }
 
@@ -226,18 +245,52 @@
             $("#scanner-container").show();
             $("#fetchDataBtn").hide();
             this.scanning = true;
+            this.scanAttempts = 0;
 
-            const result = await this.codeReader.decodeOnceFromVideoDevice(undefined, "scanner");
-
-            if (result) {
-              this.stopScanning();
-              await this.fetchVisitorData(result.text);
-            }
+            // Start continuous scanning for better detection
+            this.startContinuousScanning();
           } catch (err) {
             console.error("Scanning error:", err);
             this.showMessage("Error", "Failed to access camera or scan barcode");
             this.stopScanning();
           }
+        }
+
+        async startContinuousScanning() {
+          try {
+            // Enhanced hints for better barcode detection
+            const hints = new Map();
+            hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+              ZXing.BarcodeFormat.CODE_128,
+              ZXing.BarcodeFormat.CODE_39,
+              ZXing.BarcodeFormat.EAN_13,
+              ZXing.BarcodeFormat.EAN_8,
+              ZXing.BarcodeFormat.QR_CODE
+            ]);
+            
+            this.codeReader.hints = hints;
+            
+            await this.codeReader.decodeFromVideoDevice(undefined, 'scanner', (result, err) => {
+              if (result && this.scanning) {
+                this.handleScanResult(result.text);
+              }
+              if (err && !(err instanceof ZXing.NotFoundException)) {
+                console.warn('Scan error:', err);
+              }
+            });
+          } catch (err) {
+            console.error("Continuous scanning error:", err);
+            this.showMessage("Error", "Failed to start camera scanning");
+            this.stopScanning();
+          }
+        }
+
+        async handleScanResult(barcodeText) {
+          if (!this.scanning) return;
+          
+          this.stopScanning();
+          await this.fetchVisitorData(barcodeText);
         }
 
         stopScanning() {
