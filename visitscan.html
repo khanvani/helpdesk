@@ -69,6 +69,7 @@
         <p class="text-muted">Scan visitor badges to mark them as delivered</p>
 
         <button id="markDeliveredBtn" class="btn btn-success scan-button"><i class="fas fa-camera"></i> Mark Delivered</button>
+        <button id="markReadyBtn" class="btn btn-warning scan-button"><i class="fas fa-camera"></i> Mark Ready</button>
 
         <div id="scanner-container" style="display: none">
           <video id="scanner" autoplay></video>
@@ -99,7 +100,8 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-success" id="confirmDeliveryBtn">Confirm Delivery</button>
+            <button type="button" class="btn btn-warning" id="confirmReadyBtn">Mark Ready</button>
+            <button type="button" class="btn btn-success" id="confirmDeliveryBtn">Mark Delivered</button>
           </div>
         </div>
       </div>
@@ -200,15 +202,19 @@
         }
 
         init() {
-          $("#markDeliveredBtn").on("click", () => this.startScanning());
+          $("#markDeliveredBtn").on("click", () => this.startScanning('delivered'));
+          $("#markReadyBtn").on("click", () => this.startScanning('ready'));
           $("#stopScanBtn").on("click", () => this.stopScanning());
-          $("#confirmDeliveryBtn").on("click", () => this.confirmDelivery());
+          $("#confirmDeliveryBtn").on("click", () => this.confirmAction('delivered'));
+          $("#confirmReadyBtn").on("click", () => this.confirmAction('ready'));
         }
 
-        async startScanning() {
+        async startScanning(actionType) {
           try {
+            this.currentAction = actionType;
             $("#scanner-container").show();
             $("#markDeliveredBtn").hide();
+            $("#markReadyBtn").hide();
             this.scanning = true;
 
             const result = await this.codeReader.decodeOnceFromVideoDevice(undefined, "scanner");
@@ -230,23 +236,29 @@
           this.scanning = false;
           $("#scanner-container").hide();
           $("#markDeliveredBtn").show();
+          $("#markReadyBtn").show();
         }
 
-        async confirmDelivery() {
+        async confirmAction(actionType) {
           const barcode = $("#scannedBarcode").val();
           if (!barcode) return;
 
           $("#loader").show();
+
+          const status = actionType === 'ready' ? 'Ready' : 'Delivered';
+          
+          const requestData = {
+            grNo: barcode,
+            status: status,
+            api_key: localStorage.getItem("apiKey")
+          };
 
           try {
             const response = await $.ajax({
               url: API_URLS.VISIT_SCAN,
               type: "POST",
               dataType: "json",
-              data: {
-                grNo: barcode,
-                api_key: localStorage.getItem("apiKey"),
-              },
+              data: requestData,
               crossDomain: true,
             });
 
@@ -254,19 +266,20 @@
             $("#barcodeModal").modal("hide");
 
             if (response.success) {
-              this.showMessage("Success", `Badge for ${response.visitorName} (Gr No: ${response.grNo}) marked as delivered successfully!`);
+              const actionText = actionType === 'ready' ? 'marked as ready' : 'marked as delivered';
+              this.showMessage("Success", `Badge for ${response.visitorName || 'visitor'} (Gr No: ${barcode}) ${actionText} successfully!`);
             } else {
-              this.showMessage("Error", response.error || "Failed to mark as delivered");
+              this.showMessage("Error", response.error || `Failed to mark as ${actionType}`);
             }
           } catch (error) {
             $("#loader").hide();
-            console.error("Delivery confirmation error:", error);
+            console.error(`${actionType} confirmation error:`, error);
 
             if (error.status === 401) {
               localStorage.removeItem("apiKey");
               $("#apiKeyModal").modal("show");
             } else {
-              const errorMsg = error.responseJSON?.error || "Failed to mark as delivered";
+              const errorMsg = error.responseJSON?.error || `Failed to mark as ${actionType}`;
               this.showMessage("Error", errorMsg);
             }
           }
