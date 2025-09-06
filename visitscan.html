@@ -239,10 +239,11 @@
             this.scanning = true;
 
             const config = {
-              fps: 120,
+              fps: 200,
               qrbox: { width: 250, height: 100 },
               aspectRatio: 1.0,
               disableFlip: false,
+              disableAutoFocus: true,
               experimentalFeatures: {
                 useBarCodeDetectorIfSupported: true,
               },

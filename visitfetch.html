@@ -36,7 +36,7 @@
         transform: translate(-50%, -50%);
         color: #007bff;
         font-size: 16px;
-        background: rgba(255,255,255,0.9);
+        background: rgba(255, 255, 255, 0.9);
         padding: 10px;
         border-radius: 5px;
         display: none;
@@ -242,13 +242,14 @@
             this.scanning = true;
 
             const config = {
-              fps: 60,
+              fps: 200,
               qrbox: { width: 250, height: 100 },
               aspectRatio: 1.0,
               disableFlip: false,
+              disableAutoFocus: true,
               experimentalFeatures: {
-                useBarCodeDetectorIfSupported: true
-              }
+                useBarCodeDetectorIfSupported: true,
+              },
             };
 
             await this.html5QrCode.start(
@@ -266,7 +267,7 @@
 
         handleScanResult(barcodeText) {
           if (!this.scanning) return;
-          
+
           this.stopScanning();
           this.fetchVisitorData(barcodeText);
         }
