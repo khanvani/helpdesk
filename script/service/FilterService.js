@@ -31,6 +31,7 @@ class FilterService {
     "Sub_Center",
     "Badge_Type",
     "Marital_Status",
+    "Updated_By",
   ];
 
   constructor(storageService) {
