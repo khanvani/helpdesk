@@ -291,9 +291,11 @@ class RequestsService {
       // Handle sewadar field requirement
       if (requestType === "New Enrollment Request" || requestType === "Others") {
         sewadarField.removeAttr("required");
+        sewadarField.removeClass("required");
         sewadarLabel.html("Sewadar Gr. No (Optional)");
       } else {
         sewadarField.attr("required", true);
+        sewadarField.addClass("required");
         sewadarLabel.html("Sewadar Gr. No (Required)");
       }
 
@@ -319,7 +321,8 @@ class RequestsService {
             infoMessage = "Please provide Date of Demise and any relevant documentation details";
             break;
           case "New Enrollment Request":
-            infoMessage = "Please provide complete personal information for new enrollment, Mobile Number & Name is mandatory";
+            infoMessage =
+              "Please provide complete personal information for new enrollment, Name,Mobile Number,Reference,Center is mandatory to be taken in the Details section";
             break;
           case "Others":
             infoMessage = "Please provide detailed description of your request";
