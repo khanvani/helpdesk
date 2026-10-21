@@ -17,9 +17,15 @@ class Controller {
     this.download = this.download.bind(this);
     this.pivotByMaleFemale = this.pivotByMaleFemale.bind(this);
     this.init = this.init.bind(this);
+    this.refreshQueryStudioTable = this.refreshQueryStudioTable.bind(this);
     this.attachEventListeners(this);
     this.submitApiKey = this.submitApiKey.bind(this);
     this.refreshTrigger = this.refreshTrigger.bind(this);
+
+    if (window.OFFLINE_MODE) {
+      window.queryStudioFilterEngine = new FilterEngine();
+      window.queryStudioUI = new QueryStudioUI(window.queryStudioFilterEngine, this.refreshQueryStudioTable);
+    }
   }
 
   attachEventListeners(event) {
@@ -29,26 +35,37 @@ class Controller {
       $("#inputExcel").change(this.uploadAndProcessFile);
       $("#fileNamesCombo").change(this.loadDataFromFiles);
       $("#sheetNamesCombo").change(this.loadDataFromSheet);
-      // Remove this line since MenuService handles logout now
       $("#sidebar-toggle-btn").click(this.toggleSidebar);
       $("#m-mf-pivot").click(this.pivotByMaleFemale);
-      $("#filterTrigger").click(this.filter);
-      $("#clearFilterTrigger").click(this.clearFilter);
       $("#downloadModalYes").click(this.download);
-      $("#submitApiKey").click(this.submitApiKey);
-      $("#refreshTrigger").click(this.refreshTrigger);
-      $("#apiKeyForm").on("keydown", function (e) {
-        if (e.key === "Enter" || e.keyCode === 13) {
-          e.preventDefault();
-          $("#submitApiKey").click();
-        }
-      });
+      if (window.OFFLINE_MODE) {
+        $("#clearStorageModalYes").click(this.clearStorageAndReload);
+      } else {
+        $("#filterTrigger").click(this.filter);
+        $("#clearFilterTrigger").click(this.clearFilter);
+        $("#submitApiKey").click(this.submitApiKey);
+        $("#refreshTrigger").click(this.refreshTrigger);
+        $("#apiKeyForm").on("keydown", function (e) {
+          if (e.key === "Enter" || e.keyCode === 13) {
+            e.preventDefault();
+            $("#submitApiKey").click();
+          }
+        });
+      }
     });
     this.excelService.reloadFiles();
     this.init(event);
   }
 
   init(event) {
+    if (window.OFFLINE_MODE) {
+      if (window.queryStudioUI) window.queryStudioUI.setStudioMode("empty");
+      window.updateQueryStudioSheetControl();
+      this.syncQueryStudioSheet();
+      this.loadHomePage();
+      return;
+    }
+
     const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
     if (!apiKey) {
       $("#apiKeyModal").modal("show");
@@ -59,16 +76,53 @@ class Controller {
     this.filterService.initFilters();
     this.downloadService.initFilters();
     this.fetchApiVersion();
-    /**
-    document.addEventListener('contextmenu', function (e) {
-      e.preventDefault();
-    });
+  }
 
-    document.addEventListener('keydown', function (e) {
-      if ((e.ctrlKey && e.shiftKey && e.key === 'I') || (e.key === 'F12')) {
-        e.preventDefault();
+  syncQueryStudioSheet() {
+    if (!window.queryStudioFilterEngine) return;
+    if (StorageService.currentRecord && Object.keys(StorageService.currentRecord).length) {
+      if (!StorageService.currentRecord.columns && StorageService.currentRecord.headers) {
+        StorageService.currentRecord.columns = ColumnSchemaService.inferColumns(
+          StorageService.currentRecord.headers,
+          StorageService.currentRecord.data || []
+        );
       }
-    });**/
+      window.queryStudioFilterEngine.setSheet(StorageService.currentRecord);
+      window.queryStudioFilterEngine.resetFilters(false);
+    } else {
+      window.queryStudioFilterEngine.setSheet({ data: [], columns: [], headers: [] });
+      window.queryStudioFilterEngine.resetFilters(false);
+    }
+  }
+
+  refreshQueryStudioTable(fullRebuild = true) {
+    if (!window.OFFLINE_MODE) return;
+    const hasSource = Boolean(window.queryStudioFilterEngine?.sourceData?.length || StorageService.currentRecord?.data?.length);
+    if (!hasSource) {
+      this.tableService.generateTable({ data: [], headers: [] });
+      if (window.queryStudioUI) window.queryStudioUI.setStudioMode("empty");
+      return;
+    }
+    if (fullRebuild === false && this.tableService.studioGrid) {
+      const rows = window.queryStudioFilterEngine.getViewRows();
+      this.tableService.studioGrid.setRows(rows);
+      $("#h-dataTable thead .qs-header-title-row th").each((_, th) => {
+        const key = $(th).attr("data-key");
+        const active = window.queryStudioFilterEngine
+          .getFilters()
+          .some((filter) => filter.column === key && window.queryStudioFilterEngine.isFilterActive(filter));
+        $(th).toggleClass("is-filtered", active);
+      });
+      if (window.queryStudioUI) {
+        window.queryStudioUI.setStudioMode("ready");
+        window.queryStudioUI.updateResultsBar();
+        window.queryStudioUI.renderFilterChips();
+        window.queryStudioUI.syncColumnFilterMarkers();
+        window.queryStudioUI.updateFilterBadge();
+      }
+      return;
+    }
+    this.tableService.generateTable(StorageService.currentRecord, { preservePaging: true });
   }
 
   fetchApiVersion() {
@@ -77,7 +131,7 @@ class Controller {
       type: "GET",
       dataType: "json",
       timeout: 5000,
-      crossDomain: true, // Enable CORS
+      crossDomain: true,
       success: (response) => {
         if (response && response.version) {
           const date = new Date(response.version);
@@ -104,7 +158,6 @@ class Controller {
 
   displayUsername(username) {
     if (username) {
-      // Use username from API response
       $("#loggedInUsername").removeClass("loading").addClass("success").text(username).removeClass("loaded");
       setTimeout(() => {
         $("#loggedInUsername").addClass("loaded");
@@ -127,6 +180,16 @@ class Controller {
     $(".custom-card").removeClass("show");
     $("#c-home").addClass("show");
 
+    if (window.OFFLINE_MODE) {
+      if (StorageService.currentFile && StorageService.currentRecord?.data?.length) {
+        this.refreshQueryStudioTable(true);
+      } else {
+        this.tableService.generateTable({ data: [], headers: [] });
+        if (window.queryStudioUI) window.queryStudioUI.setStudioMode("empty");
+      }
+      return;
+    }
+
     if (StorageService.currentFile) {
       this.tableService.generateTable(StorageService.currentRecord);
     } else {
@@ -135,6 +198,9 @@ class Controller {
   }
 
   refreshTrigger() {
+    if (window.OFFLINE_MODE) {
+      return;
+    }
     this.excelService
       .call()
       .then(() => {
@@ -157,9 +223,12 @@ class Controller {
   }
 
   submitApiKey() {
+    if (window.OFFLINE_MODE) {
+      return;
+    }
     const apiKey = $("#apiKeyInput").val();
     if (apiKey) {
-      localStorage.setItem(API_KEYS.CURRENT_API_KEY, btoa(apiKey)); // Store encoded API key
+      localStorage.setItem(API_KEYS.CURRENT_API_KEY, btoa(apiKey));
       $("#apiKeyModal").modal("hide");
       this.refreshTrigger();
       window.location.reload();
@@ -205,7 +274,7 @@ class Controller {
     StorageService.currentFile = $("#fileNamesCombo").val();
     $("#sheetNamesCombo").empty();
     const file = StorageService.currentData[StorageService.currentFile];
-    Object.keys(file).forEach((key, index) => {
+    Object.keys(file || {}).forEach((key) => {
       $("#sheetNamesCombo").append(
         $("<option>", {
           value: key,
@@ -213,16 +282,50 @@ class Controller {
         })
       );
     });
+    if (window.OFFLINE_MODE) window.updateQueryStudioSheetControl();
     $("#sheetNamesCombo").val($("#sheetNamesCombo option:first").val()).trigger("change");
-    this.init(event);
   }
   loadDataFromSheet(event) {
     StorageService.currentFile = $("#fileNamesCombo").val();
     StorageService.currentSheet = $("#sheetNamesCombo").val();
     StorageService.currentRecord = jQuery.extend(true, {}, StorageService.currentData[StorageService.currentFile][StorageService.currentSheet]);
+    if (window.OFFLINE_MODE) {
+      window.updateQueryStudioSheetControl();
+      this.syncQueryStudioSheet();
+      this.loadHomePage();
+      return;
+    }
     this.init(event);
   }
 }
+
+window.updateQueryStudioSheetControl = function updateQueryStudioSheetControl() {
+  const $control = $("#qsSheetControl");
+  if (!$control.length) return;
+  const file = StorageService.currentFile && StorageService.currentData ? StorageService.currentData[StorageService.currentFile] : null;
+  const sheetNames = file ? Object.keys(file) : [];
+  const sheetCount = sheetNames.length;
+  const hasSheets = sheetCount > 0 && $("#sheetNamesCombo option").length > 0 && $("#sheetNamesCombo option:first").val() !== "None";
+
+  if (!hasSheets) {
+    $control.prop("hidden", true).removeClass("is-visible is-single").find(".qs-sheet-chip").remove();
+    $control.find(".sidebar-text").show();
+    return;
+  }
+
+  $control.prop("hidden", false).addClass("is-visible");
+  $control.find(".qs-sheet-chip").remove();
+
+  if (sheetCount === 1) {
+    const name = sheetNames[0];
+    $control.addClass("is-single");
+    $control.find(".sidebar-text").hide();
+    $control.append(`<span class="qs-sheet-chip" title="Sheet">${name}</span>`);
+  } else {
+    $control.removeClass("is-single");
+    $control.find(".sidebar-text").show();
+  }
+};
 
 const storageService = new StorageService();
 const tableService = new TableService();

@@ -9,9 +9,14 @@ class ExcelService {
     this.call = this.call.bind(this);
     this.storeResponse = this.storeResponse.bind(this);
     this.processSheets = this.processSheets.bind(this);
+    this.detectHeaderRow = this.detectHeaderRow.bind(this);
+    this.cellToPlainText = this.cellToPlainText.bind(this);
   }
 
   async call() {
+    if (window.OFFLINE_MODE) {
+      return Promise.reject(new Error("Cloud sync is disabled in offline mode"));
+    }
     try {
       const apiKey = localStorage.getItem(API_KEYS.CURRENT_API_KEY);
       $("#loader").show();
@@ -44,24 +49,117 @@ class ExcelService {
     }
   }
 
+  cellToPlainText(value) {
+    if (value == null) return "";
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value).trim();
+    if (value instanceof Date) return value.toISOString();
+    if (typeof value === "object") {
+      if (value.text != null) return String(value.text).trim();
+      if (value.result != null) return this.cellToPlainText(value.result);
+      if (Array.isArray(value.richText)) return value.richText.map((part) => part.text || "").join("").trim();
+    }
+    return String(value).trim();
+  }
+
+  headerKey(value, fallbackIndex) {
+    const text = this.cellToPlainText(value);
+    const key = text.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    if (key) return key;
+    return typeof fallbackIndex === "number" ? `Column_${fallbackIndex}` : "";
+  }
+
+  detectHeaderRow(sheet) {
+    const rows = sheet.getSheetValues() || [];
+    const maxScan = Math.min(Math.max(rows.length - 1, 0), 25);
+    if (maxScan < 1) return 1;
+
+    let bestRow = 1;
+    let bestScore = -Infinity;
+
+    for (let r = 1; r <= maxScan; r++) {
+      const row = rows[r] || [];
+      const cells = [];
+      for (let c = 1; c < row.length; c++) {
+        cells.push(row[c]);
+      }
+      while (cells.length && this.cellToPlainText(cells[cells.length - 1]) === "") {
+        cells.pop();
+      }
+
+      const nonEmpty = cells.filter((value) => this.cellToPlainText(value) !== "");
+      if (nonEmpty.length < 2) continue;
+
+      let score = nonEmpty.length * 2;
+      let textLike = 0;
+      let numericLike = 0;
+
+      nonEmpty.forEach((value) => {
+        if (typeof value === "number" || value instanceof Date) {
+          numericLike++;
+          return;
+        }
+        const text = this.cellToPlainText(value);
+        if (text !== "" && !Number.isNaN(Number(text)) && text.length <= 12) {
+          numericLike++;
+        } else {
+          textLike++;
+        }
+      });
+
+      score += textLike * 3;
+      score -= numericLike * 2;
+
+      const labels = nonEmpty.map((value) => this.cellToPlainText(value).toLowerCase());
+      const unique = new Set(labels);
+      score += unique.size;
+      if (unique.size === labels.length) score += 5;
+
+      const excelRow = sheet.getRow(r);
+      let boldCount = 0;
+      excelRow.eachCell({ includeEmpty: false }, (cell) => {
+        if (cell.font?.bold) boldCount++;
+      });
+      score += boldCount * 2;
+
+      const next = rows[r + 1] || [];
+      const nextNonEmpty = [];
+      for (let c = 1; c < next.length; c++) {
+        if (this.cellToPlainText(next[c]) !== "") nextNonEmpty.push(next[c]);
+      }
+      if (nextNonEmpty.length >= Math.ceil(nonEmpty.length * 0.5)) score += 4;
+      if (nonEmpty.length <= 2 && nextNonEmpty.length > nonEmpty.length + 2) score -= 5;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestRow = r;
+      }
+    }
+
+    return bestRow;
+  }
+
   async uploadAndProcessFile(event) {
     let files = event.target.files;
-    let startingRow = parseInt(prompt("Enter the starting row number for the table (headers row):", "1"));
-    if (isNaN(startingRow) || startingRow < 1) return;
+    if (!files || files.length === 0) return;
 
-    for (let file of files) {
-      try {
-        const buffer = await file.arrayBuffer();
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.load(buffer);
+    $("#loader").show();
+    try {
+      for (let file of files) {
+        try {
+          const buffer = await file.arrayBuffer();
+          const workbook = new ExcelJS.Workbook();
+          await workbook.xlsx.load(buffer);
 
-        let sheets = this.processSheets(workbook, startingRow);
-        if (Object.keys(sheets).length > 0) {
-          this.storeProcessedData(file.name, sheets);
+          let sheets = this.processSheets(workbook);
+          if (Object.keys(sheets).length > 0) {
+            this.storeProcessedData(file.name, sheets);
+          }
+        } catch (err) {
+          alert("Error processing Excel file: " + file.name + " - " + err.message);
         }
-      } catch (err) {
-        alert("Error processing Excel file: " + file.name + " - " + err.message);
       }
+    } finally {
+      $("#loader").hide();
     }
   }
 
@@ -82,13 +180,20 @@ class ExcelService {
   processSheets(workbook, startingRow) {
     let sheets = {};
     workbook.eachSheet((sheet) => {
-      let data = this.getSheetData(sheet, startingRow);
+      const headerRow = startingRow || this.detectHeaderRow(sheet);
+      const headers = this.getHeaders(sheet, headerRow);
+      if (!headers.length) return;
+      const data = this.getSheetData(sheet, headerRow, headers);
       if (data.length > 0) {
-        sheets[sheet.name] = {
+        const sheetData = {
           data,
-          headers: this.getHeaders(sheet, startingRow),
-          format: this.getFormat(sheet, startingRow),
+          headers,
+          format: this.getFormat(sheet, headerRow),
         };
+        if (window.OFFLINE_MODE && typeof ColumnSchemaService !== "undefined") {
+          sheetData.columns = ColumnSchemaService.inferColumns(headers, data);
+        }
+        sheets[sheet.name] = sheetData;
       }
     });
     return sheets;
@@ -110,33 +215,42 @@ class ExcelService {
   normalizeSheet(sheet) {
     return {
       data: sheet.data.map((row) => {
-        const normalizedRow = Object.fromEntries(Object.entries(row).map(([key, value]) => [key.trim().replace(/[^a-zA-Z0-9]+/g, "_"), value]));
+        const normalizedRow = Object.fromEntries(
+          Object.entries(row).map(([key, value]) => [this.headerKey(key) || String(key), value])
+        );
         // Ensure _rowFormat exists for API data
         if (!normalizedRow._rowFormat) {
           normalizedRow._rowFormat = [];
         }
         return normalizedRow;
       }),
-      headers: sheet.headers.map((value) => ({
-        data: typeof value === "string" ? value.trim().replace(/[^a-zA-Z0-9]+/g, "_") : value,
-        title: value,
-      })),
+      headers: sheet.headers.map((value, index) => {
+        const title = this.cellToPlainText(value);
+        return {
+          data: this.headerKey(value, index + 1),
+          title: title || `Column ${index + 1}`,
+        };
+      }),
       format: [],
     };
   }
 
-  getSheetData(sheet, startingRow) {
+  getSheetData(sheet, startingRow, headerDefs = null) {
+    const headers = Array.isArray(headerDefs) && headerDefs.length ? headerDefs : this.getHeaders(sheet, startingRow);
     const jsonData = sheet.getSheetValues().slice(startingRow - 1);
-    const headers = sheet.getRow(startingRow).values.map((header) => (typeof header === "string" ? header.trim() : header));
+    const maxCol = headers.reduce((max, header) => Math.max(max, Number(header.colNumber) || 0), 0);
 
     return jsonData.slice(2).map((row, rowIndex) => {
-      const rowData = headers.reduce((obj, header, index) => {
-        obj[header.replace(/\s+/g, "_")] = row[index] || "";
-        return obj;
-      }, {});
+      const rowData = {};
+      headers.forEach((header) => {
+        const index = Number(header.colNumber) || 0;
+        if (!header.data || !index) return;
+        const cell = row?.[index];
+        rowData[header.data] = cell == null || cell === "" ? "" : cell;
+      });
 
       // Add row formatting information
-      rowData._rowFormat = this.getRowFormat(sheet, startingRow + 1 + rowIndex, headers.length);
+      rowData._rowFormat = this.getRowFormat(sheet, startingRow + 1 + rowIndex, maxCol);
 
       return rowData;
     });
@@ -200,17 +314,23 @@ class ExcelService {
   getHeaders(sheet, startingRow) {
     const row = sheet.getRow(startingRow);
     const headers = [];
+    const usedKeys = new Set();
     row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-      const value = cell.value;
+      const title = this.cellToPlainText(cell.value);
+      if (!title) return;
+      let data = this.headerKey(cell.value, colNumber);
+      if (usedKeys.has(data)) data = `${data}_${colNumber}`;
+      usedKeys.add(data);
       headers.push({
-        data: typeof value === "string" ? value.trim().replace(/\s+/g, "_") : value,
-        title: value,
+        data,
+        title,
+        colNumber,
         width: sheet.getColumn(colNumber).width,
         // Get the header cell color if available; returns ARGB value or null
         color: cell.fill && cell.fill.fgColor ? cell.fill.fgColor.argb : null,
       });
     });
-    return headers.filter((header) => header.title);
+    return headers;
   }
 
   getFormat(sheet, startingRow) {
@@ -223,6 +343,9 @@ class ExcelService {
       $("#fileNamesCombo, #sheetNamesCombo").empty();
       Object.keys(StorageService.currentData).forEach((key) => $("#fileNamesCombo").append(new Option(key, key)));
       Object.keys(StorageService.currentData[StorageService.currentFile]).forEach((key) => $("#sheetNamesCombo").append(new Option(key, key)));
+    }
+    if (window.OFFLINE_MODE && typeof window.updateQueryStudioSheetControl === "function") {
+      window.updateQueryStudioSheetControl();
     }
   }
 }

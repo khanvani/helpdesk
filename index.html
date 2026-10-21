@@ -1,44 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Query Studio</title>
+    <link rel="stylesheet" href="style/lib/bootstrap.min.css?V=3.9" />
+    <link rel="stylesheet" href="script/lib/dataTables.dataTables.css?V=3.9">
+    <link rel="stylesheet" href="script/lib/responsive.dataTables.css?V=3.9">
+    <link rel="stylesheet" href="resources/fontawesome-free-6.5.2-web/css/all.min.css?V=3.9" />
+    <link rel="stylesheet" href="style/lib/jquery-ui.css?V=3.9" />
+    <link rel="stylesheet" href="style/lib/searchPanes.dataTables.css?V=3.9" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style/style.css?V=3.9" />
+    <link rel="stylesheet" href="style/query-studio.css?V=3.17" />
+    <link href="style/lib/bootstrap-select.css?V=3.9" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
+  <body class="qs-app">
+    <div id="header">
+      <div id="topMenu">
+        <div id="dynamic-menus">
+          <div class="qs-brand">
+            <div class="qs-brand-mark" aria-hidden="true"><i class="fas fa-table-cells"></i></div>
+            <div>
+              <span id="current-menu">Query Studio</span>
+              <span class="qs-brand-sub">Offline Excel explorer</span>
+            </div>
+          </div>
+        </div>
+        <div class="qs-toolbar-actions">
+          <div class="sidebar-item qs-sheet-item" id="qsSheetControl" hidden>
+            <i class="fas fa-layer-group"></i>
+            <span class="sidebar-text display-sidebar-text">
+              <div class="form-group header-dropdown">
+                <select id="sheetNamesCombo" class="form-control" aria-label="Sheet">
+                  <option value="None">Sheet</option>
+                </select>
+              </div>
+            </span>
+          </div>
+          <a href="#" id="filterIcon" class="sidebar-item qs-filter-trigger" title="Filters">
+            <i class="fas fa-filter"></i>
+            <span class="sidebar-text">Filter</span>
+            <span id="filterBadge" class="qs-badge"></span>
+          </a>
+          <a href="#" id="configureTrigger" class="sidebar-item" title="Column types">
+            <i class="fas fa-sliders"></i>
+            <span class="sidebar-text">Configure</span>
+          </a>
+          <a href="#" id="clearStorageTrigger" class="sidebar-item qs-btn-danger" data-toggle="modal" data-target="#clearStorageModal" title="Clear workbook data">
+            <i class="fas fa-trash-alt"></i>
+            <span class="sidebar-text">Clear data</span>
+          </a>
+          <a href="#" id="uploadTrigger" class="sidebar-item qs-btn-primary" title="Upload Excel">
+            <i class="fas fa-upload"></i>
+            <span class="sidebar-text">Upload</span>
+          </a>
+        </div>
+        <div style="display: none;">
+          <select id="fileNamesCombo" class="form-control">
+            <option value="None">None</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
-    <!-- Auto Redirect after 5 seconds -->
-    <meta http-equiv="refresh" content="5;url=https://sewa.rssba.online/login">
+    <div class="container-fluid">
+      <div id="c-home" class="custom-card">
+        <div class="qs-empty">
+          <div class="qs-empty-icon"><i class="fas fa-file-excel"></i></div>
+          <h1>Start with a spreadsheet</h1>
+          <p>Upload an Excel file to explore rows with smart column types and a filter panel. Open Filter, enter conditions, then Apply.</p>
+          <a href="#" class="qs-empty-cta" id="emptyUploadTrigger"><i class="fas fa-upload"></i> Upload Excel</a>
+          <div class="qs-empty-hints">
+            <span class="qs-empty-hint">Auto-detects column types</span>
+            <span class="qs-empty-hint">Filter + Apply</span>
+            <span class="qs-empty-hint">Works offline</span>
+          </div>
+        </div>
+      </div>
+      <div id="c-mf-pivot" class="custom-card"></div>
+    </div>
+
+    <div id="fileUploadDialog" title="Upload Excel File" style="display: none">
+      <input type="file" id="inputExcel" accept=".xlsx, .xls" multiple />
+    </div>
+
+    <!-- Filter drawer -->
+    <div id="qsFilterBackdrop" class="qs-backdrop" aria-hidden="true"></div>
+    <aside id="qsFilterDrawer" class="qs-drawer" aria-label="Filters">
+      <div class="qs-drawer-header">
+        <div>
+          <h2><i class="fas fa-filter"></i> Filters</h2>
+          <span class="qs-drawer-kicker">Narrow rows with conditions by column type</span>
+        </div>
+        <button type="button" class="qs-drawer-close" id="qsFilterDrawerClose" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="qs-drawer-toolbar">
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="qsFilterAdd"><i class="fas fa-plus"></i> Add filter</button>
+      </div>
+      <div id="qsFilterDrawerBody" class="qs-drawer-body"></div>
+      <div class="qs-drawer-footer">
+        <button type="button" class="btn btn-secondary" id="qsFilterReset">Reset</button>
+        <button type="button" class="btn btn-primary" id="qsFilterApply">Apply filters</button>
+      </div>
+    </aside>
+
+    <!-- Configure drawer -->
+    <div id="qsConfigureBackdrop" class="qs-backdrop" aria-hidden="true"></div>
+    <aside id="qsConfigureDrawer" class="qs-drawer" aria-label="Configure columns">
+      <div class="qs-drawer-header">
+        <div>
+          <h2><i class="fas fa-sliders"></i> Configure columns</h2>
+          <span class="qs-drawer-kicker">Data types control filter controls and operators</span>
+        </div>
+        <button type="button" class="qs-drawer-close" id="qsConfigureDrawerClose" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="qsConfigureDrawerBody" class="qs-drawer-body"></div>
+      <div class="qs-drawer-footer">
+        <button type="button" class="btn btn-secondary" id="qsConfigureDrawerCloseFooter">Cancel</button>
+        <button type="button" class="btn btn-primary" id="qsConfigureSave">Save</button>
+      </div>
+    </aside>
+
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="noDataModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="errorModalLabel">No Data Available</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="errorModalBody">Please click on the upload <i class="fas fa-upload"></i> button to load the data.</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="clearStorageModal" tabindex="-1" aria-labelledby="clearStorageModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="clearStorageModalLabel">Confirm Action</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">Are you sure you want to clear the uploaded data?</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+            <button type="button" class="btn btn-primary" id="clearStorageModalYes">Yes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="downloadModalLabel">Confirm Action</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p class="mt-3">
+              <div class="form-group header-dropdown">
+                <label for="titleValue" class="form-label">Name of the Title :</label>
+                <input id="titleValue" value="Attendance of Sewadars" placeholder="Attenence of Department : {groupbyName}" class="form-control" required/><br>
+                <label for="fileNameValue" class="form-label">Name of the File :</label>
+                <input id="fileNameValue" value="" placeholder="FileName-{groupbyName}-{date}.xlsx" class="form-control" required/>
+              </div>
+            </p>
+            <p class="mt-3" id="downloadTypeContainer"></p>
+            <p class="mt-3" id="selectColumnContainer"></p>
+            <p class="mt-3" id="parentFolderContainer"></p>
+            <p class="mt-3">Are you sure you want to download all the files ?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="downloadModalYes">Export</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="loader" style="display: none;">
+      <div id="loadingIndicator">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <footer>
+      <p style="text-align:center;">&copy; 2024 Copyright by khanvani.github.io, Not authorised to fork or use without consent, All rights reserved.</p>
+    </footer>
 
     <script>
-        // JavaScript redirect backup
-        setTimeout(function() {
-            window.location.href = "https://sewa.rssba.online/login";
-        }, 5000);
+      window.OFFLINE_MODE = true;
     </script>
-
-    <style>
-        body{
-            font-family: Arial, sans-serif;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            height:100vh;
-            margin:0;
-            background:#f5f5f5;
-        }
-        .box{
-            text-align:center;
-            background:#fff;
-            padding:30px;
-            border-radius:10px;
-            box-shadow:0 5px 15px rgba(0,0,0,0.1);
-        }
-    </style>
-</head>
-<body>
-    <div class="box">
-        <h2>Redirecting...</h2>
-        <p>You will be redirected in 5 seconds.</p>
-        <p>If not, <a href="https://sewa.rssba.online/login">click here</a>.</p>
-    </div>
-</body>
+    <script src="script/lib/jquery-3.7.1.js?V=3.9"></script>
+    <script src="script/lib/popper.min.js?V=3.9"></script>
+    <script src="script/lib/exceljs.min.js?V=3.9"></script>
+    <script src="script/lib/bootstrap.min.js?V=3.9"></script>
+    <script src="script/lib/jquery-ui.js?V=3.9"></script>
+    <script src="script/lib/searchPanes.dataTables.js?V=3.9"></script>
+    <script src="script/lib/dataTables.js?V=3.9"></script>
+    <script src="script/lib/dataTables.responsive.js?V=3.9"></script>
+    <script src="script/lib/responsive.dataTables.js?V=3.9"></script>
+    <script src="script/lib/dataTables.buttons.js?V=3.9"></script>
+    <script src="script/lib/buttons.dataTables.js?V=3.9"></script>
+    <script src="script/lib/jszip.min.js?V=3.9"></script>
+    <script src="script/lib/pdfmake.min.js?V=3.9"></script>
+    <script src="script/lib/vfs_fonts.js?V=3.9"></script>
+    <script src="script/lib/buttons.html5.min.js?V=3.9"></script>
+    <script src="script/lib/buttons.print.min.js?V=3.9"></script>
+    <script src="script/service/OfflineConstant.js?V=3.9"></script>
+    <script>
+      localStorage.removeItem("currentData");
+    </script>
+    <script src="script/lib/FileSaver.min.js?V=3.9"></script>
+    <script src="script/lib/bootstrap-select.min.js?V=3.9"></script>
+    <script src="script/service/ColumnSchemaService.js?V=3.9"></script>
+    <script src="script/service/FilterEngine.js?V=3.14"></script>
+    <script src="script/service/QueryStudioUI.js?V=3.18"></script>
+    <script src="script/service/ExcelService.js?V=3.18"></script>
+    <script src="script/service/StorageService.js?V=3.9"></script>
+    <script src="script/service/TableService.js?V=3.18"></script>
+    <script src="script/service/FilterService.js?V=3.9"></script>
+    <script src="script/service/DownloadService.js?V=3.9"></script>
+    <script src="script/service/PivotService.js?V=3.9"></script>
+    <script src="script/Controller.js?V=3.16"></script>
+    <script>
+      $(document).on("click", "#qsConfigureDrawerCloseFooter", function () {
+        if (window.queryStudioUI) window.queryStudioUI.closeDrawers();
+      });
+      $(document).on("click", "#emptyUploadTrigger", function (e) {
+        e.preventDefault();
+        $("#inputExcel").trigger("click");
+      });
+    </script>
+  </body>
 </html>
